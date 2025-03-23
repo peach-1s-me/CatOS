@@ -42,17 +42,17 @@
 - [上手指南](#上手指南)
   - [开发前的配置要求](#开发前的配置要求)
   - [开发环境搭建](#开发环境搭建)
-      - [cmake](#安装 cmake)
-      - [makefile](#安装 makefile)
-      - [arm-none-eabi-gcc](#安装 arm-none-eabi-gcc)
-      - [openocd](#安装 openocd)
-      - [stm32cubemx](#安装 stm32cubemx(可选))
+      - [cmake](#安装cmake)
+      - [makefile](#安装makefile)
+      - [arm-none-eabi-gcc](#安装arm-none-eabi-gcc)
+      - [openocd](#安装openocd)
+      - [stm32cubemx](#安装stm32cubemx)
   - [开发步骤](#开发步骤)
-    - [1. 创建项目](#1. 创建项目)
-    - [2. 添加代码](#2. 添加代码)
-      - [2.1 使用 cubemx 添加代码 (stm32推荐)](#2.1 使用 cubemx 添加代码 (stm32推荐))
-      - [2.2 自行添加代码](#2.2 自行添加代码)
-    - [3. 编译调试](#3. 编译调试)
+    - [1. 创建项目](#1_create_project)
+    - [2. 添加代码](#2_add_code)
+      - [使用 cubemx 添加代码 (stm32推荐)](#2_1_add_with_cube)
+      - [自行添加代码](#2_2_add_with_diy)
+    - [3. 编译调试](#3_compile_and_debug)
 - [开发的架构](#开发的架构)
 - [部署](#部署)
 - [使用到的框架](#使用到的框架)
@@ -107,13 +107,13 @@ catOS
 
 note：貌似[xPack Binary Development Tools](https://github.com/xpack-dev-tools)这里有 cmake，arm-none-eabi-gcc 和 openocd，感兴趣可以试试，本项目目前只用过他的 openocd。
 
-1. ##### 安装 cmake
+1. ##### 安装cmake
 
 跨平台的构建工具，解决了仅使用 makefile 时构建脚本不同系统或平台不能通用的问题。
 
 下载地址[Download CMake](https://cmake.org/download/)，选择合适的版本，win10选择最新的 Windows x64 Installer 即可。安装时可以顺便勾选添加到环境变量 (不知道选哪个就选 for all users)。
 
-2. ##### 安装 makefile
+2. ##### 安装makefile
 
 传奇构建工具，每个 c 开发者都应该了解和使用过他。
 
@@ -121,7 +121,7 @@ note：貌似[xPack Binary Development Tools](https://github.com/xpack-dev-tools
 
 ![image-20250323110807568](README.assets/image-20250323110807568.png)
 
-3. ##### 安装 arm-none-eabi-gcc
+3. ##### 安装arm-none-eabi-gcc
 
 ARM公司使用 gcc 定制的开源工具套件，用于32位 arm 处理器嵌入式软件开发。
 
@@ -129,13 +129,13 @@ ARM公司使用 gcc 定制的开源工具套件，用于32位 arm 处理器嵌�
 
 ![image-20250323111505278](README.assets/image-20250323111505278.png)
 
-4. ##### 安装 openocd
+4. ##### 安装openocd
 
 一个超牛超方便的开源片上调试软件，可以结合 gdb 等工具进行嵌入式软件下载和调试。
 
 下载地址[Releases · xpack-dev-tools/openocd-xpack](https://github.com/xpack-dev-tools/openocd-xpack/releases)下载 darwin-x64 就行，这里用的 0.12.0-3，日常下载解压后加入环境变量。
 
-5. ##### 安装 stm32cubemx(可选)
+5. ##### 安装stm32cubemx
 
 ST公司为他们的 stm32 系列 mcu 推出的图形化配置工具，可以方便地对芯片进行初始化配置，并生成相应的代码，用户只需要考虑应用逻辑而无需过多纠结于初始化。
 
@@ -145,7 +145,7 @@ ST公司为他们的 stm32 系列 mcu 推出的图形化配置工具，可以方
 
 #### **开发步骤**
 
-##### 1. 创建项目
+##### 1. 创建项目<a id="1_create_project"></a>
 
 1.1 克隆catOS代码仓库
 
@@ -155,13 +155,13 @@ git clone https://github.com/peach-1s-me/CatOS.git
 
 1.2 在catOS/projects目录下复制project_template并重命名作为项目目录(以blink为例)
 
-##### 2. 添加代码
+##### 2. 添加代码<a id="2_add_code"></a>
 
 可以选择一种方式添加代码，如果使用的是stm32系列芯片可以选择 2.1 中的方式添加，比较方便，如果是其他芯片或想要挑战自己也可以选择 2.2 的方式，这种方式比较自由，但需要自己全权负责。
 
 项目目录下已经有以下两种添加代码的方式的实例，分别为 blink_with_cube 和 blink_with_reg，可以直接跳到 3. 编译调试，并对这两个项目编译运行。
 
-###### 2.1 使用 cubemx 添加代码 (stm32推荐)
+###### 2.1 使用 cubemx 添加代码 (stm32推荐)<a id="2_1_add_with_cube"></a>
 
 2.1.1 将 catOS/include/catos_config_template.h 复制到 blink/include 下并改名为catos_config.h，该文件为操作系统配置文件，可以对系统参数和功能进行配置。
 
@@ -429,7 +429,7 @@ static void blink_task_entry(void *arg)
 
 
 
-###### 2.2 自行添加代码
+###### 2.2 自行添加代码<a id="2_2_add_with_diy"></a>
 
 2.2.1 将 catOS/include/catos_config_template.h 复制到 blink/include 下并改名为catos_config.h，该文件为操作系统配置文件，可以对系统参数和功能进行配置。
 
@@ -584,7 +584,7 @@ void SysTick_Handler(void)
 }
 ```
 
-##### 3. 编译调试
+##### 3. 编译调试<a id="3_compile_and_debug"></a>
 
 3.1 cmake构建配置
 
