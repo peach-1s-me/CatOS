@@ -1,0 +1,22 @@
+{
+    "files.associations": {
+        "*.md": "markdown",
+        "*.h": "c",
+        "*.c": "c",
+        "algorithm": "c",
+        "iterator": "c",
+        "xhash": "c",
+        "xtree": "c",
+        "xutility": "c",
+        "future": "c",
+        "mutex": "c",
+        "list": "c",
+        "memory": "c",
+        "array": "c",
+        "span": "c",
+        "vector": "c",
+        "xstring": "c",
+        "atomic": "c"
+    },
+    "cortex-debug.variableUseNaturalFormat": false
+}

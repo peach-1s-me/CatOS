@@ -1,0 +1,1 @@
+  -L"E:/code/catos_v3/workspace/0-9-old-simpleRTOS/simpleRTOS/test/../../../../../googletest-1.16.0/build/lib"  -lgtest -lgtest_main -lgmock -lgmock_main -lpthread -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 
