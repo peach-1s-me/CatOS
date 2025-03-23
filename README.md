@@ -47,6 +47,7 @@
       - [arm-none-eabi-gcc](#安装arm-none-eabi-gcc)
       - [openocd](#安装openocd)
       - [stm32cubemx](#安装stm32cubemx)
+      - [MobaXterm](#安装MobaXterm)
   - [开发步骤](#开发步骤)
     - [1. 创建项目](#1_create_project)
     - [2. 添加代码](#2_add_code)
@@ -143,6 +144,12 @@ ST公司为他们的 stm32 系列 mcu 推出的图形化配置工具，可以方
 
 ![image-20250323112557167](README.assets/image-20250323112557167.png)
 
+6. ##### 安装MobaXterm
+
+一个很好用的远程终端工具，包含 ssh、vnc 等功能，这里主要使用的是串口终端，也可以使用 putty 等终端工具。
+
+下载地址[MobaXterm Xserver with SSH, telnet, RDP, VNC and X11 - Download](https://mobaxterm.mobatek.net/download.html)，下载免费版即可。
+
 #### **开发步骤**
 
 ##### 1. 创建项目<a id="1_create_project"></a>
@@ -159,7 +166,7 @@ git clone https://github.com/peach-1s-me/CatOS.git
 
 可以选择一种方式添加代码，如果使用的是stm32系列芯片可以选择 2.1 中的方式添加，比较方便，如果是其他芯片或想要挑战自己也可以选择 2.2 的方式，这种方式比较自由，但需要自己全权负责。
 
-项目目录下已经有以下两种添加代码的方式的实例，分别为 blink_with_cube 和 blink_with_reg，可以直接跳到 3. 编译调试，并对这两个项目编译运行。
+项目目录下已经有以下两种添加代码的方式的实例，分别为 blink_with_cube 和 blink_with_reg，可以直接跳到 [3. 编译调试](#3_compile_and_debug)，并对这两个项目编译运行。
 
 ###### 2.1 使用 cubemx 添加代码 (stm32推荐)<a id="2_1_add_with_cube"></a>
 
@@ -629,14 +636,25 @@ target_sources(user_project INTERFACE
 
 2.2.6 烧写和调试
 
+启动串口终端程序并打开串口(MobaXterm可以看后一节[使用 MobaXterm 调试串口](#_use_mobaxterm))
+
 编译的可执行文件位于 output/blink/blink.elf
 
-烧写到开发板：
+烧写到开发板，同时会对开发板进行 reset 操作：
 ```bat
 ./scripts/flash.bat blink
 ```
 
-同时会对开发板进行 reset 操作，如果需要调试，则先启动 openocd：
+此时串口终端应该出现输出:
+
+![image-20250323123821008](README.assets/image-20250323123821008.png)
+
+输入`meoo`命令查看猫猫 (
+
+![image-20250323124101505](README.assets/image-20250323124101505.png)
+
+如果需要调试，则先启动 openocd：
+
 ```bat
 ./scripts/ocd_start.bat
 ```
@@ -675,6 +693,11 @@ target_sources(user_project INTERFACE
 
 ![image-20250321145614077](README.assets/image-20250321145614077.png)
 
+##### 附 使用 MobaXterm 调试串口<a id="_use_mobaxterm"></a>
+
+启动 MobaXterm 后点击 Session->Serial，选择对应的串口号和比特率
+
+![image-20250323123304966](README.assets/image-20250323123304966.png)
 
 ### 开发的架构 
 
