@@ -64,6 +64,115 @@ void cat_bitmap_clr(cat_bitmap *bitmap, cat_u32 pos);
  */
 cat_u32 cat_bitmap_get_first_set(cat_bitmap *bitmap);
 /* 位图 END */
+/* 差分链表 START */
+#define CAT_DLIST_INVAL 0xffffffff /* 差分链表节点初始值，非法 */
+/**
+ * @brief 差分链表节点
+ */
+typedef struct _cat_dnode_t
+{
+    cat_u32 value;
+    struct _cat_dnode_t *next;
+} cat_dnode_t;
+
+/**
+ * @brief 差分链表
+ */
+typedef struct _cat_dlist_t
+{
+    cat_dnode_t head;
+} cat_dlist_t;
+
+/**
+ * @brief 初始化差分链表
+ * 
+ * @param[in] dlist    差分链表指针
+ */
+static inline void cat_dlist_init(cat_dlist_t *dlist)
+{
+    dlist->head.value = CAT_DLIST_INVAL;
+    dlist->head.next = CAT_NULL;
+}
+
+/**
+ * @brief 差分链表节点初始化
+ * 
+ * @param[in] dnode    差分链表节点指针
+ */
+static inline void cat_dlist_node_init(cat_dnode_t *dnode)
+{
+    dnode->value = CAT_DLIST_INVAL;
+    dnode->next = CAT_NULL;
+}
+
+/**
+ * @brief 差分链表添加节点
+ * 
+ * @param[in] dlist    差分链表指针
+ * @param[in] dnode    节点指针
+ */
+static inline void cat_dlist_add(cat_dlist_t *dlist, cat_dnode_t *dnode)
+{
+    cat_dnode_t *cur = dlist->head.next, *pre = &(dlist->head);
+
+    while(CAT_NULL != cur)
+    {
+        if(dnode->value < cur->value)
+        {
+            /* 找到位置了，退出循环 */
+            cur->value -= dnode->value;
+            break;
+        }
+        else
+        {
+            /* 还没找到位置，遍历往后找 */
+            dnode->value -= cur->value;
+
+            /* 往后移动 */
+            pre = cur;
+            cur = cur->next;
+        }
+    }
+
+    /* 插入节点 */
+    pre->next  = dnode;
+    dnode->next = cur;
+}
+
+/**
+ * @brief 获取差分链表第一个节点(不取出)
+ * 
+ * @param[in] dlist    差分链表指针
+ * @return cat_dnode_t* 取出的节点指针
+ */
+static inline cat_dnode_t *cat_dlist_first(cat_dlist_t *dlist)
+{
+    return dlist->head.next;
+}
+
+/**
+ * @brief 取出差分链表第一个节点(最小的)
+ * 
+ * @param[in] dlist    差分链表指针
+ * @return cat_dnode_t* 取出的节点指针
+ */
+static inline cat_dnode_t *cat_dlist_pop(cat_dlist_t *dlist)
+{
+    cat_dnode_t *node = dlist->head.next;
+
+    /* 取出节点 */
+    dlist->head.next = node->next;
+    node->next = CAT_NULL;
+
+    if(node->value > 0)
+    {
+        /* 如果取出的节点值大于零, 则取出后的首节点还需要减去该值 */
+        dlist->head.next->value += node->value;
+    }
+
+    return node;
+}
+/* 差分链表 END */
 /* 链表 START */
 /**
  * ptr          成员指针
@@ -224,6 +333,7 @@ struct _cat_node_t *cat_list_remove_first(struct _cat_list_t *list);
  */
 void cat_list_insert_after(struct _cat_list_t *list, struct _cat_node_t *node_after, struct _cat_node_t *node_to_insert);
 /* 链表 END */
+/* 字符串相关 START */
 /**
  * @brief 比较字符串是否相同
  * @param str1 

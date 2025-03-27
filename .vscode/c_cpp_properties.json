@@ -3,11 +3,8 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/catOS/**",
-                "${workspaceFolder}/projects/demo/**",
-                "${workspaceFolder}/../lib/**",
-                "${workspaceFolder}/../../../googletest-1.16.0/**",
-                "${workspaceFolder}/../../../cpp-stub/**"
+                "${workspaceFolder}/catos/**",
+                "${workspaceFolder}/projects/blink_with_cube/**",
             ],
             "defines": [
                 "_DEBUG",

@@ -87,6 +87,9 @@ cat_u32 cat_bitmap_get_first_set(cat_bitmap *bitmap)
     }
 }
 /* 位图 END */
+/* 差分链表 START */
+
+/* 差分链表 END */
 /* 链表 START */
 
 void cat_list_init(struct _cat_list_t *list)
