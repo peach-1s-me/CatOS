@@ -54,6 +54,7 @@ static cat_u32 cat_ipc_wait_task_count(cat_ipc_t *ipc, ipc_wait_type_t wait_type
 /**
  * @brief 移除等待该ipc的特定任务(不处理剩下的delay)
  *
+ * @param  ipc              ipc指针
  * @param  task             任务指针
  * @param  msg              消息
  * @param  error            为等待的任务给错误代码
@@ -112,9 +113,10 @@ static void cat_ipc_init(cat_ipc_t *ipc, cat_ipc_type_t type)
  * @brief 任务等待ipc(不进行调度)
  *
  * @param  ipc              ipc指针
+ * @param  wait_type        等待类型
  * @param  task             任务指针
  * @param  type             ipc类型
- * @param  timeout          超时时间(ms)
+ * @param  timeout_ms       超时时间(ms)
  */
 static void cat_ipc_wait(
     cat_ipc_t *ipc,
@@ -180,6 +182,7 @@ static void cat_ipc_wait(
  *        不进行调度
  *
  * @param  ipc                 ipc指针
+ * @param  wait_type           等待类型
  * @param  msg                 ipc携带的消息
  * @param  error               错误代码
  * @return cat_task_t*         被唤醒任务的指针

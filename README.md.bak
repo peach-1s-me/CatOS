@@ -11,6 +11,7 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
 <!-- PROJECT LOGO -->
 <br />
@@ -23,10 +24,10 @@
   <p align="center">
     一个简单的嵌入式操作系统,超小!
     <br />
-    <a href="https://github.com/peach-1s-me/CatOS/tree/main/doc/doc.md"><strong>探索本项目的文档 »</strong></a>
+    <a href="https://github.com/peach-1s-me/CatOS/doc"><strong>探索本项目的文档 »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/peach-1s-me/CatOS/tree/main/projects">查看Demo</a>
+    <a href="https://github.com/peach-1s-me/CatOS/projects">查看Demo</a>
     ·
     <a href="https://github.com/peach-1s-me/CatOS/issues">报告Bug</a>
     ·
@@ -37,28 +38,30 @@
 
 ## 目录
 
-- [CatOS](#catos)
-  - [目录](#目录)
-    - [文件目录说明](#文件目录说明)
-    - [上手指南](#上手指南)
-      - [开发前的配置要求](#开发前的配置要求)
-      - [开发环境搭建](#开发环境搭建)
-      - [**开发步骤**](#开发步骤)
-        - [1. 创建项目](#1-创建项目)
-        - [2. 添加代码](#2-添加代码)
-          - [2.1 使用 cubemx 添加代码 (stm32推荐)](#21-使用-cubemx-添加代码-stm32推荐)
-          - [2.2 自行添加代码](#22-自行添加代码)
-        - [3. 编译调试](#3-编译调试)
-        - [附 使用 MobaXterm 调试串口](#附-使用-mobaxterm-调试串口)
-    - [开发的架构](#开发的架构)
-    - [部署](#部署)
-    - [使用到的框架](#使用到的框架)
-    - [贡献者](#贡献者)
-      - [如何参与开源项目](#如何参与开源项目)
-    - [版本控制](#版本控制)
-    - [作者](#作者)
-    - [版权说明](#版权说明)
-    - [鸣谢](#鸣谢)
+- [文件目录说明](#文件目录说明)
+- [上手指南](#上手指南)
+  - [开发前的配置要求](#开发前的配置要求)
+  - [开发环境搭建](#开发环境搭建)
+      - [cmake](#安装cmake)
+      - [makefile](#安装makefile)
+      - [arm-none-eabi-gcc](#安装arm-none-eabi-gcc)
+      - [openocd](#安装openocd)
+      - [stm32cubemx](#安装stm32cubemx)
+      - [MobaXterm](#安装MobaXterm)
+  - [开发步骤](#开发步骤)
+    - [1. 创建项目](#1_create_project)
+    - [2. 添加代码](#2_add_code)
+      - [使用 cubemx 添加代码 (stm32推荐)](#2_1_add_with_cube)
+      - [自行添加代码](#2_2_add_with_diy)
+    - [3. 编译调试](#3_compile_and_debug)
+- [开发的架构](#开发的架构)
+- [部署](#部署)
+- [使用到的框架](#使用到的框架)
+- [贡献者](#贡献者)
+  - [如何参与开源项目](#如何参与开源项目)
+- [版本控制](#版本控制)
+- [作者](#作者)
+- [鸣谢](#鸣谢)
 
 ### 文件目录说明
 
@@ -87,6 +90,8 @@ catOS
 ├─README.assets        readme图片
 └─scripts              编译调试用的脚本
 ```
+
+
 
 ### 上手指南
 
@@ -624,8 +629,6 @@ target_sources(user_project INTERFACE
 | gdb_start.bat | 启动gdb                   | gdb_start.bat [项目名] |
 | ocd_start.bat | 启动openocd               | ocd_start.bat [项目名] |
 
-**注意**：其中的 flash.bat 和 ocd_start.bat 要**根据自己的调试器进行配置**，使用openocd进行下载或调试的时候要指定两个配置文件 interface 和 target，分别描述使用的调试器和目标开发板，可选择的配置文件可以在 openocd 安装目录下的openocd/scripts/interface 和 openocd/scripts/target 中查看。
-
 构建blink：
 ```bat
 ./scripts/build.bat blink
@@ -661,7 +664,7 @@ target_sources(user_project INTERFACE
 ./scripts/gdb_start.bat
 ```
 
-也可以使用 vscode 的调试支持使用 openocd，更方便，在 vscode 中下载 [Cortex-Debug](https://marketplace.visualstudio.com/items?itemName=marus25.cortex-debug) 插件并在 lunch.json中创建配置：
+也可以使用 vscode 的调试支持使用 openocd，更方便，需要下载 [Cortex-Debug](https://marketplace.visualstudio.com/items?itemName=marus25.cortex-debug) 插件并在 lunch.json中创建配置：
 ```json
 "configurations": [
         {
@@ -739,7 +742,7 @@ qq:648137125
 
 ### 版权说明
 
-该项目签署了 Apache 授权许可，详情请参阅 [LICENSE](https://github.com/peach-1s-me/CatOS/blob/main/LICENSE)
+该项目签署了 Apache 授权许可，详情请参阅 [LICENSE.txt](https://github.com/peach-1s-me/CatOS/blob/master/LICENSE.txt)
 
 ### 鸣谢
 
@@ -762,4 +765,9 @@ qq:648137125
 [issues-shield]: https://img.shields.io/github/issues/peach-1s-me/CatOS.svg?style=flat-square
 [issues-url]: https://img.shields.io/github/issues/peach-1s-me/CatOS.svg
 [license-shield]: https://img.shields.io/github/license/peach-1s-me/CatOS.svg?style=flat-square
-[license-url]: https://github.com/peach-1s-me/CatOS/blob/main/LICENSE
+[license-url]: https://github.com/peach-1s-me/CatOS/blob/master/LICENSE.txt
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555
+[linkedin-url]: https://linkedin.com/in/shaojintian
+
+
+

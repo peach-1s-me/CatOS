@@ -490,7 +490,7 @@ void cat_task_set_delay_ticks(struct _cat_task_t *task, cat_ubase ticks)
  * @brief 设置任务等待的毫秒数(注意!当等待的时间小于一个系统时钟时会有阻塞等待)
  *
  * @param  task             任务指针
- * @param  ticks            要等待的毫秒数
+ * @param  ms               要等待的毫秒数
  */
 void cat_task_set_delay_ms(struct _cat_task_t *task, cat_ubase ms)
 {
@@ -509,7 +509,7 @@ void cat_task_set_delay_ms(struct _cat_task_t *task, cat_ubase ms)
 /**
  * @brief 当前任务等待
  *
- * @param time 需要等待的tick数
+ * @param ticks 需要等待的tick数
  */
 void cat_task_delay_ticks(cat_u32 ticks)
 {

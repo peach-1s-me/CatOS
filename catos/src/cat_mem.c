@@ -90,20 +90,10 @@ static cat_err _cat_mem_init(cat_ubase start_addr, cat_ubase bytes)
 
 /**
  * @brief 分配空间
- *
- * @param  p_mem_var        用户存储分配到的空间的变量地址
+ *   
+ * @param  bytes          申请的空间大小
+ * @return cat_err        用户存储分配到的空间的变量地址
  *         如果申请成功则该变量的值会不为空，否则为空
- * @param  bytes            申请的空间大小
- * @return cat_err        0：成功 else：失败
- *
- * 例子：
- *    cat_u32 *mem = CAT_NULL;
- *    cat_malloc(&mem, 64);
- *    if(CAT_NULL == mem)
- *    {
- *       分配失败
- *    }
- *
  */
 void *cat_malloc(cat_ubase bytes)
 {

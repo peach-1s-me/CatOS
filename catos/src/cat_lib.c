@@ -385,10 +385,10 @@ cat_i32 cat_itoa(cat_u8 *dest, cat_i32 src)
 }
 
 /**
- * @brief 十六进制转无符号十进制
+ * @brief 十六进制转有符号十进制
  * 
- * @param dest 
- * @param src 
+ * @param dest 目标buffer
+ * @param src  源字符串
  * @return cat_i32 
  */
 cat_i32 cat_htoi(cat_u32 *dest, const cat_u8 *src)
@@ -446,8 +446,8 @@ cat_i32 cat_htoi(cat_u32 *dest, const cat_u8 *src)
 /**
  * @brief 十进制转十六进制字符串
  * 
- * @param dest 
- * @param src 
+ * @param dest 目标buffer
+ * @param src  源字符串
  * @return cat_i32 
  * 
  * note: 先从低位到高位计算出字符串，再反转除 "0x" 的字符串

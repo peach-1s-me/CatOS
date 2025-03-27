@@ -1,5 +1,5 @@
 /**
- * @file catos_defs.h
+ * @file catos_types.h
  * @brief 
  * @author amoigus (648137125@qq.com)
  * @version 0.1

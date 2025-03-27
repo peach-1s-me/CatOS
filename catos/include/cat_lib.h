@@ -234,8 +234,9 @@ cat_i32 cat_strcmp(const cat_u8 *str1, const cat_u8 *str2);
 
 /**
  * @brief 字符串拷贝
- * @param dest 
- * @param src 
+ * @param dest     目标buffer
+ * @param src      源字符串
+ * @param dest_len 目标buffer长度
  * @return cat_i32 0:成功，else:失败
  */
 cat_i32 cat_strcpy(cat_u8 *dest, const cat_u8 *src, cat_u32 dest_len);
@@ -243,44 +244,28 @@ cat_i32 cat_strcpy(cat_u8 *dest, const cat_u8 *src, cat_u32 dest_len);
 /**
  * @brief 字符串长度
  * 
- * @param  src              My Param doc
+ * @param  src         源字符串
  * @return cat_u32     长度
  */
 cat_u32 cat_strlen(const cat_u8 *src);
 
 /**
  * @brief 字符串转有符号32
- * @param dest 
- * @param src 
+ * @param dest 目标buffer
+ * @param src  源字符串
  * @return cat_i32 0:成功，else:失败
  */
 cat_i32 cat_atoi(cat_i32 *dest, const cat_u8 *src);
 
 /**
  * @brief 有符号32转字符串
- * @param dest 
- * @param src 
+ * @param dest 目标buffer
+ * @param src  源字符串
  * @return cat_i32 0:成功，else:失败
  */
 cat_i32 cat_itoa(cat_u8 *dest, cat_i32 src);
 
-
-/**
- * @brief 十六进制转有符号十进制
- * 
- * @param dest 
- * @param src 
- * @return cat_i32 
- */
 cat_i32 cat_htoi(cat_u32 *dest, const cat_u8 *src);
-
-/**
- * @brief 十进制转十六进制字符串
- * 
- * @param dest 
- * @param src 
- * @return cat_i32 
- */
 cat_i32 cat_itoh(cat_u8 *dest, cat_u32 src);
 
 void *cat_memset(void *start_addr, cat_u8 fill_with, cat_u32 size);
