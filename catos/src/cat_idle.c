@@ -14,7 +14,8 @@
 
 #include "cat_idle.h"
 #include "cat_task.h"
-#include "cat_stdio.h"
+
+#include "cat_log.h"
 
 
 /* var decl */
@@ -43,10 +44,12 @@ void cat_idle_task_create(void)
     );
     cat_idle_task = &idle_task;
 
+#if (CATOS_STDIO_ENABLE == 1)
     if(cat_stdio_is_device_is_set())
     {
-        cat_kprintf("[cat_idle] idle task created\r\n");
+        CLOG_INFO("[cat_idle] idle task created\r\n");
     }
+#endif
 }
 
 void cat_idle_entry(void *arg)

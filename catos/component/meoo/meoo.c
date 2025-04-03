@@ -21,7 +21,7 @@
  */
 void meoo_init(void)
 {
-    cat_printf("[meoo] component meoo init\r\n");
+    CLOG_INFO("[meoo] component meoo init\r\n");
 }
 
 void *do_meoo(void *arg)

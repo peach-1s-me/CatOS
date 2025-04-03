@@ -23,12 +23,9 @@
 #include "catos_config.h"
 #include "catos_types.h"
 
-#define CAT_STDIO_NUM_STR_BUF_SIZE    64
-
-#define CATOS_STDIO_ENABLE 1
 #if (CATOS_STDIO_ENABLE == 1)
 
-#if (CATOS_ENABLE_DEVICE_MODEL == 1)
+#if (CATOS_DEVICE_MODEL_ENABLE == 1)
 /**
  * @brief 设置stdio输入输出设备
  * 
@@ -65,16 +62,5 @@ cat_i32 cat_kprintf(const char *format, ...);
 #define cat_kprintf(fmt, ...)
 
 #endif /* #define CATOS_STDIO_ENABLE 1 */
-
-#define CAT_ASSERT(_expr) \
-    do{ \
-        if(!(_expr)) \
-        { \
-            cat_printf("%s:%d %s assert failed !\r\n", __FILE__, __LINE__, #_expr); \
-            while(1); \
-        } \
-    }while(0)
-
-#define CAT_FALTAL_ERROR(_msg)
 
 #endif /* #define CAT_STDIO_H */

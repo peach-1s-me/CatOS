@@ -13,17 +13,15 @@
 #include "cat_device.h"
 #include "cat_lib.h"
 #include "cat_intr.h"
+#include "cat_assert.h"
 
 #include "port.h"
 
-#if (CATOS_ENABLE_DEVICE_MODEL == 1)
+#if (CATOS_DEVICE_MODEL_ENABLE == 1)
 
 /* PUBLIC VAR START */
 struct _cat_list_t cat_device_list;
 /* PUBLIC VAR END */
-#ifdef TEST
-cat_u32 id_table[8];
-#else
 /* STATIC VAT START */
 static cat_u32 id_table[8];
 /* STATIC VAT END */
@@ -455,7 +453,7 @@ cat_u8 cat_device_ctrl(cat_device_t *dev, cat_u8 cmd, void *arg)
 }
 /* PUBLIC FUNCS DEF END */
 
-#if (CATOS_ENABLE_CAT_SHELL == 1)
+#if (CATOS_CAT_SHELL_ENABLE == 1)
 #include "cat_shell.h"
 #include "cat_stdio.h"
 void *do_list_device(void *arg)
@@ -486,6 +484,4 @@ void *do_list_device(void *arg)
     return CAT_NULL;
 }
 CAT_DECLARE_CMD(list_device, list devices, do_list_device);
-#endif
-
-#endif
+#endif /* #if (CATOS_CAT_SHELL_ENABLE == 1) */

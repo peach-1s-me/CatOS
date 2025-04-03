@@ -14,9 +14,11 @@
 
 #include "cat_shell.h"
 
-#include "cat_task.h"
-#include "cat_stdio.h"
 #include "cat_lib.h"
+#include "cat_log.h"
+#include "cat_task.h"
+
+#include "cat_assert.h"
 
 IMPORT_SECTION(cat_shell_cmd)
 
@@ -70,7 +72,7 @@ void cat_shell_task_entry(void *arg)
         shell_inst = (cat_shell_instance_t *)arg;
     }
     else{
-        CAT_FALTAL_ERROR("[cat_shell] must give a shell instance to start shell task");
+        CLOG_ERROR("[cat_shell] must give a shell instance to start shell task");
     }
 
     cat_printf("\r\nCatOS version %s build with %s\r\n", CATOS_VERSION, CATOS_BUILD_COMPILER);

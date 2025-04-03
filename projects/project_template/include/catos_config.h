@@ -44,11 +44,11 @@
 
 /** component **/
 /* cat_device */
-#define CATOS_ENABLE_DEVICE_MODEL           1           /**< 使用设备驱动框架 */
+#define CATOS_DEVICE_MODEL_ENABLE           1           /**< 使用设备驱动框架 */
 
 /* cat_shell */
-#define CATOS_ENABLE_CAT_SHELL              1           /**< 使用shell */
-#if (CATOS_ENABLE_CAT_SHELL == 1)
+#define CATOS_CAT_SHELL_ENABLE              1           /**< 使用shell */
+#if (CATOS_CAT_SHELL_ENABLE == 1)
     #define CATOS_SHELL_TASK_PRIO  (CATOS_TASK_PRIO_MIN - 2)  /**< 任务优先级*/
     #define CATOS_SHELL_STACK_SIZE (4096)                     /**< 任务栈空间大小*/
 #endif

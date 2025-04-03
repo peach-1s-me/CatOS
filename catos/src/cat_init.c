@@ -32,9 +32,6 @@ void cat_component_init(void);
 void catos_init(void)
 {
     /**********硬件相关初始化 */
-    /* 板级硬件初始化 */
-    // cat_hw_init();
-
     /* 动态内存堆初始化 */
     cat_mem_init();
 
@@ -44,8 +41,10 @@ void catos_init(void)
     /* 注册串口 */
     cat_debug_uart_register();
 
+#if (CATOS_STDIO_ENABLE == 1)
     /* 设置标准输入输出使用的串口 */
     cat_stdio_set_device(CATOS_STDIO_DEVICE_NAME);
+#endif
 
     /********内核相关初始化 */
     /* 初始化调度器 */

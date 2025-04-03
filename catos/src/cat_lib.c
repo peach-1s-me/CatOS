@@ -15,7 +15,8 @@
  * </table>
  */
 #include "cat_lib.h"
-#include "cat_stdio.h"
+
+#include "cat_assert.h"
 
 /****************** macros *******************/
 #define CAT_SUPPORT_INT_LONG 10

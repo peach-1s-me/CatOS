@@ -10,7 +10,7 @@
  */
 #include "cat_shell.h"
 
-#if (CATOS_ENABLE_CAT_SHELL == 1)
+#if (CATOS_CAT_SHELL_ENABLE == 1)
 
 #include "cat_stdio.h"
 
@@ -197,4 +197,4 @@ void *do_cpu_usage(void *arg)
 CAT_DECLARE_CMD(cpu_usage, get cpu usage, do_cpu_usage);
 #endif //#if (CATOS_ENABLE_CPUUSAGE_STAT == 1)
 
-#endif /* #if (CATOS_ENABLE_CAT_SHELL == 1) */
+#endif /* #if (CATOS_CAT_SHELL_ENABLE == 1) */

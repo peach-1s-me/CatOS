@@ -18,16 +18,20 @@
  */
 #include "catos_config.h"
 #include "catos_types.h"
-#include "cat_lib.h"
 
+#include "cat_lib.h"
 #include "cat_intr.h"
+
+#include "cat_assert.h"
+
+#if (CATOS_STDIO_ENABLE == 1)
 
 static cat_i32 _print_padded(const char *src, cat_i32 len, cat_i32 width, cat_bool is_left_align);
 
 static cat_i32 _sprint_padded(char *dst, const char *src, cat_i32 len, cat_i32 width, cat_bool is_left_align);
 static cat_i32 _ftoa(char *buf, cat_double num, cat_i32 precision);
 
-#if (CATOS_ENABLE_DEVICE_MODEL == 1)
+#if (CATOS_DEVICE_MODEL_ENABLE == 1)
 #include "cat_device.h"
 
 static cat_device_t *_stdio_dev = CAT_NULL;
@@ -90,7 +94,7 @@ cat_i32 cat_putchar(char c)
 
     return 0;
 }
-#else
+#else /* #if (CATOS_DEVICE_MODEL_ENABLE == 1) */
 #error not implied!!
 /**
  * @brief 获取字符
@@ -119,7 +123,7 @@ cat_i32 cat_putchar(char c)
 
     return 0;
 }
-#endif
+#endif /* #if (CATOS_DEVICE_MODEL_ENABLE == 1) */
 
 cat_i32 cat_vprintf(const char *format, va_list args)
 {
@@ -593,6 +597,8 @@ static cat_i32 _ftoa(char *buf, cat_double num, cat_i32 precision)
     
     return idx;
 }
+
+#endif /* #if (CATOS_STDIO_ENABLE == 1) */
 
 /* 感觉vprintf和sprintf中很多部分可以重用，但考虑到可能影响一丢丢性能，之后再测试吧 */
 #if 0

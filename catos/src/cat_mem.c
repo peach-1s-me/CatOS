@@ -17,7 +17,9 @@
 #include "catos_config.h"
 #include "catos_types.h"
 
-#include "cat_stdio.h"
+#include "cat_log.h"
+
+#include "cat_assert.h"
 
 #define USE_HEAP_SECTION 0 /* 使能该项以使用空闲堆空间(还没做呢QAQ) */
 
@@ -48,11 +50,11 @@ void cat_mem_init(void)
 
     if(CAT_EOK != ret)
     {
-        CAT_FALTAL_ERROR("[mem] mem init fail\r\n");
+        CLOG_ERROR("[mem] mem init fail\r\n");
     }
     else
     {
-        cat_kprintf("[mem] mem init success\r\n");
+        CLOG_INFO("[mem] mem init success\r\n");
     }
     
 }
@@ -195,13 +197,13 @@ cat_err cat_free(void *ptr)
     else
     {
         /* 说明出错了 */
-        cat_kprintf("[mem] ERROR: BLOCK FLUSHED OR NOT IN USE\n");
+        CLOG_ERROR("[mem] BLOCK FLUSHED OR NOT IN USE\n");
     }
 
     return ret;
 }
 
-#if (CATOS_ENABLE_CAT_SHELL == 1)
+#if (CATOS_CAT_SHELL_ENABLE == 1)
 #include "cat_shell.h"
 #include "cat_stdio.h"
 #include "port.h"

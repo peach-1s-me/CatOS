@@ -17,7 +17,7 @@
 
 #include "catos.h"
 
-#if (CATOS_ENABLE_CAT_SHELL == 1)
+#if (CATOS_CAT_SHELL_ENABLE == 1)
 
 #define RECV_BUFFER_SIZE    256
 
@@ -53,7 +53,7 @@ void cat_shell_task_create(void)
     shell_cfg.buf_size = 512;
     if(sizeof(shell_space) < CAT_BUF_SIZE * (CAT_MAX_HISTORY + 1))
     {
-        cat_kprintf("[cat_shell_port:%d] shell_space is not enough !\r\n", __LINE__);
+        CLOG_ERROR("[cat_shell_port] shell_space is not enough !\r\n");
         while(1);
     }
 
@@ -61,7 +61,7 @@ void cat_shell_task_create(void)
     ret = cat_shell_init(&port_shell_inst_1, &shell_cfg);
     if(ret)
     {
-        cat_kprintf("[cat_shell_port:%d] cat_shell_init fail!\r\n", __LINE__);
+        CLOG_ERROR("[cat_shell_port] cat_shell_init fail!\r\n");
         while(1);
     }
 
@@ -75,7 +75,7 @@ void cat_shell_task_create(void)
         shell_task_env, 
         CATOS_SHELL_STACK_SIZE
     );
-    cat_kprintf("[cat_shell_port] shell task created \r\n");
+    CLOG_INFO("[cat_shell_port] shell task created \r\n");
 }
 
 /**
@@ -94,7 +94,7 @@ char cat_shell_port_getc(void)
     if(CAT_EOK != err)
     {
         cat_kprintf("got c=%x", c);
-        CAT_FALTAL_ERROR("[shell] ERROR: got sem but no data");
+        CLOG_ERROR("[shell] ERROR: got sem but no data");
     }
     
     return c;
@@ -115,7 +115,7 @@ void cat_shell_recv_char_notify(cat_u8 data)
 
     if(CAT_EOK != err)
     {
-        cat_kprintf("[shell] WARNING: rb us full, data lost\r\n");
+        CLOG_WARNING("[shell] rb us full, data lost\r\n");
     }
     else
     {
@@ -132,4 +132,4 @@ void cat_shell_recv_char_notify(cat_u8 data)
     {
         cat_kprintf("[cat_shell] shell not used\r\n");
     }
-#endif /* #if (CATOS_ENABLE_CAT_SHELL == 1) */
+#endif /* #if (CATOS_CAT_SHELL_ENABLE == 1) */

@@ -16,31 +16,13 @@
  * </table>
  */
 #include "cat_task.h"
+
 #include "cat_lib.h"
-#include "cat_stdio.h"
+#include "cat_log.h"
 #include "cat_intr.h"
+#include "cat_assert.h"
 
 #include "port.h"
-
-/* 调试用断言 */
-void assert_task(struct _cat_task_t *task)
-{
-    // if(task->stack_size != 4096)
-    if (CAT_NULL == task)
-    {
-        while (1)
-            ;
-    }
-}
-#if 1
-#define TMP_ASSERT_TASK(task) \
-    do                        \
-    {                         \
-        assert_task(task);    \
-    } while (0)
-#else
-#define TMP_ASSERT_TASK(task)
-#endif
 
 /* 公有变量 */
 struct _cat_list_t cat_task_manage_list; /**< 用于管理的任务链表 */
@@ -146,10 +128,12 @@ void cat_task_scheduler_init(void)
         cat_list_init(&(task_rdy_tbl[i]));
     }
 
+#if (CATOS_STDIO_ENABLE == 1)
     if (cat_stdio_is_device_is_set())
     {
-        cat_kprintf("[cat_sp_task] static priority scheduler init\r\n");
+        CLOG_INFO("[cat_sp_task] static priority scheduler init\r\n");
     }
+#endif
 }
 
 void cat_hw_init_systick(cat_u32 ms);
@@ -257,7 +241,7 @@ struct _cat_task_t *cat_task_get_highest_ready(void)
     /* 获取任务结构指针 */
     ret = CAT_GET_CONTAINER(node, struct _cat_task_t, link_node);
 
-    TMP_ASSERT_TASK(ret);
+    CAT_ASSERT(ret);
 
     return ret;
 }
@@ -283,7 +267,7 @@ void cat_task_delay_deal(void)
         /* 取得任务控制块指针 */
         struct _cat_task_t *task = CAT_GET_CONTAINER(node, struct _cat_task_t, link_node);
 
-        TMP_ASSERT_TASK(task);
+        CAT_ASSERT(task);
 
         /* 将任务delay的tick数减1，若减少之后为零则说明delay结束 */
         task->delay--;
@@ -408,7 +392,7 @@ void cat_task_sched_unlock(void)
  */
 void cat_task_rdy(struct _cat_task_t *task)
 {
-    TMP_ASSERT_TASK(task);
+    CAT_ASSERT(task);
     cat_list_add_last(&(task_rdy_tbl[task->prio]), &(task->link_node));
     cat_bitmap_set(&cat_task_prio_bitmap, task->prio);
 }
@@ -420,7 +404,7 @@ void cat_task_rdy(struct _cat_task_t *task)
  */
 void cat_task_unrdy(struct _cat_task_t *task)
 {
-    TMP_ASSERT_TASK(task);
+    CAT_ASSERT(task);
     cat_list_remove_node(&(task_rdy_tbl[task->prio]), &(task->link_node));
     if (cat_list_count(&(task_rdy_tbl[task->prio])) == 0) /* 如果没有任务才清除就绪位 */
     {
@@ -471,7 +455,7 @@ void cat_task_set_delay_ticks(struct _cat_task_t *task, cat_ubase ticks)
 
     cat_irq_disable();
 
-    TMP_ASSERT_TASK(task);
+    CAT_ASSERT(task);
 
     /* 要等待的tick数 */
     task->delay = ticks;
@@ -536,7 +520,7 @@ void cat_task_delay_ms(cat_u32 ms)
  */
 void cat_task_delay_wakeup(struct _cat_task_t *task)
 {
-    TMP_ASSERT_TASK(task);
+    CAT_ASSERT(task);
 
     /* 从等待链表取出 */
     cat_list_remove_node(&cat_task_delayed_list, &(task->link_node));
@@ -556,7 +540,7 @@ void cat_task_delay_wakeup(struct _cat_task_t *task)
  */
 void cat_task_suspend(struct _cat_task_t *task)
 {
-    TMP_ASSERT_TASK(task);
+    CAT_ASSERT(task);
 
     cat_irq_disable();
 
@@ -587,7 +571,7 @@ void cat_task_suspend(struct _cat_task_t *task)
  */
 void cat_task_suspend_wakeup(struct _cat_task_t *task)
 {
-    TMP_ASSERT_TASK(task);
+    CAT_ASSERT(task);
 
     cat_irq_disable();
 
@@ -704,7 +688,7 @@ cat_err cat_task_change_priority(cat_task_t *task, cat_u8 new_prio, cat_u8 *old_
  */
 void cat_task_set_error(cat_task_t *task, cat_err error)
 {
-    TMP_ASSERT_TASK(task);
+    CAT_ASSERT(task);
 
     task->error = error;
 }
@@ -716,12 +700,12 @@ void cat_task_set_error(cat_task_t *task, cat_err error)
  */
 cat_err cat_task_get_error(void)
 {
-    TMP_ASSERT_TASK(cat_task_current);
+    CAT_ASSERT(cat_task_current);
 
     return cat_task_current->error;
 }
 
-#if (CATOS_ENABLE_CAT_SHELL == 1)
+#if (CATOS_CAT_SHELL_ENABLE == 1)
 #include "cat_shell.h"
 #include "cat_stdio.h"
 #include "port.h"

@@ -76,7 +76,7 @@ void test_list_func(void)
 
 }
 
-#if (CATOS_ENABLE_CAT_SHELL == 1)
+#if (CATOS_CAT_SHELL_ENABLE == 1)
 #include "cat_shell.h"
 #include "cat_stdio.h"
 void *do_test_list(void *arg)

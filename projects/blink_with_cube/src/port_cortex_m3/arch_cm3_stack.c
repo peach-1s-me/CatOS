@@ -90,6 +90,7 @@ cat_u8 *cat_hw_stack_init(void (*task_entry)(void *), void *arg, cat_u8 *stack_a
   return stack;
 }
 
+#if (CATOS_STDIO_ENABLE == 1)
 #define SCB_CFSR        (*(volatile const unsigned *)0xE000ED28) /* Configurable Fault Status Register */
 #define SCB_HFSR        (*(volatile const unsigned *)0xE000ED2C) /* HardFault Status Register */
 #define SCB_MMAR        (*(volatile const unsigned *)0xE000ED34) /* MemManage Fault Address register */
@@ -297,6 +298,14 @@ void catos_hard_fault_deal(struct _stack_frame *stack)
     }
 
     hard_fault_track();
-    
+
     while (1);
 }
+#else /* #if (CATOS_STDIO_ENABLE == 1) */
+void catos_hard_fault_deal(struct _stack_frame *stack)
+{
+    (void)stack;
+
+    while (1);
+}
+#endif /* #if (CATOS_STDIO_ENABLE == 1) */
