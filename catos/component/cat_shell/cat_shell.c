@@ -14,9 +14,11 @@
 
 #include "cat_shell.h"
 
-#include "cat_task.h"
-#include "cat_stdio.h"
 #include "cat_lib.h"
+#include "cat_log.h"
+#include "cat_task.h"
+
+#include "cat_assert.h"
 
 IMPORT_SECTION(cat_shell_cmd)
 
@@ -37,7 +39,7 @@ cat_i32 cat_shell_init(cat_shell_instance_t *inst, cat_shell_config_t *cfg)
     }
     else
     {
-        inst->buffer.buf                        = cfg->buffer;
+        inst->buffer.buf                        = (char *)cfg->buffer;
         inst->buffer.buf_size                   = cfg->buf_size;
         inst->buffer.current_combine_key_val    = 0;
         inst->buffer.current_combine_key_offset = 0;
@@ -70,12 +72,12 @@ void cat_shell_task_entry(void *arg)
         shell_inst = (cat_shell_instance_t *)arg;
     }
     else{
-        CAT_FALTAL_ERROR("[cat_shell] must give a shell instance to start shell task");
+        CLOG_ERROR("[cat_shell] must give a shell instance to start shell task");
     }
 
-    CAT_SYS_PRINTF("\r\nCatOS version %s build with %s\r\n", CATOS_VERSION, CATOS_BUILD_COMPILER);
-    CAT_SYS_PRINTF(GREET_MSG_SMALL);
-	CAT_SYS_PRINTF("cat>");
+    cat_printf("\r\nCatOS version %s build with %s\r\n", CATOS_VERSION, CATOS_BUILD_COMPILER);
+    cat_printf(GREET_MSG_SMALL);
+	cat_printf("cat>");
     while(1)
     {
         ch = cat_shell_port_getc();
@@ -88,7 +90,7 @@ void cat_shell_task_entry(void *arg)
     }
 }
 
-void cat_handle_input_char(cat_shell_instance_t *inst, cat_u8 data)
+void cat_handle_input_char(cat_shell_instance_t *inst, char data)
 {
     CAT_ASSERT(data);
 
@@ -170,7 +172,7 @@ cat_shell_cmd_t *cat_seek_cmd(cat_shell_instance_t *inst)
     {
         if(temp_cmd->type == CAT_CMD_TYPE_CMD)
         {
-            if(cat_strcmp(temp_cmd->content.cmd.name, inst->buffer.buf) == 0)
+            if(cat_strcmp(temp_cmd->content.cmd.name, (const char *)inst->buffer.buf) == 0)
             {
                 ret = temp_cmd;
             }/* if(cat_strcmp(temp_cmd->content.cmd.name, inst->buffer.buf) == 0) */
@@ -215,7 +217,7 @@ void cat_parse_args(cat_shell_instance_t *inst)
             }
             else
             {
-                CAT_SYS_PRINTF("[catos] over max arg num:%d !\r\n", CAT_MAX_CMD_ARGS);
+                cat_printf("[catos] over max arg num:%d !\r\n", CAT_MAX_CMD_ARGS);
             } /* if(inst->buffer.arg_num < CAT_MAX_CMD_ARGS) */
         } /* if */
     } /* for(; i<inst->buffer.length; i++) */
@@ -231,7 +233,7 @@ void cat_execute_cmd(cat_shell_instance_t *inst)
 
     if(CAT_NULL == target_cmd)
     {
-        CAT_SYS_PRINTF("[catos] cmd %s not found !\r\n", inst->buffer.buf);
+        cat_printf("[catos] cmd %s not found !\r\n", inst->buffer.buf);
     }
     else
     {
@@ -275,7 +277,7 @@ void cat_history_save(cat_shell_instance_t *shell_inst)
     }
     shell_inst->history.current = cur;
 
-    cat_strcpy(shell_inst->history.historys[cur], shell_inst->buffer.buf, CAT_MAX_HIS_LEN);
+    cat_strcpy((char *)shell_inst->history.historys[cur], (char *)shell_inst->buffer.buf, CAT_MAX_HIS_LEN);
 }
 
 void cat_history_up(cat_shell_instance_t *shell_inst)
@@ -291,7 +293,7 @@ void cat_history_up(cat_shell_instance_t *shell_inst)
     }
     shell_inst->history.current = cur;
 
-    cat_strcpy(shell_inst->buffer.buf, shell_inst->history.historys[cur], CAT_MAX_HIS_LEN);
+    cat_strcpy((char *)shell_inst->buffer.buf, shell_inst->history.historys[cur], CAT_MAX_HIS_LEN);
     shell_inst->buffer.length = cat_strlen(shell_inst->buffer.buf);
 }
 

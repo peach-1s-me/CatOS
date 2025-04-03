@@ -41,6 +41,7 @@ target_sources(user_project INTERFACE
     # ${TEST_DIR}/tests/mem_test/mem_test.c
 
     # ${TEST_DIR}/tests/lib_test/list_test.c
+    # ${TEST_DIR}/tests/lib_test/dlist_test.c
 )
 
 target_link_directories(user_project INTERFACE

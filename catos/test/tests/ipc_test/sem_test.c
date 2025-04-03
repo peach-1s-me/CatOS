@@ -43,7 +43,7 @@ void ipc_t1_entry(void *arg)
     for (;;)
     {
         cat_task_delay_ms(1000);
-        CAT_KPRINTF("[t1]-->sem post(%d)\r\n", sem_post_cnt++);
+        cat_kprintf("[t1]-->sem post(%d)\r\n", sem_post_cnt++);
         cat_sem_post(&test_sem);
     }
 }
@@ -57,17 +57,17 @@ void ipc_t2_entry(void *arg)
 
     for (;;)
     {
-        CAT_KPRINTF("[t2]-->t2 wait\r\n");
+        cat_kprintf("[t2]-->t2 wait\r\n");
 
         /* 等待唤醒 */
         cat_sem_get(&test_sem, 10000);
         if (cat_task_get_error() == CAT_ETIMEOUT)
         {
-            CAT_KPRINTF("[t2][ERROR] t2 timeout\r\n");
+            cat_kprintf("[t2][ERROR] t2 timeout\r\n");
         }
         else
         {
-            CAT_KPRINTF("[t2]<--t2 notified (%d)\r\n", t2_notified_times++);
+            cat_kprintf("[t2]<--t2 notified (%d)\r\n", t2_notified_times++);
         }
         // cat_task_yield();
     }
@@ -81,17 +81,17 @@ void ipc_t3_entry(void *arg)
 
     for (;;)
     {
-        CAT_KPRINTF("[t3]-->t3 wait\r\n");
+        cat_kprintf("[t3]-->t3 wait\r\n");
 
         /* 等待唤醒 */
         cat_sem_get(&test_sem, 10000);
         if (cat_task_get_error() == CAT_ETIMEOUT)
         {
-            CAT_KPRINTF("[t3][ERROR] t3 timeout\r\n");
+            cat_kprintf("[t3][ERROR] t3 timeout\r\n");
         }
         else
         {
-            CAT_KPRINTF("[t3]<--t3 notified (%d)\r\n", t3_notified_times++);
+            cat_kprintf("[t3]<--t3 notified (%d)\r\n", t3_notified_times++);
         }
         // cat_task_yield();
     }

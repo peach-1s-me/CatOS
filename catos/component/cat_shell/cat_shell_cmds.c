@@ -10,7 +10,7 @@
  */
 #include "cat_shell.h"
 
-#if (CATOS_ENABLE_CAT_SHELL == 1)
+#if (CATOS_CAT_SHELL_ENABLE == 1)
 
 #include "cat_stdio.h"
 
@@ -21,29 +21,29 @@ IMPORT_SECTION(cat_shell_cmd)
 #if (CATOS_SHELL_USE_HISTORY == 1)
 void up_action(cat_shell_instance_t *shell_inst)
 {
-    //CAT_SYS_PRINTF("[cat_shell_cmds] up is pressed !\r\n");
+    //cat_printf("[cat_shell_cmds] up is pressed !\r\n");
     cat_history_up(shell_inst);
-    CAT_SYS_PRINTF("%s", shell_inst->buffer.buf);
+    cat_printf("%s", shell_inst->buffer.buf);
 }
 CAT_DECLARE_KEY(up, CAT_KEY_DIRECTION_UP, up_action);
 
 void down_action(cat_shell_instance_t *shell_inst)
 {
-    //CAT_SYS_PRINTF("[cat_shell_cmds] down is pressed !\r\n");
+    //cat_printf("[cat_shell_cmds] down is pressed !\r\n");
     cat_history_down(shell_inst);
-    CAT_SYS_PRINTF("%s", shell_inst->buffer.buf);
+    cat_printf("%s", shell_inst->buffer.buf);
 }
 CAT_DECLARE_KEY(down, CAT_KEY_DIRECTION_DOWN, down_action);
 
 void left_action(cat_shell_instance_t *shell_inst)
 {
-    //CAT_SYS_PRINTF("[cat_shell_cmds] left is pressed !\r\n");
+    //cat_printf("[cat_shell_cmds] left is pressed !\r\n");
 }
 CAT_DECLARE_KEY(left, CAT_KEY_DIRECTION_LEFT, left_action);
 
 void right_action(cat_shell_instance_t *shell_inst)
 {
-    //CAT_SYS_PRINTF("[cat_shell_cmds] right is pressed !\r\n");
+    //cat_printf("[cat_shell_cmds] right is pressed !\r\n");
 }
 CAT_DECLARE_KEY(right, CAT_KEY_DIRECTION_RIGHT, right_action);
 #endif
@@ -53,7 +53,7 @@ void backspace_action(cat_shell_instance_t *shell_inst)
     //DEBUG_PRINT("[cat_shell_cmds] backspace is pressed !\r\n");
 	if(shell_inst->buffer.length > 0)
     {
-        CAT_SYS_PRINTF("\b \b");//清行
+        cat_printf("\b \b");//清行
         shell_inst->buffer.buf[shell_inst->buffer.length--] = '\0';
     }
     
@@ -63,7 +63,7 @@ CAT_DECLARE_KEY(backspace, CAT_KEY_BACKSPACE, backspace_action);
 
 void enter_action(cat_shell_instance_t *shell_inst)
 {
-    CAT_SYS_PRINTF("\r\n");
+    cat_printf("\r\n");
     shell_inst->buffer.buf[shell_inst->buffer.length] = '\0';
 
     if(shell_inst->buffer.length != 0)
@@ -78,7 +78,7 @@ void enter_action(cat_shell_instance_t *shell_inst)
         shell_inst->buffer.length = 0;
     }
     
-    CAT_SYS_PRINTF("cat>");
+    cat_printf("cat>");
 }
 CAT_DECLARE_KEY(enter, CAT_KEY_ENTER, enter_action);
 
@@ -95,7 +95,7 @@ void *do_help(void *arg)
         /* 只打印命令 */
         if(temp->type == CAT_CMD_TYPE_CMD)
         {
-            CAT_SYS_PRINTF("%2d %s\r\n", i, temp->content.cmd.name);
+            cat_printf("%2d %s\r\n", i, temp->content.cmd.name);
 		    i++;
         }
 	    
@@ -109,7 +109,7 @@ CAT_DECLARE_CMD(help, print help msg, do_help);
 void *do_test_cmd(void *arg)
 {
     (void)arg;
-    CAT_SYS_PRINTF("test cmd func is called\r\n");
+    cat_printf("test cmd func is called\r\n");
 
     return CAT_NULL;
 }
@@ -118,7 +118,7 @@ CAT_DECLARE_CMD(test_cmd, for test, do_test_cmd);
 void *do_cmd2(void *arg)
 {
     (void)arg;
-    CAT_SYS_PRINTF("cmd2 is called\r\n");
+    cat_printf("cmd2 is called\r\n");
 
     return CAT_NULL;
 }
@@ -134,13 +134,13 @@ void *do_test_args(void *arg)
     
     if(inst->buffer.arg_num == 0)
     {
-        CAT_SYS_PRINTF("[do_test_args] no arg\r\n");
+        cat_printf("[do_test_args] no arg\r\n");
     }
     else
     {
         for(i=0; i<inst->buffer.arg_num; i++)
         {
-            CAT_SYS_PRINTF("arg[%d]: %s\r\n", i, inst->buffer.args[i]);
+            cat_printf("arg[%d]: %s\r\n", i, inst->buffer.args[i]);
         }
     }
 		
@@ -158,13 +158,13 @@ void *do_test_atoi(void *arg)
     
     if(inst->buffer.arg_num != 1)
     {
-        CAT_SYS_PRINTF("[do_test_atoi] usage: test_atoi [STRING]\r\n");
+        cat_printf("[do_test_atoi] usage: test_atoi [STRING]\r\n");
     }
     else
     {
         cat_atoi(&result, inst->buffer.args[0]);
-        CAT_SYS_PRINTF("arg[%d]: %s->", i, inst->buffer.args[i]);
-        CAT_SYS_PRINTF("%d\r\n", result);
+        cat_printf("arg[%d]: %s->", i, inst->buffer.args[i]);
+        cat_printf("%d\r\n", result);
     }
 		
 		return CAT_NULL;
@@ -176,7 +176,7 @@ void *do_clear(void *arg)
 {
     (void)arg;
 
-    CAT_SYS_PRINTF(CAT_SHELL_CLR_SCREEN);
+    cat_printf(CAT_SHELL_CLR_SCREEN);
 
     return CAT_NULL;
 }
@@ -190,11 +190,11 @@ void *do_cpu_usage(void *arg)
 
     cat_cpu_usage_get(&usage_integer, &usage_decimal);
 
-    CAT_SYS_PRINTF("[cpu_usage] %d.%d\r\n", usage_integer, usage_decimal);
+    cat_printf("[cpu_usage] %d.%d\r\n", usage_integer, usage_decimal);
 
     return CAT_NULL;
 }
 CAT_DECLARE_CMD(cpu_usage, get cpu usage, do_cpu_usage);
 #endif //#if (CATOS_ENABLE_CPUUSAGE_STAT == 1)
 
-#endif /* #if (CATOS_ENABLE_CAT_SHELL == 1) */
+#endif /* #if (CATOS_CAT_SHELL_ENABLE == 1) */

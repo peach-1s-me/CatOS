@@ -1,6 +1,6 @@
 /**
  * @file cat_config.h
- * @brief the config MACROs
+ * @brief OS配置宏定义
  * @author amoigus (648137125@qq.com)
  * @version 0.1
  * @date 2021-03-19
@@ -9,7 +9,8 @@
  * 
  * @par 修改日志：
  * Date              Version Author      Description
- * 2021-03-19 1.0    amoigus             内容
+ * 2021-03-19 1.0    文佳源              内容
+ * 2025-04-03 2.0    文佳源              增加log和部分依赖处理，规范格式
  */
 
 #ifndef CATOS_CONFIG_H
@@ -28,36 +29,66 @@
 #endif
 
 /** 系统相关 **/
-#define CATOS_SYSTICK_FRQ           (100)   /**< 系统时钟频率，每秒的tick数(周期的倒数)*/
-#define CATOS_SYSTICK_MS            ((1000 * 1) / CATOS_SYSTICK_FRQ) /**< 每个tick经过的毫秒数*/
+#define CATOS_CLOCK_FRQ              72000000 /**< 系统时钟频率(systick挂在总线的时钟频率, 用于设置时钟中断重装载值 */
+#define CATOS_SYSTICK_FRQ            100      /**< OS时钟中断频率，每秒的tick数(周期的倒数)*/
+#define CATOS_SYSTICK_MS \
+    ((1000 * 1) / CATOS_SYSTICK_FRQ)          /**< 每个tick经过的毫秒数*/
+
+#define CATOS_MEM_HEAP_SIZE          2048     /**< 动态内存空间大小 */
 
 /** 任务相关 **/
-#define CATOS_TASK_PRIO_MIN         (32)    /**< 任务最大优先级 */
-#define CATOS_MAX_SLICE             (10)    /**< 最大时间片 */
+#define CATOS_TASK_PRIO_MIN          32       /**< 任务最大优先级+1 (该值无意义，只是提供上限) */
+#define CATOS_MAX_SLICE              10       /**< 最大时间片 */
 
-#define CATOS_IDLE_STACK_SIZE       (1024)  /**< 空闲任务栈大小*/
+#define CATOS_IDLE_STACK_SIZE        1024     /**< 空闲任务栈大小*/
+/** 可选系统功能 */
+#define CATOS_ENABLE_CPU_USAGE       1
 
-/** component **/
-/* cat_device */
-#define CATOS_ENABLE_DEVICE_MODEL           1           /**< 使用设备驱动框架 */
+/* 标准输入输出 */
+#define CATOS_STDIO_ENABLE           1        /**< 使用标准输入输出 */
+#define CAT_STDIO_NUM_STR_BUF_SIZE   64       /**< 数字缓冲区长度 */ 
+#define CATOS_STDIO_DEVICE_NAME \
+    "debug_uart"                              /**< 标准输入输出使用设备 */
 
-/* cat_shell */
-#define CATOS_ENABLE_CAT_SHELL              1           /**< 使用shell */
-#if (CATOS_ENABLE_CAT_SHELL == 1)
-    #define CATOS_SHELL_TASK_PRIO  (CATOS_TASK_PRIO_MIN - 2)  /**< shell任务优先级*/
-    #define CATOS_SHELL_STACK_SIZE (4096)                     /**< shell任务栈空间大小*/
-#endif
+/* 设备驱动框架 */
+#define CATOS_DEVICE_MODEL_ENABLE     1       /**< 使用设备驱动框架 */
 
-/* cat_stdio */
-#define CATOS_ENABLE_SYS_PRINTF             1           /**< 系统输出 */
-#if (CATOS_ENABLE_SYS_PRINTF == 1)
-    #define CATOS_ENABLE_DEBUG_PRINTF       1           /**< 调试打印功能 */
-    #define CATOS_STDIO_DEVICE_NAME         "uart1"     /**< 标准输入输出使用设备 */
-#endif /* #if (CATOS_ENABLE_SYS_PRINTF == 1) */
+#define CATOS_ASSERT_ENABLE           1       /**< 使用断言 */
+#define CATOS_CLOG_ENABLE             1       /**< 使用日志 */
+#define CATOS_CLOG_LEVEL              4       /* 输出的最高日志等级，等级更低(数值小)的日志不打印 */
+                                              /**
+                                               * 可选值：
+                                               * 0x0 : CLOG_LEVEL_DISABLE,
+                                               * 0x1 : CLOG_LEVEL_ERROR  
+                                               * 0x2 : CLOG_LEVEL_WARNING
+                                               * 0x3 : CLOG_LEVEL_INFO   
+                                               * 0x4 : CLOG_LEVEL_DEBUG  
+                                               * 0x5 : CLOG_LEVEL_TRACE  
+                                               */
 
-/* cat_ringbuffer */
-#define MIN_RINGBUFFER_SIZE                 4           /**< 环形缓冲区最小容量 */
+/** 组件 **/
+/* 命令行 */
+#define CATOS_CAT_SHELL_ENABLE        1       /**< 使用命令行 */
+#define CATOS_SHELL_TASK_PRIO \
+    (CATOS_TASK_PRIO_MIN - 2)                 /**< 命令行任务优先级(默认倒数第二低)*/
+#define CATOS_SHELL_STACK_SIZE        4096    /**< 命令行任务栈空间大小*/
 
 /* third_party 三方代码 */
+
+
+/* 处理依赖的功能（不要修改这里） */
+#if (CATOS_STDIO_ENABLE == 0)
+    #if (CATOS_ASSERT_ENABLE == 1)
+    #error "assert relies on stdio"
+    #endif
+
+    #if (CATOS_CLOG_ENABLE == 1)
+    #error "cat_log relies on stdio"
+    #endif
+
+    #if (CATOS_CAT_SHELL_ENABLE == 1)
+    #error "shell relies on stdio"
+    #endif
+#endif
 
 #endif/* #ifndef CATOS_CONFIG_H */

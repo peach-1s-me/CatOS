@@ -90,6 +90,7 @@ cat_u8 *cat_hw_stack_init(void (*task_entry)(void *), void *arg, cat_u8 *stack_a
   return stack;
 }
 
+#if (CATOS_STDIO_ENABLE == 1)
 #define SCB_CFSR        (*(volatile const unsigned *)0xE000ED28) /* Configurable Fault Status Register */
 #define SCB_HFSR        (*(volatile const unsigned *)0xE000ED2C) /* HardFault Status Register */
 #define SCB_MMAR        (*(volatile const unsigned *)0xE000ED34) /* MemManage Fault Address register */
@@ -103,130 +104,130 @@ cat_u8 *cat_hw_stack_init(void (*task_entry)(void *), void *arg, cat_u8 *stack_a
 
 static void usage_fault_track(void)
 {
-    CAT_SYS_PRINTF("usage fault:\r\n");
-    CAT_SYS_PRINTF("SCB_CFSR_UFSR:%2x ", SCB_CFSR_UFSR);
+    cat_printf("usage fault:\r\n");
+    cat_printf("SCB_CFSR_UFSR:%2x ", SCB_CFSR_UFSR);
 
     if(SCB_CFSR_UFSR & (1<<0))
     {
         /* [0]:UNDEFINSTR */
-        CAT_SYS_PRINTF("UNDEFINSTR ");
+        cat_printf("UNDEFINSTR ");
     }
 
     if(SCB_CFSR_UFSR & (1<<1))
     {
         /* [1]:INVSTATE */
-        CAT_SYS_PRINTF("INVSTATE ");
+        cat_printf("INVSTATE ");
     }
 
     if(SCB_CFSR_UFSR & (1<<2))
     {
         /* [2]:INVPC */
-        CAT_SYS_PRINTF("INVPC ");
+        cat_printf("INVPC ");
     }
 
     if(SCB_CFSR_UFSR & (1<<3))
     {
         /* [3]:NOCP */
-        CAT_SYS_PRINTF("NOCP ");
+        cat_printf("NOCP ");
     }
 
     if(SCB_CFSR_UFSR & (1<<8))
     {
         /* [8]:UNALIGNED */
-        CAT_SYS_PRINTF("UNALIGNED ");
+        cat_printf("UNALIGNED ");
     }
 
     if(SCB_CFSR_UFSR & (1<<9))
     {
         /* [9]:DIVBYZERO */
-        CAT_SYS_PRINTF("DIVBYZERO ");
+        cat_printf("DIVBYZERO ");
     }
 
-    CAT_SYS_PRINTF("\r\n");
+    cat_printf("\r\n");
 }
 
 static void bus_fault_track(void)
 {
-    CAT_SYS_PRINTF("bus fault:\r\n");
-    CAT_SYS_PRINTF("SCB_CFSR_BFSR:%2x ", SCB_CFSR_BFSR);
+    cat_printf("bus fault:\r\n");
+    cat_printf("SCB_CFSR_BFSR:%2x ", SCB_CFSR_BFSR);
 
     if(SCB_CFSR_BFSR & (1<<0))
     {
         /* [0]:IBUSERR */
-        CAT_SYS_PRINTF("IBUSERR ");
+        cat_printf("IBUSERR ");
     }
 
     if(SCB_CFSR_BFSR & (1<<1))
     {
         /* [1]:PRECISERR */
-        CAT_SYS_PRINTF("PRECISERR ");
+        cat_printf("PRECISERR ");
     }
 
     if(SCB_CFSR_BFSR & (1<<2))
     {
         /* [2]:IMPRECISERR */
-        CAT_SYS_PRINTF("IMPRECISERR ");
+        cat_printf("IMPRECISERR ");
     }
 
     if(SCB_CFSR_BFSR & (1<<3))
     {
         /* [3]:UNSTKERR */
-        CAT_SYS_PRINTF("UNSTKERR ");
+        cat_printf("UNSTKERR ");
     }
 
     if(SCB_CFSR_BFSR & (1<<4))
     {
         /* [4]:STKERR */
-        CAT_SYS_PRINTF("STKERR ");
+        cat_printf("STKERR ");
     }
 
     if(SCB_CFSR_BFSR & (1<<7))
     {
-        CAT_SYS_PRINTF("SCB->BFAR:%8x\r\n", SCB_BFAR);
+        cat_printf("SCB->BFAR:%8x\r\n", SCB_BFAR);
     }
     else
     {
-        CAT_SYS_PRINTF("\r\n");
+        cat_printf("\r\n");
     }
 }
 
 static void mem_manage_fault_track(void)
 {
-    CAT_SYS_PRINTF("mem manage fault:\r\n");
-    CAT_SYS_PRINTF("SCB_CFSR_MFSR:%2x ", SCB_CFSR_MFSR);
+    cat_printf("mem manage fault:\r\n");
+    cat_printf("SCB_CFSR_MFSR:%2x ", SCB_CFSR_MFSR);
 
     if(SCB_CFSR_MFSR & (1<<0))
     {
         /* [0]:IACCVIOL */
-        CAT_SYS_PRINTF("IACCVIOL ");
+        cat_printf("IACCVIOL ");
     }
 
     if(SCB_CFSR_MFSR & (1<<1))
     {
         /* [1]:DACCVIOL */
-        CAT_SYS_PRINTF("DACCVIOL ");
+        cat_printf("DACCVIOL ");
     }
 
     if(SCB_CFSR_MFSR & (1<<3))
     {
         /* [3]:MUNSTKERR */
-        CAT_SYS_PRINTF("MUNSTKERR ");
+        cat_printf("MUNSTKERR ");
     }
 
     if(SCB_CFSR_MFSR & (1<<4))
     {
         /* [4]:MSTKERR */
-        CAT_SYS_PRINTF("MSTKERR ");
+        cat_printf("MSTKERR ");
     }
 
     if(SCB_CFSR_MFSR & (1<<7))
     {
         /* [7]:MMARVALID */
-        CAT_SYS_PRINTF("SCB->MMAR:%8x\r\n", SCB_MMAR);
+        cat_printf("SCB->MMAR:%8x\r\n", SCB_MMAR);
     }
     else
     {
-        CAT_SYS_PRINTF("\r\n");
+        cat_printf("\r\n");
     }
 }
 
@@ -235,7 +236,7 @@ static void hard_fault_track(void)
     if(SCB_HFSR & (1UL<<1))
     {
         /* [1]:VECTBL, Indicates hard fault is caused by failed vector fetch. */
-        CAT_SYS_PRINTF("failed vector fetch\r\n");
+        cat_printf("failed vector fetch\r\n");
     }
 
     if(SCB_HFSR & (1UL<<30))
@@ -261,7 +262,7 @@ static void hard_fault_track(void)
     if(SCB_HFSR & (1UL<<31))
     {
         /* [31]:DEBUGEVT, Indicates hard fault is triggered by debug event. */
-        CAT_SYS_PRINTF("debug event\r\n");
+        cat_printf("debug event\r\n");
     }
 }
 
@@ -270,33 +271,41 @@ static void hard_fault_track(void)
  */
 void catos_hard_fault_deal(struct _stack_frame *stack)
 {
-    CAT_KPRINTF("\r\n\r\n*** HardFault occurred ***\r\n");
+    cat_kprintf("\r\n\r\n*** HardFault occurred ***\r\n");
     cat_u32 exc_ret = stack->exeption_stack_frame.psr; /* 这里其实是最后压栈的lr */
-    CAT_KPRINTF("exrt: %8x\r\n", exc_ret);
+    cat_kprintf("exrt: %8x\r\n", exc_ret);
     stack = (struct _stack_frame *)((cat_ubase)stack-4);
-    CAT_KPRINTF("r00 : %8x\r\n", stack->exeption_stack_frame.r0);
-    CAT_KPRINTF("r01 : %8x\r\n", stack->exeption_stack_frame.r1);
-    CAT_KPRINTF("r02 : %8x\r\n", stack->exeption_stack_frame.r2);
-    CAT_KPRINTF("r03 : %8x\r\n", stack->exeption_stack_frame.r3);
-    CAT_KPRINTF("r12 : %8x\r\n", stack->exeption_stack_frame.r12);
-    CAT_KPRINTF(" lr : %8x\r\n", stack->exeption_stack_frame.lr);
-    CAT_KPRINTF(" pc : %8x\r\n", stack->exeption_stack_frame.pc);
-    CAT_KPRINTF("psr : %8x\r\n", stack->exeption_stack_frame.psr);
+    cat_kprintf("r00 : %8x\r\n", stack->exeption_stack_frame.r0);
+    cat_kprintf("r01 : %8x\r\n", stack->exeption_stack_frame.r1);
+    cat_kprintf("r02 : %8x\r\n", stack->exeption_stack_frame.r2);
+    cat_kprintf("r03 : %8x\r\n", stack->exeption_stack_frame.r3);
+    cat_kprintf("r12 : %8x\r\n", stack->exeption_stack_frame.r12);
+    cat_kprintf(" lr : %8x\r\n", stack->exeption_stack_frame.lr);
+    cat_kprintf(" pc : %8x\r\n", stack->exeption_stack_frame.pc);
+    cat_kprintf("psr : %8x\r\n", stack->exeption_stack_frame.psr);
 
     cat_task_t *current_task = cat_task_get_current();
 
-    CAT_KPRINTF("cat_task_current=%x\r\n", (cat_ubase)current_task);
+    cat_kprintf("cat_task_current=%x\r\n", (cat_ubase)current_task);
 
     if(CAT_NULL != current_task)
     {
-        CAT_KPRINTF("hard fault on thread: %s\r\n", current_task->task_name);
+        cat_kprintf("hard fault on thread: %s\r\n", current_task->task_name);
     }
     else
     {
-        CAT_KPRINTF("hard fault before first task start\r\n");
+        cat_kprintf("hard fault before first task start\r\n");
     }
 
     hard_fault_track();
-    
+
     while (1);
 }
+#else /* #if (CATOS_STDIO_ENABLE == 1) */
+void catos_hard_fault_deal(struct _stack_frame *stack)
+{
+    (void)stack;
+
+    while (1);
+}
+#endif /* #if (CATOS_STDIO_ENABLE == 1) */

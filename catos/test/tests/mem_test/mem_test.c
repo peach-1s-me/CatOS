@@ -22,7 +22,7 @@
 
 #define TEST_TITLE(info) \
     do{ \
-        CAT_KPRINTF("========= TEST %s =========\r\n", #info); \
+        cat_kprintf("========= TEST %s =========\r\n", #info); \
     }while(0)
 
 void test_mem(void)
@@ -42,30 +42,30 @@ void test_mem(void)
     /* 展示内存碎片的出现 */
     CAT_TEST_INFO(fragment, show how fra appear);
     CAT_TEST_INFO(free, test free);
-    CAT_KPRINTF("->free mem2\r\n");
+    cat_kprintf("->free mem2\r\n");
     mem5 = cat_malloc(256);
     if(CAT_NULL == mem5)
     {
         /* 此时空闲总空间大于304字节, 但由于被分成两部分, 无法被分配, 称为内存碎片 */
-        CAT_KPRINTF("fail to malloc mem5:256bytes\r\n");
+        cat_kprintf("fail to malloc mem5:256bytes\r\n");
     }
     cat_mem_print_info();
 
     /* 测试释放 */
     cat_free(mem2);
     cat_mem_print_info();
-    CAT_KPRINTF("->free mem3\r\n");
+    cat_kprintf("->free mem3\r\n");
     cat_free(mem3);
     cat_mem_print_info();
 
-    CAT_KPRINTF("<--free all mem\r\n");
+    cat_kprintf("<--free all mem\r\n");
     cat_free(mem1);
     cat_free(mem4);
     cat_mem_print_info();
 
 }
 
-#if (CATOS_ENABLE_CAT_SHELL == 1)
+#if (CATOS_CAT_SHELL_ENABLE == 1)
 #include "cat_shell.h"
 #include "cat_stdio.h"
 #include "port.h"

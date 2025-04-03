@@ -27,6 +27,7 @@ target_sources(catos INTERFACE
     src/cat_intr.c
     src/cat_ipc.c
     src/cat_lib.c
+    src/cat_log.c
     src/cat_mem.c
     src/cat_stdio.c
     src/cat_task.c

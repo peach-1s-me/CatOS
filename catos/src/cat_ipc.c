@@ -21,9 +21,11 @@
 
 #include "cat_ipc.h"
 
-#include "cat_stdio.h"
 #include "cat_intr.h"
+#include "cat_log.h"
 #include "cat_task.h"
+
+#include "cat_assert.h"
 
 #define IPC_TASK_WAIT_OFFS    (CATOS_TASK_IPC_OFFS)
 #define IPC_TASK_WAIT_MASK    (1<<IPC_TASK_WAIT_OFFS) /* 任务正在等待的ipc类型(接收/发送) */
@@ -158,7 +160,7 @@ static void cat_ipc_wait(
         }
         default:
         {
-            CAT_FALTAL_ERROR("ipc wait type unkown");
+            CLOG_ERROR("ipc wait type unkown");
         }
     }
 
@@ -386,7 +388,7 @@ static cat_u32 cat_ipc_wait_task_count(cat_ipc_t *ipc, ipc_wait_type_t wait_type
         }
         default:
         {
-            CAT_FALTAL_ERROR("ipc wait type unkown");
+            CLOG_ERROR("ipc wait type unkown");
         }
     }
 

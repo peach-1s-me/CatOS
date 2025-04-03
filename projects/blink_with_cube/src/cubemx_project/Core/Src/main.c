@@ -104,7 +104,7 @@ int main(void)
   catos_init();
 
   cat_task_create(
-    (const uint8_t *)"blink_task",
+    "blink_task",
     &blink_task,
     blink_task_entry,
     CAT_NULL,

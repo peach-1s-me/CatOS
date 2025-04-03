@@ -17,7 +17,9 @@
 #include "catos_config.h"
 #include "catos_types.h"
 
-#include "cat_stdio.h"
+#include "cat_log.h"
+
+#include "cat_assert.h"
 
 #define USE_HEAP_SECTION 0 /* 使能该项以使用空闲堆空间(还没做呢QAQ) */
 
@@ -48,11 +50,11 @@ void cat_mem_init(void)
 
     if(CAT_EOK != ret)
     {
-        CAT_FALTAL_ERROR("[mem] mem init fail\r\n");
+        CLOG_ERROR("[mem] mem init fail\r\n");
     }
     else
     {
-        CAT_KPRINTF("[mem] mem init success\r\n");
+        CLOG_INFO("[mem] mem init success\r\n");
     }
     
 }
@@ -195,13 +197,13 @@ cat_err cat_free(void *ptr)
     else
     {
         /* 说明出错了 */
-        CAT_KPRINTF("[mem] ERROR: BLOCK FLUSHED OR NOT IN USE\n");
+        CLOG_ERROR("[mem] BLOCK FLUSHED OR NOT IN USE\n");
     }
 
     return ret;
 }
 
-#if (CATOS_ENABLE_CAT_SHELL == 1)
+#if (CATOS_CAT_SHELL_ENABLE == 1)
 #include "cat_shell.h"
 #include "cat_stdio.h"
 #include "port.h"
@@ -211,10 +213,10 @@ void cat_mem_print_info(void)
     _mem_ctl_blk_t *mcb = mem_head.next;
     int i = 0;
 
-    CAT_KPRINTF("id    addr_range                      size   status------\r\n");
+    cat_kprintf("id    addr_range                      size   status------\r\n");
     while (mcb != &mem_head)
     {
-        CAT_KPRINTF("blk%4d:[0x%x, 0x%x] %5d   %s\r\n",
+        cat_kprintf("blk%4d:[0x%x, 0x%x] %5d   %s\r\n",
                i,
                ((cat_ubase)mcb + sizeof(_mem_ctl_blk_t)),
                ((cat_ubase)mcb + sizeof(_mem_ctl_blk_t) + mcb->size),
@@ -224,7 +226,7 @@ void cat_mem_print_info(void)
         i++;
         mcb = mcb->next;
     }
-    CAT_KPRINTF("\r\n");
+    cat_kprintf("\r\n");
 }
 void *do_pmem(void *arg)
 {

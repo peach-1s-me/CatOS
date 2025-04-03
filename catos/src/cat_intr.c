@@ -8,11 +8,13 @@
  * @copyright Copyright (c) 2022
  * 
  */
-
-#include "cat_task.h"
-#include "port.h"
-#include "cat_stdio.h"
 #include "cat_intr.h"
+
+#include "cat_log.h"
+#include "cat_task.h"
+#include "cat_assert.h"
+
+#include "port.h"
 
 /** 系统时钟 START */
 /* vars */
@@ -46,7 +48,7 @@ void cat_irq_enable(void)
     /* TODO:此处若nest==0,则应有一个WARN_LOG */
     if(cat_irq_disable_nest > 0)
     {
-        // CAT_KPRINTF("<--irq:%d\r\n", cat_irq_disable_nest);
+        CLOG_TRACE("<--irq:%d\r\n", cat_irq_disable_nest);
         cat_irq_disable_nest--;
 
         if(0 == cat_irq_disable_nest)
@@ -67,7 +69,7 @@ void cat_irq_disable(void)
         cat_irq_register_backup = _cat_hw_irq_disable();
     }
 
-    // CAT_KPRINTF("-->irq:%d\r\n", cat_irq_disable_nest);
+    CLOG_TRACE("-->irq:%d\r\n", cat_irq_disable_nest);
     CAT_ASSERT(cat_irq_disable_nest < 255);
 
     cat_irq_disable_nest++;
@@ -80,7 +82,6 @@ void cat_irq_disable(void)
 void cat_intr_enter(void)
 {
     cat_irq_disable();
-    // CAT_DEBUG_PRINTF("irq_enter\r\n");
     cat_intr_nest++;
     cat_irq_enable();
 }
@@ -91,7 +92,6 @@ void cat_intr_enter(void)
 void cat_intr_leave(void)
 {
     cat_irq_disable();
-    // CAT_DEBUG_PRINTF("irq_leave\r\n");
     cat_intr_nest--;
     cat_irq_enable();
 }
@@ -126,13 +126,14 @@ void cat_intr_default_handler(cat_u32 ipsr_val)
 #if 0
     cat_u32 irq_num = vector & 0x1f;
     cat_u32  exti_pr_reg = *((cat_u32 *)(0x40010414));
-    CAT_KPRINTF("cat_intr_default_handler triggered, vec=%d, irq=%d, exti_pr=%d\r\n", vector, irq_num, exti_pr_reg);
+    cat_kprintf("cat_intr_default_handler triggered, vec=%d, irq=%d, exti_pr=%d\r\n", vector, irq_num, exti_pr_reg);
 #endif
     cat_intr_enter();
     /* 减去不可编程的向量数得到向量号 */
     cat_u32 vector = ipsr_val - 16;
 
-    CAT_KPRINTF("vector_id = %d\r\n", vector);
+    CLOG_INFO("vector_id = %d\r\n", vector);
+    (void)vector;
 
     cat_intr_leave();
 }

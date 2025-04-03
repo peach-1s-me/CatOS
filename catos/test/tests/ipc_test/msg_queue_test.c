@@ -51,7 +51,7 @@ void ipc_t1_entry(void *arg)
     for (;;)
     {
         cat_task_delay_ms(1000);
-        CAT_KPRINTF("[t1]-->msg send(%d)\r\n", msg_send_cnt++);
+        cat_kprintf("[t1]-->msg send(%d)\r\n", msg_send_cnt++);
         
         content.high_data = msg_send_cnt;
         content.low_data  = msg_send_cnt+2;
@@ -69,17 +69,17 @@ void ipc_t2_entry(void *arg)
 
     for (;;)
     {
-        CAT_KPRINTF("[t2]-->t2 wait\r\n");
+        cat_kprintf("[t2]-->t2 wait\r\n");
 
         /* 等待唤醒 */
         cat_mq_recv(&test_mq, &recv_content, sizeof(msg_content_t), 10000);
         if (cat_task_get_error() == CAT_ETIMEOUT)
         {
-            CAT_KPRINTF("[t2][ERROR] t2 timeout\r\n");
+            cat_kprintf("[t2][ERROR] t2 timeout\r\n");
         }
         else
         {
-            CAT_KPRINTF("[t2]<--t2 recv content:low=%d, high=%d\r\n", recv_content.low_data, recv_content.high_data);
+            cat_kprintf("[t2]<--t2 recv content:low=%d, high=%d\r\n", recv_content.low_data, recv_content.high_data);
         }
     }
 }
@@ -92,17 +92,17 @@ void ipc_t3_entry(void *arg)
 
     for (;;)
     {
-        CAT_KPRINTF("[t3]-->t3 wait\r\n");
+        cat_kprintf("[t3]-->t3 wait\r\n");
 
         /* 等待唤醒 */
         cat_mq_recv(&test_mq, &recv_content, sizeof(msg_content_t), 10000);
         if (cat_task_get_error() == CAT_ETIMEOUT)
         {
-            CAT_KPRINTF("[t3][ERROR] t3 timeout\r\n");
+            cat_kprintf("[t3][ERROR] t3 timeout\r\n");
         }
         else
         {
-            CAT_KPRINTF("[t3]<--t3 recv content:low=%d, high=%d\r\n", recv_content.low_data, recv_content.high_data);
+            cat_kprintf("[t3]<--t3 recv content:low=%d, high=%d\r\n", recv_content.low_data, recv_content.high_data);
         }
     }
 }

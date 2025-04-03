@@ -16,29 +16,13 @@
  * </table>
  */
 #include "cat_task.h"
-#include "cat_lib.h"
-#include "cat_stdio.h"
-#include "port.h"
 
-/* 调试用断言 */
-void assert_task(struct _cat_task_t *task)
-{
-    // if(task->stack_size != 4096)
-    if (CAT_NULL == task)
-    {
-        while (1)
-            ;
-    }
-}
-#if 1
-#define TMP_ASSERT_TASK(task) \
-    do                        \
-    {                         \
-        assert_task(task);    \
-    } while (0)
-#else
-#define TMP_ASSERT_TASK(task)
-#endif
+#include "cat_lib.h"
+#include "cat_log.h"
+#include "cat_intr.h"
+#include "cat_assert.h"
+
+#include "port.h"
 
 /* 公有变量 */
 struct _cat_list_t cat_task_manage_list; /**< 用于管理的任务链表 */
@@ -70,7 +54,7 @@ static void _default_task_exit(void *arg)
 }
 
 static void cat_task_init(
-    const cat_u8 *task_name,
+    const char *task_name,
     struct _cat_task_t *task,
     void (*entry)(void *),
     void *arg,
@@ -79,7 +63,7 @@ static void cat_task_init(
     cat_u32 stack_size,
     cat_u8 sched_strategy)
 {
-    task->task_name = (cat_u8 *)task_name;
+    task->task_name = task_name;
     task->sched_strategy = sched_strategy;
 
     cat_memset(stack_start_addr, 0xff, stack_size);
@@ -144,10 +128,12 @@ void cat_task_scheduler_init(void)
         cat_list_init(&(task_rdy_tbl[i]));
     }
 
+#if (CATOS_STDIO_ENABLE == 1)
     if (cat_stdio_is_device_is_set())
     {
-        CAT_KPRINTF("[cat_sp_task] static priority scheduler init\r\n");
+        CLOG_INFO("[cat_sp_task] static priority scheduler init\r\n");
     }
+#endif
 }
 
 void cat_hw_init_systick(cat_u32 ms);
@@ -215,7 +201,7 @@ cat_task_t *cat_task_self(void)
 }
 
 void cat_task_create(
-    const cat_u8 *task_name,
+    const char *task_name,
     struct _cat_task_t *task,
     void (*entry)(void *),
     void *arg,
@@ -255,7 +241,7 @@ struct _cat_task_t *cat_task_get_highest_ready(void)
     /* 获取任务结构指针 */
     ret = CAT_GET_CONTAINER(node, struct _cat_task_t, link_node);
 
-    TMP_ASSERT_TASK(ret);
+    CAT_ASSERT(ret);
 
     return ret;
 }
@@ -281,7 +267,7 @@ void cat_task_delay_deal(void)
         /* 取得任务控制块指针 */
         struct _cat_task_t *task = CAT_GET_CONTAINER(node, struct _cat_task_t, link_node);
 
-        TMP_ASSERT_TASK(task);
+        CAT_ASSERT(task);
 
         /* 将任务delay的tick数减1，若减少之后为零则说明delay结束 */
         task->delay--;
@@ -346,7 +332,7 @@ void cat_task_sched(void)
             (cat_ubase) & (from_task->sp),
             (cat_ubase) & (to_task->sp));
 
-        // CAT_SYS_PRINTF("tsw:%s->%s\r\n", from_task->task_name, to_task->task_name);
+        // cat_printf("tsw:%s->%s\r\n", from_task->task_name, to_task->task_name);
     }
 
     cat_irq_enable();
@@ -406,7 +392,7 @@ void cat_task_sched_unlock(void)
  */
 void cat_task_rdy(struct _cat_task_t *task)
 {
-    TMP_ASSERT_TASK(task);
+    CAT_ASSERT(task);
     cat_list_add_last(&(task_rdy_tbl[task->prio]), &(task->link_node));
     cat_bitmap_set(&cat_task_prio_bitmap, task->prio);
 }
@@ -418,7 +404,7 @@ void cat_task_rdy(struct _cat_task_t *task)
  */
 void cat_task_unrdy(struct _cat_task_t *task)
 {
-    TMP_ASSERT_TASK(task);
+    CAT_ASSERT(task);
     cat_list_remove_node(&(task_rdy_tbl[task->prio]), &(task->link_node));
     if (cat_list_count(&(task_rdy_tbl[task->prio])) == 0) /* 如果没有任务才清除就绪位 */
     {
@@ -469,7 +455,7 @@ void cat_task_set_delay_ticks(struct _cat_task_t *task, cat_ubase ticks)
 
     cat_irq_disable();
 
-    TMP_ASSERT_TASK(task);
+    CAT_ASSERT(task);
 
     /* 要等待的tick数 */
     task->delay = ticks;
@@ -534,7 +520,7 @@ void cat_task_delay_ms(cat_u32 ms)
  */
 void cat_task_delay_wakeup(struct _cat_task_t *task)
 {
-    TMP_ASSERT_TASK(task);
+    CAT_ASSERT(task);
 
     /* 从等待链表取出 */
     cat_list_remove_node(&cat_task_delayed_list, &(task->link_node));
@@ -554,7 +540,7 @@ void cat_task_delay_wakeup(struct _cat_task_t *task)
  */
 void cat_task_suspend(struct _cat_task_t *task)
 {
-    TMP_ASSERT_TASK(task);
+    CAT_ASSERT(task);
 
     cat_irq_disable();
 
@@ -585,7 +571,7 @@ void cat_task_suspend(struct _cat_task_t *task)
  */
 void cat_task_suspend_wakeup(struct _cat_task_t *task)
 {
-    TMP_ASSERT_TASK(task);
+    CAT_ASSERT(task);
 
     cat_irq_disable();
 
@@ -702,7 +688,7 @@ cat_err cat_task_change_priority(cat_task_t *task, cat_u8 new_prio, cat_u8 *old_
  */
 void cat_task_set_error(cat_task_t *task, cat_err error)
 {
-    TMP_ASSERT_TASK(task);
+    CAT_ASSERT(task);
 
     task->error = error;
 }
@@ -714,12 +700,12 @@ void cat_task_set_error(cat_task_t *task, cat_err error)
  */
 cat_err cat_task_get_error(void)
 {
-    TMP_ASSERT_TASK(cat_task_current);
+    CAT_ASSERT(cat_task_current);
 
     return cat_task_current->error;
 }
 
-#if (CATOS_ENABLE_CAT_SHELL == 1)
+#if (CATOS_CAT_SHELL_ENABLE == 1)
 #include "cat_shell.h"
 #include "cat_stdio.h"
 #include "port.h"
@@ -727,7 +713,7 @@ cat_err cat_task_get_error(void)
 struct _cat_task_info_t
 {
     void *sp;              /**< 栈顶(堆栈指针)*/
-    cat_u8 *task_name;     /**< 任务名称*/
+    const char *task_name;     /**< 任务名称*/
     cat_u8 sched_strategy; /**< 调度策略 */
 
     // void               *entry;                          /**< 入口函数 */
@@ -790,7 +776,7 @@ static inline cat_u8 *get_state_name(cat_u8 state)
     }
     default:
     {
-        CAT_KPRINTF("[cat_task] error! invalid state!\r\n");
+        cat_kprintf("[cat_task] error! invalid state!\r\n");
         break;
     }
     }
@@ -807,9 +793,9 @@ void *do_ps(void *arg)
     cat_node_t *tmp = CAT_NULL;
     cat_ubase *p = CAT_NULL;
 
-    CAT_KPRINTF("-----------------------------------------------------------------------------------------\r\n");
-    CAT_KPRINTF("| task_name    | stragegy | prio | state    | stk_sz | stk_top    | stk_use | stk_max |\r\n");
-    CAT_KPRINTF("-----------------------------------------------------------------------------------------\r\n");
+    cat_kprintf("-----------------------------------------------------------------------------------------\r\n");
+    cat_kprintf("| task_name    | stragegy | prio | state    | stk_sz | stk_top    | stk_use | stk_max |\r\n");
+    cat_kprintf("-----------------------------------------------------------------------------------------\r\n");
 
     CAT_LIST_FOREACH_NO_REMOVE(&cat_task_manage_list, tmp)
     {
@@ -835,7 +821,7 @@ void *do_ps(void *arg)
             }
         }
 
-        CAT_KPRINTF(
+        cat_kprintf(
             "| %12s | %8s | %4d | %8s | %6d | %8x | %6d | %7d |\r\n",
             info.task_name,
             strategy_name_map[info.sched_strategy],
@@ -845,7 +831,7 @@ void *do_ps(void *arg)
             info.sp,
             (100 - (((cat_ubase)info.sp - (cat_ubase)info.stack_start_addr) * 100 / info.stack_size)),
             (100 - (((cat_ubase)p - (cat_ubase)info.stack_start_addr) * 100 / info.stack_size)));
-        // CAT_KPRINTF("------------------------------------------------------------------------------\r\n");
+        // cat_kprintf("------------------------------------------------------------------------------\r\n");
     }
 
     return CAT_NULL;

@@ -12,16 +12,16 @@
 
 #include "cat_device.h"
 #include "cat_lib.h"
+#include "cat_intr.h"
+#include "cat_assert.h"
+
 #include "port.h"
 
-#if (CATOS_ENABLE_DEVICE_MODEL == 1)
+#if (CATOS_DEVICE_MODEL_ENABLE == 1)
 
 /* PUBLIC VAR START */
 struct _cat_list_t cat_device_list;
 /* PUBLIC VAR END */
-#ifdef TEST
-cat_u32 id_table[8];
-#else
 /* STATIC VAT START */
 static cat_u32 id_table[8];
 /* STATIC VAT END */
@@ -129,7 +129,7 @@ void cat_device_module_init(void)
  * @param name                    : 设备名称
  * @return struct _cat_device_t * : 设备指针(句柄)
  */
-cat_device_t *cat_device_get(const cat_u8 *name)
+cat_device_t *cat_device_get(const char *name)
 {
     cat_device_t *ret = CAT_NULL;
     cat_node_t *tmp = CAT_NULL;
@@ -169,7 +169,7 @@ cat_device_t *cat_device_get_by_id(cat_u8 id);
  * @param aval_mode                : 允许的运行模式
  * @return cat_u8                 : 0->成功
  */
-cat_u8 cat_device_register(cat_device_t *dev, const cat_u8 *name, cat_u16 aval_mode)
+cat_u8 cat_device_register(cat_device_t *dev, const char *name, cat_u16 aval_mode)
 {
     cat_u8 ret = CAT_EOK;
     
@@ -186,7 +186,7 @@ cat_u8 cat_device_register(cat_device_t *dev, const cat_u8 *name, cat_u16 aval_m
         else
         {
             /* 初始化结构体成员 */
-            dev->device_name = (cat_u8 *)name;
+            dev->device_name = name;
             cat_list_node_init(&dev->link_node);
             // dev->type = CAT_DEVICE_TYPE_UNDEF;
             dev->aval_mode = aval_mode;
@@ -453,7 +453,7 @@ cat_u8 cat_device_ctrl(cat_device_t *dev, cat_u8 cmd, void *arg)
 }
 /* PUBLIC FUNCS DEF END */
 
-#if (CATOS_ENABLE_CAT_SHELL == 1)
+#if (CATOS_CAT_SHELL_ENABLE == 1)
 #include "cat_shell.h"
 #include "cat_stdio.h"
 void *do_list_device(void *arg)
@@ -463,12 +463,12 @@ void *do_list_device(void *arg)
     cat_device_t *dev = CAT_NULL;
     cat_node_t *tmp = CAT_NULL;
 
-    CAT_KPRINTF("-->%d devices:\r\n", cat_list_count(&cat_device_list));
+    cat_kprintf("-->%d devices:\r\n", cat_list_count(&cat_device_list));
 
     CAT_LIST_FOREACH_NO_REMOVE(&cat_device_list, tmp)
     {
         dev = CAT_GET_CONTAINER(tmp, cat_device_t, link_node);
-        CAT_KPRINTF(
+        cat_kprintf(
             "id=%2d, name=%s, type=%d, state=%d, aval_mode=%d, open_mode=%d, ref_count=%d\r\n",
             dev->device_id,
             dev->device_name,
@@ -484,6 +484,4 @@ void *do_list_device(void *arg)
     return CAT_NULL;
 }
 CAT_DECLARE_CMD(list_device, list devices, do_list_device);
-#endif
-
-#endif
+#endif /* #if (CATOS_CAT_SHELL_ENABLE == 1) */

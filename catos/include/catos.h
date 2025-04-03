@@ -15,16 +15,17 @@
 #include "catos_types.h"
 #include "catos_config.h"
 
-#include "port.h"
-
 #include "cat_device.h"
 #include "cat_intr.h"
 #include "cat_ipc.h"
 #include "cat_lib.h"
+#include "cat_log.h"
 #include "cat_mem.h"
 #include "cat_shell.h"
 #include "cat_stdio.h"
 #include "cat_task.h"
+
+#include "cat_assert.h"
 
 /* 系统相关 START */
 /**
