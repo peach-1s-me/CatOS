@@ -33,7 +33,7 @@ void cat_idle_entry(void *arg);
 void cat_idle_task_create(void)
 {
     cat_task_create(
-        (const cat_u8 *)"idle_task",
+        "idle_task",
         &idle_task,
         cat_idle_entry,
         CAT_NULL,
@@ -45,7 +45,7 @@ void cat_idle_task_create(void)
 
     if(cat_stdio_is_device_is_set())
     {
-        CAT_KPRINTF("[cat_idle] idle task created\r\n");
+        cat_kprintf("[cat_idle] idle task created\r\n");
     }
 }
 

@@ -185,7 +185,7 @@ cat_u8 cat_debug_uart_register(void)
 {
   cat_u8 err = cat_device_register(
     &uart1_dev,
-    (cat_u8 *)"debug_uart",
+    "debug_uart",
     CAT_DEVICE_MODE_RDWR
   );
 

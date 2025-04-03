@@ -18,6 +18,8 @@
 #include "cat_task.h"
 #include "cat_lib.h"
 #include "cat_stdio.h"
+#include "cat_intr.h"
+
 #include "port.h"
 
 /* 调试用断言 */
@@ -70,7 +72,7 @@ static void _default_task_exit(void *arg)
 }
 
 static void cat_task_init(
-    const cat_u8 *task_name,
+    const char *task_name,
     struct _cat_task_t *task,
     void (*entry)(void *),
     void *arg,
@@ -79,7 +81,7 @@ static void cat_task_init(
     cat_u32 stack_size,
     cat_u8 sched_strategy)
 {
-    task->task_name = (cat_u8 *)task_name;
+    task->task_name = task_name;
     task->sched_strategy = sched_strategy;
 
     cat_memset(stack_start_addr, 0xff, stack_size);
@@ -146,7 +148,7 @@ void cat_task_scheduler_init(void)
 
     if (cat_stdio_is_device_is_set())
     {
-        CAT_KPRINTF("[cat_sp_task] static priority scheduler init\r\n");
+        cat_kprintf("[cat_sp_task] static priority scheduler init\r\n");
     }
 }
 
@@ -215,7 +217,7 @@ cat_task_t *cat_task_self(void)
 }
 
 void cat_task_create(
-    const cat_u8 *task_name,
+    const char *task_name,
     struct _cat_task_t *task,
     void (*entry)(void *),
     void *arg,
@@ -346,7 +348,7 @@ void cat_task_sched(void)
             (cat_ubase) & (from_task->sp),
             (cat_ubase) & (to_task->sp));
 
-        // CAT_SYS_PRINTF("tsw:%s->%s\r\n", from_task->task_name, to_task->task_name);
+        // cat_printf("tsw:%s->%s\r\n", from_task->task_name, to_task->task_name);
     }
 
     cat_irq_enable();
@@ -727,7 +729,7 @@ cat_err cat_task_get_error(void)
 struct _cat_task_info_t
 {
     void *sp;              /**< 栈顶(堆栈指针)*/
-    cat_u8 *task_name;     /**< 任务名称*/
+    const char *task_name;     /**< 任务名称*/
     cat_u8 sched_strategy; /**< 调度策略 */
 
     // void               *entry;                          /**< 入口函数 */
@@ -790,7 +792,7 @@ static inline cat_u8 *get_state_name(cat_u8 state)
     }
     default:
     {
-        CAT_KPRINTF("[cat_task] error! invalid state!\r\n");
+        cat_kprintf("[cat_task] error! invalid state!\r\n");
         break;
     }
     }
@@ -807,9 +809,9 @@ void *do_ps(void *arg)
     cat_node_t *tmp = CAT_NULL;
     cat_ubase *p = CAT_NULL;
 
-    CAT_KPRINTF("-----------------------------------------------------------------------------------------\r\n");
-    CAT_KPRINTF("| task_name    | stragegy | prio | state    | stk_sz | stk_top    | stk_use | stk_max |\r\n");
-    CAT_KPRINTF("-----------------------------------------------------------------------------------------\r\n");
+    cat_kprintf("-----------------------------------------------------------------------------------------\r\n");
+    cat_kprintf("| task_name    | stragegy | prio | state    | stk_sz | stk_top    | stk_use | stk_max |\r\n");
+    cat_kprintf("-----------------------------------------------------------------------------------------\r\n");
 
     CAT_LIST_FOREACH_NO_REMOVE(&cat_task_manage_list, tmp)
     {
@@ -835,7 +837,7 @@ void *do_ps(void *arg)
             }
         }
 
-        CAT_KPRINTF(
+        cat_kprintf(
             "| %12s | %8s | %4d | %8s | %6d | %8x | %6d | %7d |\r\n",
             info.task_name,
             strategy_name_map[info.sched_strategy],
@@ -845,7 +847,7 @@ void *do_ps(void *arg)
             info.sp,
             (100 - (((cat_ubase)info.sp - (cat_ubase)info.stack_start_addr) * 100 / info.stack_size)),
             (100 - (((cat_ubase)p - (cat_ubase)info.stack_start_addr) * 100 / info.stack_size)));
-        // CAT_KPRINTF("------------------------------------------------------------------------------\r\n");
+        // cat_kprintf("------------------------------------------------------------------------------\r\n");
     }
 
     return CAT_NULL;

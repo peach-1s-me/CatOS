@@ -21,7 +21,7 @@
  */
 void meoo_init(void)
 {
-    CAT_SYS_PRINTF("[meoo] component meoo init\r\n");
+    cat_printf("[meoo] component meoo init\r\n");
 }
 
 void *do_meoo(void *arg)
@@ -48,7 +48,7 @@ void *do_meoo(void *arg)
       `*-*   `*-*  `*-*'         \r\n\
 "
 
-    CAT_SYS_PRINTF(MEOO_MSG);
+    cat_printf(MEOO_MSG);
 
     return CAT_NULL;
 }

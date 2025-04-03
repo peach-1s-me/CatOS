@@ -53,7 +53,7 @@ void cat_shell_task_create(void)
     shell_cfg.buf_size = 512;
     if(sizeof(shell_space) < CAT_BUF_SIZE * (CAT_MAX_HISTORY + 1))
     {
-        CAT_KPRINTF("[cat_shell_port:%d] shell_space is not enough !\r\n", __LINE__);
+        cat_kprintf("[cat_shell_port:%d] shell_space is not enough !\r\n", __LINE__);
         while(1);
     }
 
@@ -61,13 +61,13 @@ void cat_shell_task_create(void)
     ret = cat_shell_init(&port_shell_inst_1, &shell_cfg);
     if(ret)
     {
-        CAT_KPRINTF("[cat_shell_port:%d] cat_shell_init fail!\r\n", __LINE__);
+        cat_kprintf("[cat_shell_port:%d] cat_shell_init fail!\r\n", __LINE__);
         while(1);
     }
 
     /* 创建任务 */
     cat_task_create(
-        (const cat_u8 *)"shell_task", 
+        "shell_task", 
         &shell_task, 
         cat_shell_task_entry, 
         &port_shell_inst_1, 
@@ -75,7 +75,7 @@ void cat_shell_task_create(void)
         shell_task_env, 
         CATOS_SHELL_STACK_SIZE
     );
-    CAT_KPRINTF("[cat_shell_port] shell task created \r\n");
+    cat_kprintf("[cat_shell_port] shell task created \r\n");
 }
 
 /**
@@ -84,29 +84,25 @@ void cat_shell_task_create(void)
  * @param  data             缓冲区
  * @return cat_i16 
  */
-cat_u8 cat_shell_port_getc(void)
+char cat_shell_port_getc(void)
 {
-    cat_u8 c = 0;
+    char c = 0;
 
     cat_sem_get(&recv_sem, IPC_TIMEOUT_FOREVER);
     
-    cat_i32 err = cat_ringbuffer_get(&recv_rb, &c);
+    cat_i32 err = cat_ringbuffer_get(&recv_rb, (cat_u8 *)&c);
     if(CAT_EOK != err)
     {
-        CAT_KPRINTF("got c=%x", c);
+        cat_kprintf("got c=%x", c);
         CAT_FALTAL_ERROR("[shell] ERROR: got sem but no data");
     }
     
     return c;
 }
 
-cat_u8 cat_shell_port_putc(cat_u8 data)
+void cat_shell_port_putc(char c)
 {
-    cat_u8 ret = 0;
-
-    CAT_SYS_PUTCHAR(data);
-
-    return ret;
+    cat_putchar(c);
 }
 
 /**
@@ -119,7 +115,7 @@ void cat_shell_recv_char_notify(cat_u8 data)
 
     if(CAT_EOK != err)
     {
-        CAT_KPRINTF("[shell] WARNING: rb us full, data lost\r\n");
+        cat_kprintf("[shell] WARNING: rb us full, data lost\r\n");
     }
     else
     {
@@ -134,6 +130,6 @@ void cat_shell_recv_char_notify(cat_u8 data)
     /* 不使用就空函数 */
     void cat_shell_task_create(void)
     {
-        CAT_KPRINTF("[cat_shell] shell not used\r\n");
+        cat_kprintf("[cat_shell] shell not used\r\n");
     }
 #endif /* #if (CATOS_ENABLE_CAT_SHELL == 1) */

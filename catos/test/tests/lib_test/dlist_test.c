@@ -38,17 +38,17 @@ void print_dlist(cat_dlist_t *dl)
     while(CAT_NULL != p)
     {
         real_value += p->value;
-        CAT_SYS_PRINTF("%d(%d)->", real_value, p->value);
+        cat_printf("%d(%d)->", real_value, p->value);
         
         p = p->next;
     }
-    CAT_SYS_PRINTF("END\r\n");
+    cat_printf("END\r\n");
 }
 
 
 void test_dlist_func(void)
 {
-    CAT_KPRINTF("test init\r\n");
+    cat_kprintf("test init\r\n");
     cat_dlist_init(&dlist);
 
     cat_u32 i;
@@ -62,7 +62,7 @@ void test_dlist_func(void)
     CAT_TEST_INFO(cat_dlist_add, test add);
     for(i=0; i<ITEM_NUM; i++)
     {
-        CAT_SYS_PRINTF("add node %d\r\n", items[i].dn.value);
+        cat_printf("add node %d\r\n", items[i].dn.value);
         cat_dlist_add(&dlist, &(items[i].dn));
         print_dlist(&dlist);
     }
@@ -70,11 +70,11 @@ void test_dlist_func(void)
     CAT_TEST_INFO(cat_dlist_pop, test pop);
     cat_dnode_t *tmp;
     tmp = cat_dlist_pop(&dlist);
-    CAT_SYS_PRINTF("pop %d\r\n", tmp->value);
+    cat_printf("pop %d\r\n", tmp->value);
     tmp = cat_dlist_pop(&dlist);
-    CAT_SYS_PRINTF("pop %d\r\n", tmp->value);
+    cat_printf("pop %d\r\n", tmp->value);
     tmp = cat_dlist_pop(&dlist);
-    CAT_SYS_PRINTF("pop %d\r\n", tmp->value);
+    cat_printf("pop %d\r\n", tmp->value);
     print_dlist(&dlist);
 }
 

@@ -24,17 +24,17 @@ static cat_u32 test_cnt = 0; /* 测试序号，每调用一次CAT_TEST_INFO就�
     do { \
         if(_expr) \
         { \
-            CAT_KPRINTF("[TEST_EXPECT]%s:%d %s(%s) == false%s\r\n", __FILE__, __LINE__, COLOR_RED, #_expr, COLOR_NONE); \
+            cat_kprintf("[TEST_EXPECT]%s:%d %s(%s) == false%s\r\n", __FILE__, __LINE__, COLOR_RED, #_expr, COLOR_NONE); \
         } \
         else \
         { \
-            CAT_KPRINTF("[TEST_EXPECT]%s:%d %s(%s) == true%s\r\n", __FILE__, __LINE__, COLOR_GREEN, #_expr, COLOR_NONE); \
+            cat_kprintf("[TEST_EXPECT]%s:%d %s(%s) == true%s\r\n", __FILE__, __LINE__, COLOR_GREEN, #_expr, COLOR_NONE); \
         } \
     }while(0)
 
 #define CAT_TEST_INFO(_func, _test_name) \
     do { \
-        CAT_KPRINTF("== test-%d == \"%s\" %s\r\n", test_cnt++, #_func, #_test_name); \
+        cat_kprintf("== test-%d == \"%s\" %s\r\n", test_cnt++, #_func, #_test_name); \
     }while(0)
 
 #endif

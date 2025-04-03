@@ -49,24 +49,24 @@ void ipc_t1_entry(void *arg)
     cat_u32 t1_notified_times = 0;
 
     cat_task_delay_ms(1000);
-    CAT_KPRINTF("[t1]-->notify ipc2\r\n");
+    cat_kprintf("[t1]-->notify ipc2\r\n");
     test_export_cat_ipc_wakeup_first(&test_ipc2, IPC_WAIT_TYPE_RECV, NULL, CAT_EOK);
 
     for(;;)
     {
-        CAT_KPRINTF("[t1]-->ipc1 wait\r\n");
+        cat_kprintf("[t1]-->ipc1 wait\r\n");
 
         /* 等待唤醒 */
         test_export_cat_ipc_wait(&test_ipc1, IPC_WAIT_TYPE_RECV, &ipc_test_task1, CAT_IPC_TYPE_SEM, 10000);
         if(cat_task_get_error() == CAT_ETIMEOUT)
         {
-            CAT_KPRINTF("[t1][ERROR] ipc1 timeout\r\n");
+            cat_kprintf("[t1][ERROR] ipc1 timeout\r\n");
         }
         else
         {
-            CAT_KPRINTF("[t1]<--ipc1 notified (%d)\r\n", t1_notified_times++);
+            cat_kprintf("[t1]<--ipc1 notified (%d)\r\n", t1_notified_times++);
             cat_task_delay_ms(1000);
-            CAT_KPRINTF("[t1]-->notify ipc2\r\n");
+            cat_kprintf("[t1]-->notify ipc2\r\n");
             test_export_cat_ipc_wakeup_first(&test_ipc2, IPC_WAIT_TYPE_RECV, NULL, CAT_EOK);
         }
     }
@@ -81,19 +81,19 @@ void ipc_t2_entry(void *arg)
 
     for(;;)
     {
-        CAT_KPRINTF("[t2]-->ipc2 wait\r\n");
+        cat_kprintf("[t2]-->ipc2 wait\r\n");
 
         /* 等待唤醒 */
         test_export_cat_ipc_wait(&test_ipc2, IPC_WAIT_TYPE_RECV, &ipc_test_task2, CAT_IPC_TYPE_SEM, 10000);
         if(cat_task_get_error() == CAT_ETIMEOUT)
         {
-            CAT_KPRINTF("[t2][ERROR] ipc2 timeout\r\n");
+            cat_kprintf("[t2][ERROR] ipc2 timeout\r\n");
         }
         else
         {
-            CAT_KPRINTF("[t2]<--ipc2 notified (%d)\r\n", t2_notified_times++);
+            cat_kprintf("[t2]<--ipc2 notified (%d)\r\n", t2_notified_times++);
             cat_task_delay_ms(1000);
-            CAT_KPRINTF("[t2]-->notify ipc3\r\n");
+            cat_kprintf("[t2]-->notify ipc3\r\n");
             test_export_cat_ipc_wakeup_first(&test_ipc3, IPC_WAIT_TYPE_RECV, NULL, CAT_EOK);
         }
     }
@@ -107,19 +107,19 @@ void ipc_t3_entry(void *arg)
 
     for(;;)
     {
-        CAT_KPRINTF("[t3]-->ipc3 wait\r\n");
+        cat_kprintf("[t3]-->ipc3 wait\r\n");
 
         /* 等待唤醒 */
         test_export_cat_ipc_wait(&test_ipc3, IPC_WAIT_TYPE_RECV, &ipc_test_task3, CAT_IPC_TYPE_SEM, 10000);
         if(cat_task_get_error() == CAT_ETIMEOUT)
         {
-            CAT_KPRINTF("[t3][ERROR] ipc3 timeout\r\n");
+            cat_kprintf("[t3][ERROR] ipc3 timeout\r\n");
         }
         else
         {
-            CAT_KPRINTF("[t3]<--ipc3 notified (%d)\r\n", t3_notified_times++);
+            cat_kprintf("[t3]<--ipc3 notified (%d)\r\n", t3_notified_times++);
             cat_task_delay_ms(1000);
-            CAT_KPRINTF("[t3]-->notify ipc1\r\n");
+            cat_kprintf("[t3]-->notify ipc1\r\n");
             test_export_cat_ipc_wakeup_first(&test_ipc1, IPC_WAIT_TYPE_RECV, NULL, CAT_EOK);
         }
     }

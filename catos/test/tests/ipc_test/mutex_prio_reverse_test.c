@@ -104,16 +104,16 @@ void ipc_t1_entry(void *arg)
     cat_task_delay_ms(2000);
 
     cat_ubase start_tick = catos_get_systick();
-    CAT_KPRINTF("[t1] start running\r\n");
-    CAT_KPRINTF("[t1] -->geting mutex\r\n");
+    cat_kprintf("[t1] start running\r\n");
+    cat_kprintf("[t1] -->geting mutex\r\n");
     ENTER_CRITICAL();
-    CAT_KPRINTF("[t1] <--got mutex\r\n");
+    cat_kprintf("[t1] <--got mutex\r\n");
 
     /* 等待一秒钟 */
     busy_wait_ms(1000);
 
     cat_ubase end_tick = catos_get_systick();
-    CAT_KPRINTF("[t1] end, cost %d ms\r\n", (end_tick - start_tick) * CATOS_SYSTICK_MS);
+    cat_kprintf("[t1] end, cost %d ms\r\n", (end_tick - start_tick) * CATOS_SYSTICK_MS);
     EXIT_CRITICAL();
 #else
     /* 调试忙等的功能 */
@@ -124,7 +124,7 @@ void ipc_t1_entry(void *arg)
     busy_wait_ms(WAIT_TIME);
 
     cat_ubase end_tick = catos_get_systick();
-    CAT_KPRINTF("busy wait %d cost %d ms\r\n", WAIT_TIME, (end_tick - start_tick) * CATOS_SYSTICK_MS);
+    cat_kprintf("busy wait %d cost %d ms\r\n", WAIT_TIME, (end_tick - start_tick) * CATOS_SYSTICK_MS);
 #endif
 }
 
@@ -135,13 +135,13 @@ void ipc_t2_entry(void *arg)
     cat_task_delay_ms(1000);
 
     cat_ubase start_tick = catos_get_systick();
-    CAT_KPRINTF("[t2] start running\r\n");
+    cat_kprintf("[t2] start running\r\n");
 
     /* 等待10秒钟 */
     busy_wait_ms(10000);
 
     cat_ubase end_tick = catos_get_systick();
-    CAT_KPRINTF("[t2] end, cost %d ms\r\n", (end_tick - start_tick) * CATOS_SYSTICK_MS);
+    cat_kprintf("[t2] end, cost %d ms\r\n", (end_tick - start_tick) * CATOS_SYSTICK_MS);
 }
 
 void ipc_t3_entry(void *arg)
@@ -149,16 +149,16 @@ void ipc_t3_entry(void *arg)
     (void)arg;
 
     cat_ubase start_tick = catos_get_systick();
-    CAT_KPRINTF("[t3] start running\r\n");
-    CAT_KPRINTF("[t3] -->geting mutex\r\n");
+    cat_kprintf("[t3] start running\r\n");
+    cat_kprintf("[t3] -->geting mutex\r\n");
     ENTER_CRITICAL();
-    CAT_KPRINTF("[t3] <--got mutex\r\n");
+    cat_kprintf("[t3] <--got mutex\r\n");
 
     /* 等待5秒钟 */
     busy_wait_ms(5000);
     
     cat_ubase end_tick = catos_get_systick();
-    CAT_KPRINTF("[t3] end, cost %d ms\r\n", (end_tick - start_tick) * CATOS_SYSTICK_MS);
+    cat_kprintf("[t3] end, cost %d ms\r\n", (end_tick - start_tick) * CATOS_SYSTICK_MS);
     EXIT_CRITICAL();
 }
 

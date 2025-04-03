@@ -340,7 +340,7 @@ void cat_list_insert_after(struct _cat_list_t *list, struct _cat_node_t *node_af
  * @param str2 
  * @return cat_u32 0:equal, -1:not equal, -2:CAT_NULL args
  */
-cat_i32 cat_strcmp(const cat_u8 *str1, const cat_u8 *str2);
+cat_i32 cat_strcmp(const char *str1, const char *str2);
 
 /**
  * @brief 字符串拷贝
@@ -349,7 +349,7 @@ cat_i32 cat_strcmp(const cat_u8 *str1, const cat_u8 *str2);
  * @param dest_len 目标buffer长度
  * @return cat_i32 0:成功，else:失败
  */
-cat_i32 cat_strcpy(cat_u8 *dest, const cat_u8 *src, cat_u32 dest_len);
+cat_i32 cat_strcpy(char *dest, const char *src, cat_u32 dest_len);
 
 /**
  * @brief 字符串长度
@@ -357,7 +357,7 @@ cat_i32 cat_strcpy(cat_u8 *dest, const cat_u8 *src, cat_u32 dest_len);
  * @param  src         源字符串
  * @return cat_u32     长度
  */
-cat_u32 cat_strlen(const cat_u8 *src);
+cat_u32 cat_strlen(const char *src);
 
 /**
  * @brief 字符串转有符号32
@@ -365,18 +365,12 @@ cat_u32 cat_strlen(const cat_u8 *src);
  * @param src  源字符串
  * @return cat_i32 0:成功，else:失败
  */
-cat_i32 cat_atoi(cat_i32 *dest, const cat_u8 *src);
+cat_i32 cat_atoi(cat_i32 *dest, const char *src);
 
-/**
- * @brief 有符号32转字符串
- * @param dest 目标buffer
- * @param src  源字符串
- * @return cat_i32 0:成功，else:失败
- */
-cat_i32 cat_itoa(cat_u8 *dest, cat_i32 src);
+cat_i32 cat_itoa(char *dst, cat_i32 num);
 
-cat_i32 cat_htoi(cat_u32 *dest, const cat_u8 *src);
-cat_i32 cat_itoh(cat_u8 *dest, cat_u32 src);
+cat_i32 cat_htoi(cat_u32 *dst, const char *src);
+cat_i32 cat_itoh(char *dst, cat_u32 src);
 
 void *cat_memset(void *start_addr, cat_u8 fill_with, cat_u32 size);
 

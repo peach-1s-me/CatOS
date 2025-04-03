@@ -15,7 +15,7 @@ item_t items[ITEM_NUM];
 
 void test_list_func(void)
 {
-    CAT_KPRINTF("test init\r\n");
+    cat_kprintf("test init\r\n");
     cat_list_init(&test_list_var);
 
     cat_u32 i;
@@ -32,31 +32,31 @@ void test_list_func(void)
     }
 
     cat_u32 cnt = cat_list_count(&test_list_var);
-    CAT_KPRINTF("add %d nodes\r\n", cnt);
+    cat_kprintf("add %d nodes\r\n", cnt);
 
     CAT_TEST_INFO(CAT_LIST_FOREACH, test for_each);
     cat_node_t *p = CAT_NULL;
     item_t *item = CAT_NULL;
-    CAT_KPRINTF("list=");
+    cat_kprintf("list=");
     CAT_LIST_FOREACH_NO_REMOVE(&test_list_var, p)
     {
         item = CAT_GET_CONTAINER(p, item_t, node);
-        CAT_KPRINTF("%d->", item->value);
+        cat_kprintf("%d->", item->value);
     }
-    CAT_KPRINTF("\r\n");
+    cat_kprintf("\r\n");
 
     cat_list_remove_node(&test_list_var, &(items[3].node));
-    CAT_KPRINTF("list=");
+    cat_kprintf("list=");
     CAT_LIST_FOREACH_NO_REMOVE(&test_list_var, p)
     {
         item = CAT_GET_CONTAINER(p, item_t, node);
-        CAT_KPRINTF("%d ", item->value);
+        cat_kprintf("%d ", item->value);
     }
-    CAT_KPRINTF("\r\n");
+    cat_kprintf("\r\n");
 
     cat_list_remove_all(&test_list_var);
     cnt = cat_list_count(&test_list_var);
-    CAT_KPRINTF("there are %d nodes\r\n", cnt);
+    cat_kprintf("there are %d nodes\r\n", cnt);
 
 #if 0
     /* 测试两次插入同一节点会导致该节点产生自环，因此再进行遍历会死循环 */
@@ -64,13 +64,13 @@ void test_list_func(void)
     cat_list_add_first(&test_list_var, &(items[2].node));
     cat_list_add_first(&test_list_var, &(items[2].node));
 
-    CAT_KPRINTF("list=");
+    cat_kprintf("list=");
     CAT_LIST_FOREACH_NO_REMOVE(&test_list_var, p)
     {
         item = CAT_GET_CONTAINER(p, item_t, node);
-        CAT_KPRINTF("%d ", item->value);
+        cat_kprintf("%d ", item->value);
     }
-    CAT_KPRINTF("\r\n");
+    cat_kprintf("\r\n");
 #endif
 
 

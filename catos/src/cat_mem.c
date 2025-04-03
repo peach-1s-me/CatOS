@@ -52,7 +52,7 @@ void cat_mem_init(void)
     }
     else
     {
-        CAT_KPRINTF("[mem] mem init success\r\n");
+        cat_kprintf("[mem] mem init success\r\n");
     }
     
 }
@@ -195,7 +195,7 @@ cat_err cat_free(void *ptr)
     else
     {
         /* 说明出错了 */
-        CAT_KPRINTF("[mem] ERROR: BLOCK FLUSHED OR NOT IN USE\n");
+        cat_kprintf("[mem] ERROR: BLOCK FLUSHED OR NOT IN USE\n");
     }
 
     return ret;
@@ -211,10 +211,10 @@ void cat_mem_print_info(void)
     _mem_ctl_blk_t *mcb = mem_head.next;
     int i = 0;
 
-    CAT_KPRINTF("id    addr_range                      size   status------\r\n");
+    cat_kprintf("id    addr_range                      size   status------\r\n");
     while (mcb != &mem_head)
     {
-        CAT_KPRINTF("blk%4d:[0x%x, 0x%x] %5d   %s\r\n",
+        cat_kprintf("blk%4d:[0x%x, 0x%x] %5d   %s\r\n",
                i,
                ((cat_ubase)mcb + sizeof(_mem_ctl_blk_t)),
                ((cat_ubase)mcb + sizeof(_mem_ctl_blk_t) + mcb->size),
@@ -224,7 +224,7 @@ void cat_mem_print_info(void)
         i++;
         mcb = mcb->next;
     }
-    CAT_KPRINTF("\r\n");
+    cat_kprintf("\r\n");
 }
 void *do_pmem(void *arg)
 {

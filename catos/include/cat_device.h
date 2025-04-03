@@ -73,14 +73,14 @@ enum _cat_device_type_t
 
 struct _cat_device_t
 {
-    cat_u8                   *device_name;           /**< 设备名称 */
+    const char         *device_name;           /**< 设备名称 */
 
-    struct _cat_node_t        link_node;              /**< 链表节点 */
+    struct _cat_node_t link_node;              /**< 链表节点 */
 
-    cat_device_type_t         type;                   /**< 设备类型 */
-    cat_u16                  state;                  /**< 设备状态 */
-    cat_u16                  aval_mode;              /**< 允许的运行模式 */
-    cat_u16                  open_mode;              /**< 本次被打开时使用的运行模式 */
+    cat_device_type_t  type;                   /**< 设备类型 */
+    cat_u16            state;                  /**< 设备状态 */
+    cat_u16            aval_mode;              /**< 允许的运行模式 */
+    cat_u16             open_mode;              /**< 本次被打开时使用的运行模式 */
 
     cat_u8                   ref_count;              /**< 设备被引用的次数 */
     cat_u8                   device_id;              /**< 设备号 */
@@ -115,7 +115,7 @@ void cat_device_module_init(void);
  * @param name                    : 设备名称
  * @return cat_device_t* : 设备指针(句柄)
  */
-cat_device_t *cat_device_get(const cat_u8 *name);
+cat_device_t *cat_device_get(const char *name);
 
 /**
  * @brief 根据设备号获取设备结构体指针
@@ -133,7 +133,7 @@ cat_device_t *cat_device_get_by_id(cat_u8 id);
  * @param aval_mode                : 允许的运行模式
  * @return cat_u8                 : 0->成功
  */
-cat_u8 cat_device_register(cat_device_t *dev, const cat_u8 *name, cat_u16 aval_mode);
+cat_u8 cat_device_register(cat_device_t *dev, const char *name, cat_u16 aval_mode);
 
 /**
  * @brief 移除设备(从注册移除)

@@ -45,7 +45,7 @@ void catos_init(void)
     cat_debug_uart_register();
 
     /* 设置标准输入输出使用的串口 */
-    cat_stdio_set_device((cat_u8 *)CATOS_STDIO_DEVICE_NAME);
+    cat_stdio_set_device(CATOS_STDIO_DEVICE_NAME);
 
     /********内核相关初始化 */
     /* 初始化调度器 */
@@ -70,7 +70,7 @@ void catos_init(void)
     main();
 
     /* 若用户主函数未启动调度器则可能会返回，正常项目不应该运行到该循环中 */
-    CAT_KPRINTF("user do not start the scheduler, main() returned\r\n");
+    cat_kprintf("user do not start the scheduler, main() returned\r\n");
     while(1)
     {
 

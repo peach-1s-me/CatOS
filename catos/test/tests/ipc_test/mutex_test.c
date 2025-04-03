@@ -57,7 +57,7 @@ void ipc_t1_entry(void *arg)
     {
         test_critical_resource++;
     }
-    CAT_KPRINTF("[t1] done\r\n");
+    cat_kprintf("[t1] done\r\n");
 #else
     cat_u32 i, j = INC_TIMES;
 
@@ -67,7 +67,7 @@ void ipc_t1_entry(void *arg)
         test_critical_resource++;
         cat_mutex_post(&test_mutex);
     }
-    CAT_KPRINTF("[t1] done\r\n");
+    cat_kprintf("[t1] done\r\n");
 #endif
 }
 
@@ -82,7 +82,7 @@ void ipc_t2_entry(void *arg)
     {
         test_critical_resource++;
     }
-    CAT_KPRINTF("[t2] done\r\n");
+    cat_kprintf("[t2] done\r\n");
 #else
     cat_u32 i, j = INC_TIMES;
 
@@ -92,7 +92,7 @@ void ipc_t2_entry(void *arg)
         test_critical_resource++;
         cat_mutex_post(&test_mutex);
     }
-    CAT_KPRINTF("[t2] done\r\n");
+    cat_kprintf("[t2] done\r\n");
 #endif
 }
 
@@ -107,7 +107,7 @@ void ipc_t3_entry(void *arg)
     {
         test_critical_resource++;
     }
-    CAT_KPRINTF("[t3] done\r\n");
+    cat_kprintf("[t3] done\r\n");
 #else
     cat_u32 i, j = INC_TIMES;
 
@@ -117,7 +117,7 @@ void ipc_t3_entry(void *arg)
         test_critical_resource++;
         cat_mutex_post(&test_mutex);
     }
-    CAT_KPRINTF("[t3] done\r\n");
+    cat_kprintf("[t3] done\r\n");
 #endif
 }
 
@@ -162,7 +162,7 @@ void *do_show_critical_res(void *arg)
 {
     (void)arg;
 
-    CAT_KPRINTF("%d\r\n", test_critical_resource);
+    cat_kprintf("%d\r\n", test_critical_resource);
 
     return CAT_NULL;
 }

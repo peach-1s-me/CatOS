@@ -39,7 +39,7 @@
 struct _cat_task_t
 {
     void               *sp;                             /**< 栈顶(堆栈指针)*/
-    cat_u8             *task_name;                      /**< 任务名称*/
+    const char         *task_name;                      /**< 任务名称*/
     cat_u8              sched_strategy;                 /**< 调度策略 */
 
 
@@ -73,7 +73,7 @@ void cat_task_set_current(cat_task_t *task);
 cat_task_t *cat_task_self(void);
 
 void cat_task_create(
-    const cat_u8 *task_name,
+    const char *task_name,
     struct _cat_task_t *task, 
     void (*entry)(void *), 
     void *arg, 
