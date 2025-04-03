@@ -150,6 +150,12 @@ ST公司为他们的 stm32 系列 mcu 推出的图形化配置工具，可以方
 ##### 1. 创建项目<a id="1_create_project"></a>
 
 1.1 克隆catOS代码仓库
+**注意**：由于在windows下执行bat脚本需要换行符格式为windows下的CRLF，而代码默认为unix和linux下的LF，因此克隆前最好设置git的换行符自动切换
+```
+git config --global core.autocrlf true
+```
+否则可能会出现以下状况
+![](README.assets/3-1-run_bat_error.png)
 
 ```sh
 git clone https://github.com/peach-1s-me/CatOS.git
@@ -624,7 +630,8 @@ target_sources(user_project INTERFACE
 | gdb_start.bat | 启动gdb                   | gdb_start.bat [项目名] |
 | ocd_start.bat | 启动openocd               | ocd_start.bat [项目名] |
 
-**注意**：其中的 flash.bat 和 ocd_start.bat 要**根据自己的调试器进行配置**，使用openocd进行下载或调试的时候要指定两个配置文件 interface 和 target，分别描述使用的调试器和目标开发板，可选择的配置文件可以在 openocd 安装目录下的openocd/scripts/interface 和 openocd/scripts/target 中查看。
+**注意**：
+1. 其中的 flash.bat 和 ocd_start.bat 要**根据自己的调试器进行配置**，使用openocd进行下载或调试的时候要指定两个配置文件 interface 和 target，分别描述使用的调试器和目标开发板，可选择的配置文件可以在 openocd 安装目录下的openocd/scripts/interface 和 openocd/scripts/target 中查看。
 
 构建blink：
 ```bat
