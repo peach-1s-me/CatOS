@@ -101,7 +101,7 @@ struct _cat_device_t
 };
 /* DATA STRUCTS END */
 /* PUBLIC VAR DECL START */
-extern struct _cat_list_t cat_device_list;
+extern cat_list_t cat_device_list;
 /* PUBLIC VAR DECL END */
 /* FUNCS START */
 /**

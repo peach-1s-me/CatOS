@@ -25,7 +25,7 @@
 #include "port.h"
 
 /* 公有变量 */
-struct _cat_list_t cat_task_manage_list; /**< 用于管理的任务链表 */
+cat_list_t cat_task_manage_list; /**< 用于管理的任务链表 */
 
 /* 私有变量 */
 static cat_bool cat_task_is_scheduling = CAT_FALSE; /**< 表示已开始调度（正在调度） */
@@ -34,8 +34,8 @@ static struct _cat_task_t *cat_task_current; /**< 当前任务指针 */
 static cat_bitmap cat_task_prio_bitmap;      /**< 就绪位图 */
 
 static cat_u8 sched_lock_cnt;                                /**< 调度锁 0:未加锁；else：加锁(可多次加锁)*/
-static struct _cat_list_t task_rdy_tbl[CATOS_TASK_PRIO_MIN]; /**< 就绪表 */
-static struct _cat_list_t cat_task_delayed_list;             /**< 延时链表 */
+static cat_list_t task_rdy_tbl[CATOS_TASK_PRIO_MIN]; /**< 就绪表 */
+static cat_list_t cat_task_delayed_list;             /**< 延时链表 */
 
 /* 内核内部声明 */
 void cat_ipc_remove_wait_task(cat_ipc_t *ipc, cat_task_t *task, void *msg, cat_err error);
@@ -405,7 +405,9 @@ void cat_task_rdy(struct _cat_task_t *task)
 void cat_task_unrdy(struct _cat_task_t *task)
 {
     CAT_ASSERT(task);
-    cat_list_remove_node(&(task_rdy_tbl[task->prio]), &(task->link_node));
+
+    cat_list_remove_node(&(task->link_node));
+
     if (cat_list_count(&(task_rdy_tbl[task->prio])) == 0) /* 如果没有任务才清除就绪位 */
     {
         cat_bitmap_clr(&cat_task_prio_bitmap, task->prio);
@@ -523,7 +525,7 @@ void cat_task_delay_wakeup(struct _cat_task_t *task)
     CAT_ASSERT(task);
 
     /* 从等待链表取出 */
-    cat_list_remove_node(&cat_task_delayed_list, &(task->link_node));
+    cat_list_remove_node(&(task->link_node));
     /* delay值清零 */
     task->delay = 0;
     /* 复位等待状态位 */

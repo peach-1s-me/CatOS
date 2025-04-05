@@ -22,11 +22,10 @@
 
 /* 位图 START */
 /* 位图数据结构 */
-struct _cat_bitmap
+typedef struct
 {
     cat_u32 bitmap;
-};
-typedef struct _cat_bitmap cat_bitmap;
+} cat_bitmap;
 
 /**
  * @brief 获取位图位数
@@ -78,7 +77,7 @@ typedef struct _cat_dnode_t
 /**
  * @brief 差分链表
  */
-typedef struct _cat_dlist_t
+typedef struct
 {
     cat_dnode_t head;
 } cat_dlist_t;
@@ -225,31 +224,31 @@ static inline cat_dnode_t *cat_dlist_pop(cat_dlist_t *dlist)
 
 
 /*< 链表结点结构体**/
-struct _cat_node_t
+typedef struct _cat_node_t
 {
     struct _cat_node_t *pre_node;
     struct _cat_node_t *next_node;
-};
+} cat_node_t;
 
 /*< 链表结构(TODO:去掉node_cnt否则remove_node可能出问题)->20250304已解决**/
-struct _cat_list_t
+typedef struct
 {
     struct _cat_node_t head_node; /* head_node只用于连接第一个节点和最后一个节点 */
-};
+} cat_list_t;
 
 /**
  * @brief 初始化链表
  * 
  * @param list 要初始化的链表结构指针
  */
-void cat_list_init(struct _cat_list_t *list);
+void cat_list_init(cat_list_t *list);
 
 /**
  * @brief 初始化结点
  * 
  * @param node 要初始化的结点指针
  */
-void cat_list_node_init(struct _cat_node_t *node);
+void cat_list_node_init(cat_node_t *node);
 
 /**
  * @brief 获取链表结点数量
@@ -257,7 +256,7 @@ void cat_list_node_init(struct _cat_node_t *node);
  * @param list          链表指针
  * @return cat_u32     结点数量
  */
-cat_u32 cat_list_count(struct _cat_list_t *list);
+cat_u32 cat_list_count(cat_list_t *list);
 
 /**
  * @brief 检查节点是否在链表上
@@ -273,17 +272,17 @@ cat_bool cat_list_is_in(cat_list_t *list, cat_node_t *node);
  * @brief 获取链表第一个结点的指针
  * 
  * @param list                  链表指针
- * @return struct _cat_node_t*  第一个结点指针
+ * @return cat_node_t*  第一个结点指针
  */
-struct _cat_node_t *cat_list_first(struct _cat_list_t *list);
+cat_node_t *cat_list_first(cat_list_t *list);
 
 /**
  * @brief 获取链表最后一个结点的指针
  * 
  * @param list                  链表指针
- * @return struct _cat_node_t*  最后一个结点指针
+ * @return cat_node_t*  最后一个结点指针
  */
-struct _cat_node_t *cat_list_last(struct _cat_list_t *list);
+cat_node_t *cat_list_last(cat_list_t *list);
 
 /**
  * @brief 删除指定结点
@@ -291,14 +290,14 @@ struct _cat_node_t *cat_list_last(struct _cat_list_t *list);
  * @param list  链表指针
  * @param node  要删除的指定结点
  */
-void cat_list_remove_node(struct _cat_list_t *list, struct _cat_node_t *node);
+void cat_list_remove_node(cat_node_t *node);
 
 /**
  * @brief 移除链表中所有结点
  * 
  * @param list  链表指针
  */
-void cat_list_remove_all(struct _cat_list_t *list);
+void cat_list_remove_all(cat_list_t *list);
 
 /**
  * @brief 将结点插入链表第一个结点之前
@@ -306,7 +305,7 @@ void cat_list_remove_all(struct _cat_list_t *list);
  * @param list  链表指针
  * @param node  要插入的结点
  */
-void                cat_list_add_first(struct _cat_list_t *list, struct _cat_node_t *node);
+void cat_list_add_first(cat_list_t *list, cat_node_t *node);
 
 /**
  * @brief 将结点插入链表最后一个结点之后
@@ -314,15 +313,15 @@ void                cat_list_add_first(struct _cat_list_t *list, struct _cat_nod
  * @param list  链表指针
  * @param node  要删除的结点
  */
-void                cat_list_add_last(struct _cat_list_t *list, struct _cat_node_t *node);
+void cat_list_add_last(cat_list_t *list, cat_node_t *node);
 
 /**
  * @brief 移除链表第一个结点，并返回其指针
  * 
  * @param list                  链表指针
- * @return struct _cat_node_t*  从链表移除的结点
+ * @return cat_node_t*  从链表移除的结点
  */
-struct _cat_node_t *cat_list_remove_first(struct _cat_list_t *list);
+cat_node_t *cat_list_remove_first(cat_list_t *list);
 
 /**
  * @brief 将结点插入指定结点之后
@@ -331,7 +330,7 @@ struct _cat_node_t *cat_list_remove_first(struct _cat_list_t *list);
  * @param node_after        指定结点
  * @param node_to_insert    要插入的结点
  */
-void cat_list_insert_after(struct _cat_list_t *list, struct _cat_node_t *node_after, struct _cat_node_t *node_to_insert);
+void cat_list_insert_after(cat_node_t *node_before, cat_node_t *node_to_insert);
 /* 链表 END */
 /* 字符串相关 START */
 /**
@@ -377,14 +376,13 @@ void *cat_memset(void *start_addr, cat_u8 fill_with, cat_u32 size);
 void *cat_memcpy(void *dst, const void *src, cat_ubase bytes);
 /* 字符串相关 END */
 /* 环形缓冲区 START */
-typedef struct _cat_ringbuffer_t cat_ringbuffer_t;
-struct _cat_ringbuffer_t
+typedef struct
 {
     cat_u8      *p_buffer;     /* 放置数据的缓冲区地址 */
     cat_u32      ring_mask;    /* 用于循环头尾索引的掩码，用于代替取余操作 */
     cat_u32      tail_index;   /* 尾部索引 */
     cat_u32      head_index;   /* 头部索引 */
-};
+} cat_ringbuffer_t;
 
 /**
  * @brief 缓冲区初始化

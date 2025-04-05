@@ -45,7 +45,7 @@ void test_list_func(void)
     }
     cat_kprintf("\r\n");
 
-    cat_list_remove_node(&test_list_var, &(items[3].node));
+    cat_list_remove_node(&(items[3].node));
     cat_kprintf("list=");
     CAT_LIST_FOREACH_NO_REMOVE(&test_list_var, p)
     {

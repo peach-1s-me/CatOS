@@ -71,16 +71,16 @@ void cat_ipc_remove_wait_task(
 
     cat_irq_disable();
 
-    /* 将任务从等待队列中取出 */
+    /* 将任务从等待队列中取出（接收等待队列/发送等待队列） */
     if((task->state & IPC_TASK_WAIT_MASK) == IPC_WAIT_TYPE_RECV)
     {
         /* 将任务从ipc的接收等待队列移除 */
-        cat_list_remove_node(&(task->ipc_wait->recv_wait_list), &(task->ipc_wait_node));
+        cat_list_remove_node(&(task->ipc_wait_node));
     }
     else
     {
         /* 将任务从ipc的发送等待队列移除 */
-        cat_list_remove_node(&(task->ipc_wait->send_wait_list), &(task->ipc_wait_node));
+        cat_list_remove_node(&(task->ipc_wait_node));
     }
     
     /* 移除该任务等待的ipc */
@@ -268,16 +268,16 @@ void cat_ipc_wakeup(
 
     cat_irq_disable();
 
-    /* 将任务从等待队列中取出 */
+    /* 将任务从等待队列中取出（接收等待队列/发送等待队列） */
     if((task->state & IPC_TASK_WAIT_MASK) == IPC_WAIT_TYPE_RECV)
     {
         /* 将任务从ipc的接收等待队列移除 */
-        cat_list_remove_node(&(task->ipc_wait->recv_wait_list), &(task->ipc_wait_node));
+        cat_list_remove_node(&(task->ipc_wait_node));
     }
     else
     {
         /* 将任务从ipc的发送等待队列移除 */
-        cat_list_remove_node(&(task->ipc_wait->send_wait_list), &(task->ipc_wait_node));
+        cat_list_remove_node(&(task->ipc_wait_node));
     }
 
     /* 移除该任务等待的ipc */

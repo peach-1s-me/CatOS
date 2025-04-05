@@ -20,7 +20,7 @@
 #if (CATOS_DEVICE_MODEL_ENABLE == 1)
 
 /* PUBLIC VAR START */
-struct _cat_list_t cat_device_list;
+cat_list_t cat_device_list;
 /* PUBLIC VAR END */
 /* STATIC VAT START */
 static cat_u32 id_table[8];
@@ -235,7 +235,9 @@ cat_u8 cat_device_unregister(cat_device_t *dev)
         ret = _cat_device_free_id(dev->device_id);
 
         cat_irq_disable();
-        cat_list_remove_node(&cat_device_list, &(dev->link_node));
+
+        /* 从设备链表节点移除 */
+        cat_list_remove_node(&(dev->link_node));
         cat_irq_enable();
     }
 

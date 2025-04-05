@@ -93,19 +93,19 @@ cat_u32 cat_bitmap_get_first_set(cat_bitmap *bitmap)
 /* 差分链表 END */
 /* 链表 START */
 
-void cat_list_init(struct _cat_list_t *list)
+void cat_list_init(cat_list_t *list)
 {
     list->FIRST_NODE = &(list->head_node);
     list->LAST_NODE = &(list->head_node);
 }
 
-void cat_list_node_init(struct _cat_node_t *node)
+void cat_list_node_init(cat_node_t *node)
 {
     node->next_node = node;
     node->pre_node = node;
 }
 
-cat_u32 cat_list_count(struct _cat_list_t *list)
+cat_u32 cat_list_count(cat_list_t *list)
 {
     cat_u32 cnt = 0;
 
@@ -141,9 +141,9 @@ cat_bool cat_list_is_in(cat_list_t *list, cat_node_t *node)
     return ret;
 }
 
-struct _cat_node_t *cat_list_first(struct _cat_list_t *list)
+cat_node_t *cat_list_first(cat_list_t *list)
 {
-    struct _cat_node_t *node = CAT_NULL;
+    cat_node_t *node = CAT_NULL;
 
     if (list->FIRST_NODE != &(list->head_node))
     {
@@ -153,9 +153,9 @@ struct _cat_node_t *cat_list_first(struct _cat_list_t *list)
     return node;
 }
 
-struct _cat_node_t *cat_list_last(struct _cat_list_t *list)
+cat_node_t *cat_list_last(cat_list_t *list)
 {
-    struct _cat_node_t *node = CAT_NULL;
+    cat_node_t *node = CAT_NULL;
 
     if (list->LAST_NODE != &(list->head_node))
     {
@@ -165,10 +165,9 @@ struct _cat_node_t *cat_list_last(struct _cat_list_t *list)
     return node;
 }
 
-void cat_list_remove_node(struct _cat_list_t *list, struct _cat_node_t *node)
+void cat_list_remove_node(cat_node_t *node)
 {
-    (void)list;
-    /* 也许什么时候需要验证节点是否属于该链表? 先留着吧, 就当说明一下从哪个链表移除 */
+    /* 如果需要验证节点是否属于某个链表在外面调用 cat_list_is_in */
 
     /* 修改前后节点指针 */
     node->pre_node->next_node = node->next_node;
@@ -178,14 +177,14 @@ void cat_list_remove_node(struct _cat_list_t *list, struct _cat_node_t *node)
     node->pre_node = node;
 }
 
-void cat_list_remove_all(struct _cat_list_t *list)
+void cat_list_remove_all(cat_list_t *list)
 {
-    struct _cat_node_t *next_node;
+    cat_node_t *next_node;
 
     for (next_node = list->FIRST_NODE; next_node != &(list->head_node);)
     {
         /* 目前要移除的节点 */
-        struct _cat_node_t *current_node = next_node;
+        cat_node_t *current_node = next_node;
 
         /* next_node前移,为下次循环做准备(要在移除current_node前赋值, 因为当前的current_node和next_node指向同一个节点, 等移除后该节点的next指针已经指向自己,就无法去往下一个节点) */
         next_node = next_node->next_node;
@@ -200,8 +199,9 @@ void cat_list_remove_all(struct _cat_list_t *list)
     list->LAST_NODE = &(list->head_node);
 }
 
-void cat_list_add_first(struct _cat_list_t *list, struct _cat_node_t *node)
+void cat_list_add_first(cat_list_t *list, cat_node_t *node)
 {
+    /* 确保链表不会重复添加（实际上应该在外面检测） */
     CAT_ASSERT(node->next_node == node);
     CAT_ASSERT(node->pre_node == node);
 
@@ -212,7 +212,7 @@ void cat_list_add_first(struct _cat_list_t *list, struct _cat_node_t *node)
     list->FIRST_NODE = node;
 }
 
-void cat_list_add_last(struct _cat_list_t *list, struct _cat_node_t *node)
+void cat_list_add_last(cat_list_t *list, cat_node_t *node)
 {
     CAT_ASSERT(node->next_node == node);
     CAT_ASSERT(node->pre_node == node);
@@ -224,34 +224,29 @@ void cat_list_add_last(struct _cat_list_t *list, struct _cat_node_t *node)
     list->LAST_NODE = node;
 }
 
-struct _cat_node_t *cat_list_remove_first(struct _cat_list_t *list)
+cat_node_t *cat_list_remove_first(cat_list_t *list)
 {
-    struct _cat_node_t *node = CAT_NULL;
+    cat_node_t *node = CAT_NULL;
 
     if (list->FIRST_NODE != &(list->head_node))
     {
         node = list->FIRST_NODE;
 
-        cat_list_remove_node(list, node);
+        cat_list_remove_node(node);
     }
     return node;
 }
 
-void cat_list_insert_after(
-    struct _cat_list_t *list,
-    struct _cat_node_t *node_after,
-    struct _cat_node_t *node_to_insert)
+void cat_list_insert_after(cat_node_t *node_before, cat_node_t *node_to_insert)
 {
-    (void)list;
-
     CAT_ASSERT(node_to_insert->next_node == node_to_insert);
-    CAT_ASSERT(node_to_insert->pre_node == node_to_insert);
+    CAT_ASSERT(node_to_insert->pre_node  == node_to_insert);
 
-    node_to_insert->pre_node = node_after;
-    node_to_insert->next_node = node_after->next_node;
+    node_to_insert->pre_node = node_before;
+    node_to_insert->next_node = node_before->next_node;
 
-    node_after->next_node->pre_node = node_to_insert;
-    node_after->next_node = node_to_insert;
+    node_before->next_node->pre_node = node_to_insert;
+    node_before->next_node = node_to_insert;
 }
 /* 链表 END */
 /* 字符串相关 START */

@@ -69,10 +69,6 @@ typedef enum _cat_err
     (((cat_u32)addr) & ~(((cat_u32)align) - 1))
 
 /************** struct type*********************/
-/* cat_list.c */
-typedef struct _cat_node_t     cat_node_t;
-typedef struct _cat_list_t     cat_list_t;
-
 /* cat_device.c */
 typedef enum _cat_device_type_t
 {
