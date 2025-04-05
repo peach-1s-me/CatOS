@@ -48,7 +48,7 @@ void cat_irq_enable(void)
     /* TODO:此处若nest==0,则应有一个WARN_LOG */
     if(cat_irq_disable_nest > 0)
     {
-        CLOG_TRACE("<--irq:%d\r\n", cat_irq_disable_nest);
+        CLOG_TRACE("<--irq:%d", cat_irq_disable_nest);
         cat_irq_disable_nest--;
 
         if(0 == cat_irq_disable_nest)
@@ -69,7 +69,7 @@ void cat_irq_disable(void)
         cat_irq_register_backup = _cat_hw_irq_disable();
     }
 
-    CLOG_TRACE("-->irq:%d\r\n", cat_irq_disable_nest);
+    CLOG_TRACE("-->irq:%d", cat_irq_disable_nest);
     CAT_ASSERT(cat_irq_disable_nest < 255);
 
     cat_irq_disable_nest++;
@@ -132,7 +132,7 @@ void cat_intr_default_handler(cat_u32 ipsr_val)
     /* 减去不可编程的向量数得到向量号 */
     cat_u32 vector = ipsr_val - 16;
 
-    CLOG_INFO("vector_id = %d\r\n", vector);
+    CLOG_INFO("vector_id = %d", vector);
     (void)vector;
 
     cat_intr_leave();

@@ -20,7 +20,7 @@
 #include "catos.h"
 #include "../cat_func_test.h"
 
-#define IPC_TEST_TASK_STACK_SIZE    (2048)
+#define IPC_TEST_TASK_STACK_SIZE    (1024)
 
 typedef enum
 {
@@ -50,7 +50,7 @@ void ipc_t1_entry(void *arg)
 
     cat_task_delay_ms(1000);
     cat_kprintf("[t1]-->notify ipc2\r\n");
-    test_export_cat_ipc_wakeup_first(&test_ipc2, IPC_WAIT_TYPE_RECV, NULL, CAT_EOK);
+    test_export_cat_ipc_wakeup_first(&test_ipc2, IPC_WAIT_TYPE_RECV, CAT_NULL, CAT_EOK);
 
     for(;;)
     {
@@ -67,7 +67,7 @@ void ipc_t1_entry(void *arg)
             cat_kprintf("[t1]<--ipc1 notified (%d)\r\n", t1_notified_times++);
             cat_task_delay_ms(1000);
             cat_kprintf("[t1]-->notify ipc2\r\n");
-            test_export_cat_ipc_wakeup_first(&test_ipc2, IPC_WAIT_TYPE_RECV, NULL, CAT_EOK);
+            test_export_cat_ipc_wakeup_first(&test_ipc2, IPC_WAIT_TYPE_RECV, CAT_NULL, CAT_EOK);
         }
     }
 }
@@ -94,7 +94,7 @@ void ipc_t2_entry(void *arg)
             cat_kprintf("[t2]<--ipc2 notified (%d)\r\n", t2_notified_times++);
             cat_task_delay_ms(1000);
             cat_kprintf("[t2]-->notify ipc3\r\n");
-            test_export_cat_ipc_wakeup_first(&test_ipc3, IPC_WAIT_TYPE_RECV, NULL, CAT_EOK);
+            test_export_cat_ipc_wakeup_first(&test_ipc3, IPC_WAIT_TYPE_RECV, CAT_NULL, CAT_EOK);
         }
     }
 }
@@ -120,7 +120,7 @@ void ipc_t3_entry(void *arg)
             cat_kprintf("[t3]<--ipc3 notified (%d)\r\n", t3_notified_times++);
             cat_task_delay_ms(1000);
             cat_kprintf("[t3]-->notify ipc1\r\n");
-            test_export_cat_ipc_wakeup_first(&test_ipc1, IPC_WAIT_TYPE_RECV, NULL, CAT_EOK);
+            test_export_cat_ipc_wakeup_first(&test_ipc1, IPC_WAIT_TYPE_RECV, CAT_NULL, CAT_EOK);
         }
     }
 }
@@ -172,7 +172,7 @@ void *do_test_ipc(void *arg)
 {
     (void)arg;
 
-    test_export_cat_ipc_wakeup_first(&test_ipc1, IPC_WAIT_TYPE_RECV, NULL, CAT_EOK);
+    test_export_cat_ipc_wakeup_first(&test_ipc1, IPC_WAIT_TYPE_RECV, CAT_NULL, CAT_EOK);
 
     return CAT_NULL;
 }

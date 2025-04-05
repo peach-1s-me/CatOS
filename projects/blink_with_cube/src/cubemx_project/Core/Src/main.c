@@ -112,6 +112,8 @@ int main(void)
     blink_task_stack,
     BLINK_TASK_STACK_SIZE
   );
+  void ipc_test(void);
+  ipc_test();
   
   catos_start_schedule();
   /* USER CODE END 2 */

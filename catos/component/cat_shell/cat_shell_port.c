@@ -53,7 +53,7 @@ void cat_shell_task_create(void)
     shell_cfg.buf_size = 512;
     if(sizeof(shell_space) < CAT_BUF_SIZE * (CAT_MAX_HISTORY + 1))
     {
-        CLOG_ERROR("[cat_shell_port] shell_space is not enough !\r\n");
+        CLOG_ERROR("[cat_shell_port] shell_space is not enough !");
         while(1);
     }
 
@@ -61,7 +61,7 @@ void cat_shell_task_create(void)
     ret = cat_shell_init(&port_shell_inst_1, &shell_cfg);
     if(ret)
     {
-        CLOG_ERROR("[cat_shell_port] cat_shell_init fail!\r\n");
+        CLOG_ERROR("[cat_shell_port] cat_shell_init fail!");
         while(1);
     }
 
@@ -75,7 +75,7 @@ void cat_shell_task_create(void)
         shell_task_env, 
         CATOS_SHELL_STACK_SIZE
     );
-    CLOG_INFO("[cat_shell_port] shell task created \r\n");
+    CLOG_INFO("[cat_shell_port] shell task created");
 }
 
 /**
@@ -115,7 +115,7 @@ void cat_shell_recv_char_notify(cat_u8 data)
 
     if(CAT_EOK != err)
     {
-        CLOG_WARNING("[shell] rb us full, data lost\r\n");
+        CLOG_WARNING("[shell] rb us full, data lost");
     }
     else
     {

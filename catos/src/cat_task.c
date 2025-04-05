@@ -131,7 +131,7 @@ void cat_task_scheduler_init(void)
 #if (CATOS_STDIO_ENABLE == 1)
     if (cat_stdio_is_device_is_set())
     {
-        CLOG_INFO("[cat_sp_task] static priority scheduler init\r\n");
+        CLOG_INFO("[cat_sp_task] static priority scheduler init");
     }
 #endif
 }

@@ -47,7 +47,7 @@ void cat_idle_task_create(void)
 #if (CATOS_STDIO_ENABLE == 1)
     if(cat_stdio_is_device_is_set())
     {
-        CLOG_INFO("[cat_idle] idle task created\r\n");
+        CLOG_INFO("[cat_idle] idle task created");
     }
 #endif
 }

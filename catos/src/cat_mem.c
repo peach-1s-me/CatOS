@@ -50,11 +50,11 @@ void cat_mem_init(void)
 
     if(CAT_EOK != ret)
     {
-        CLOG_ERROR("[mem] mem init fail\r\n");
+        CLOG_ERROR("[mem] mem init fail");
     }
     else
     {
-        CLOG_INFO("[mem] mem init success\r\n");
+        CLOG_INFO("[mem] mem init success");
     }
     
 }
@@ -197,7 +197,7 @@ cat_err cat_free(void *ptr)
     else
     {
         /* 说明出错了 */
-        CLOG_ERROR("[mem] BLOCK FLUSHED OR NOT IN USE\n");
+        CLOG_ERROR("[mem] BLOCK FLUSHED OR NOT IN USE");
     }
 
     return ret;

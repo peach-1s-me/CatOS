@@ -51,7 +51,7 @@ void clog_out(clog_level_t level, const char *fmt, ...)
 
         va_end(args);
 
-        cat_printf(CA_STYLE_RESET);
+        cat_printf(CA_STYLE_RESET "\r\n");
     }
 }
 
@@ -62,11 +62,11 @@ void *do_test_log(void *arg)
 {
     (void)arg;
 
-    CLOG_ERROR  ("%s\r\n", "just test error");
-    CLOG_WARNING("%s\r\n", "just test warning");
-    CLOG_INFO   ("%s\r\n", "just test info");
-    CLOG_DEBUG  ("%s\r\n", "just test debug");
-    CLOG_TRACE  ("%s\r\n", "just test trace");
+    CLOG_ERROR  ("%s", "just test error");
+    CLOG_WARNING("%s", "just test warning");
+    CLOG_INFO   ("%s", "just test info");
+    CLOG_DEBUG  ("%s", "just test debug");
+    CLOG_TRACE  ("%s", "just test trace");
 
     return CAT_NULL;
 }

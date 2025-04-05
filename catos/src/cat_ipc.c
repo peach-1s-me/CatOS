@@ -27,13 +27,15 @@
 
 #include "cat_assert.h"
 
-#define IPC_TASK_WAIT_OFFS    (CATOS_TASK_IPC_OFFS)
-#define IPC_TASK_WAIT_MASK    (1<<IPC_TASK_WAIT_OFFS) /* 任务正在等待的ipc类型(接收/发送) */
-#define IPC_TASK_IS_WAIT_RECV (0<<IPC_TASK_WAIT_OFFS) /* 任务在等待接收 */
-#define IPC_TASK_IS_WAIT_SEND (1<<IPC_TASK_WAIT_OFFS) /* 任务在等待发送 */
+/* 任务正在等待的ipc操作(接收/发送) */
+#define IPC_TASK_WAIT_OFFS    (CATOS_TASK_IPC_OFFS)         /* 任务等待状态在任务状态中的偏移量 */
+#define IPC_TASK_WAIT_MASK    (1<<IPC_TASK_WAIT_OFFS)       /* 任务正在等待的ipc操作的掩码 */
+#define IPC_TASK_IS_WAIT_RECV (0<<IPC_TASK_WAIT_OFFS)       /* 任务在等待接收 */
+#define IPC_TASK_IS_WAIT_SEND (1<<IPC_TASK_WAIT_OFFS)       /* 任务在等待发送 */
 
-#define IPC_TYPE_OFFS         (CATOS_TASK_IPC_OFFS+1)
-#define IPC_TYPE_MASK         (0xfffe<<CATOS_TASK_IPC_MASK)
+/* 任务正在等待的ipc类型（信号量、互斥量、消息队列） */
+#define IPC_TYPE_OFFS         (CATOS_TASK_IPC_OFFS+1)       /* ipc类型在任务状态中的偏移量 */
+#define IPC_TYPE_MASK         (0xfffe<<CATOS_TASK_IPC_MASK) /* 任务正在等待的ipc类型的掩码 */
 
 typedef enum
 {
@@ -41,8 +43,13 @@ typedef enum
     IPC_WAIT_TYPE_SEND,
 } ipc_wait_type_t;
 
-/* 基础ipc的非static函数只能用于内核中调用, 调用前在被使用的c文件中补充声明 */
+static char *wait_type_str[] = 
+{
+    "recv",
+    "send"
+};
 
+/* 基础ipc的非static函数只能用于内核中调用, 调用前在被使用的c文件中补充声明 */
 void cat_ipc_remove_wait_task(cat_ipc_t *ipc, cat_task_t *task, void *msg, cat_err error);
 void cat_ipc_wakeup(cat_ipc_t *ipc, cat_task_t *task, void *msg, cat_err error);
 
@@ -72,16 +79,8 @@ void cat_ipc_remove_wait_task(
     cat_irq_disable();
 
     /* 将任务从等待队列中取出（接收等待队列/发送等待队列） */
-    if((task->state & IPC_TASK_WAIT_MASK) == IPC_WAIT_TYPE_RECV)
-    {
-        /* 将任务从ipc的接收等待队列移除 */
-        cat_list_remove_node(&(task->ipc_wait_node));
-    }
-    else
-    {
-        /* 将任务从ipc的发送等待队列移除 */
-        cat_list_remove_node(&(task->ipc_wait_node));
-    }
+    cat_list_remove_node(&(task->ipc_wait_node));
+    CLOG_TRACE("ipc remove %s from %s", task->task_name, wait_type_str[(task->state & IPC_TASK_WAIT_MASK)>>IPC_TASK_WAIT_OFFS]);
     
     /* 移除该任务等待的ipc */
     task->ipc_wait = CAT_NULL;
@@ -269,16 +268,8 @@ void cat_ipc_wakeup(
     cat_irq_disable();
 
     /* 将任务从等待队列中取出（接收等待队列/发送等待队列） */
-    if((task->state & IPC_TASK_WAIT_MASK) == IPC_WAIT_TYPE_RECV)
-    {
-        /* 将任务从ipc的接收等待队列移除 */
-        cat_list_remove_node(&(task->ipc_wait_node));
-    }
-    else
-    {
-        /* 将任务从ipc的发送等待队列移除 */
-        cat_list_remove_node(&(task->ipc_wait_node));
-    }
+    cat_list_remove_node(&(task->ipc_wait_node));
+    CLOG_TRACE("ipc wakeup %s from %s", task->task_name, wait_type_str[(task->state & IPC_TASK_WAIT_MASK)>>IPC_TASK_WAIT_OFFS]);
 
     /* 移除该任务等待的ipc */
     task->ipc_wait = CAT_NULL;
