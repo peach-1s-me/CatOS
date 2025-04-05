@@ -233,7 +233,7 @@ typedef struct _cat_node_t
 /*< 链表结构(TODO:去掉node_cnt否则remove_node可能出问题)->20250304已解决**/
 typedef struct
 {
-    struct _cat_node_t head_node; /* head_node只用于连接第一个节点和最后一个节点 */
+    cat_node_t head_node; /* head_node只用于连接第一个节点和最后一个节点 */
 } cat_list_t;
 
 /**

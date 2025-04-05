@@ -19,8 +19,8 @@
 
 
 /* var decl */
-struct _cat_task_t *cat_idle_task;                      /**< 空闲任务全局指针 */
-static struct _cat_task_t idle_task;                    /**< 空闲任务变量 */
+cat_task_t *cat_idle_task;                      /**< 空闲任务全局指针 */
+static cat_task_t idle_task;                    /**< 空闲任务变量 */
 
 cat_u8 idle_task_env[CATOS_IDLE_STACK_SIZE];  /**< 空闲任务堆栈 */
 

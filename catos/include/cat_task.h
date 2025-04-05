@@ -35,7 +35,7 @@
 #define SCHED_STRATEGY_STATIC_PRIO  0               /**< 固定优先级调度 */
 
 /** 数据结构定义 */
-/* 任务控制块 */
+/* 类型使用前向声明，见 catos_types.h */
 struct _cat_task_t
 {
     void               *sp;                             /**< 栈顶(堆栈指针)*/
@@ -48,7 +48,7 @@ struct _cat_task_t
     void               *stack_start_addr;               /**< 堆栈起始地址*/
     cat_u32             stack_size;                     /**< 堆栈大小*/
 
-    struct _cat_node_t  link_node;                      /**< 任务表中的链表节点，也用于delay链表（!仅用于这两个链表）*/
+    cat_node_t          link_node;                      /**< 任务表中的链表节点，也用于delay链表（!仅用于这两个链表）*/
     cat_u32             delay;                          /**< 延时剩余tick数*/
 
     cat_u32             state;                          /**< 当前状态(高十六位为ipc状态, 低十六位为任务自身状态) */
@@ -59,12 +59,12 @@ struct _cat_task_t
 
     cat_u32             sched_times;                    /**< 调度次数*/
 
-    struct _cat_node_t  ipc_wait_node;                  /**< 等待ipc时用于挂在ipc等待队列的节点 */
+    cat_node_t          ipc_wait_node;                  /**< 等待ipc时用于挂在ipc等待队列的节点 */
     cat_ipc_t          *ipc_wait;                      /**< 等待的ipc(TODO:支持同时等待多个?) */
     void               *ipc_msg;                       /**< 等待的ipc携带的消息 */
-    cat_err           error;                          /**< 出现的错误 */
+    cat_err             error;                          /**< 出现的错误 */
 
-    struct _cat_node_t  manage_node;                    /**< 用于管理的链表节点 */
+    cat_node_t          manage_node;                    /**< 用于管理的链表节点 */
 };
 
 cat_bool catos_is_scheduling(void);
@@ -74,15 +74,15 @@ cat_task_t *cat_task_self(void);
 
 void cat_task_create(
     const char *task_name,
-    struct _cat_task_t *task, 
-    void (*entry)(void *), 
-    void *arg, 
-    cat_u8 prio, 
-    void *stack_start_addr,
-    cat_u32 stack_size
+    cat_task_t *task, 
+    void      (*entry)(void *), 
+    void       *arg, 
+    cat_u8      prio, 
+    void       *stack_start_addr,
+    cat_u32     stack_size
 );
 
-struct _cat_task_t *cat_task_get_highest_ready(void);
+cat_task_t *cat_task_get_highest_ready(void);
 void cat_task_delay_deal(void);
 void cat_task_sched(void);
 
@@ -90,19 +90,19 @@ void cat_task_sched_unlock_sched(void);
 void cat_task_sched_unlock(void);
 void cat_task_sched_lock(void);
 
-void cat_task_rdy(struct _cat_task_t *task);
-void cat_task_unrdy(struct _cat_task_t *task);
+void cat_task_rdy(cat_task_t *task);
+void cat_task_unrdy(cat_task_t *task);
 
 void cat_task_yield(void);
 
-void cat_task_set_delay_ticks(struct _cat_task_t *task, cat_ubase ticks);
-void cat_task_set_delay_ms(struct _cat_task_t *task, cat_ubase ticks);
+void cat_task_set_delay_ticks(cat_task_t *task, cat_ubase ticks);
+void cat_task_set_delay_ms(cat_task_t *task, cat_ubase ticks);
 void cat_task_delay_ticks(cat_u32 ticks);
 void cat_task_delay_ms(cat_u32 ms);
-void cat_task_delay_wakeup(struct _cat_task_t *task);
+void cat_task_delay_wakeup(cat_task_t *task);
 
-void cat_task_suspend(struct _cat_task_t *task);
-void cat_task_suspend_wakeup(struct _cat_task_t *task);
+void cat_task_suspend(cat_task_t *task);
+void cat_task_suspend_wakeup(cat_task_t *task);
 
 void cat_task_delete(cat_task_t *task);
 

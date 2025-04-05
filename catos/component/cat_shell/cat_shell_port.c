@@ -21,7 +21,7 @@
 
 #define RECV_BUFFER_SIZE    256
 
-static struct _cat_task_t shell_task; /**< 任务结构体 */
+static cat_task_t shell_task; /**< 任务结构体 */
 static cat_u8 shell_task_env[CATOS_SHELL_STACK_SIZE]; /**< 栈空间 */
 
 static cat_sem_t        recv_sem; /**< 用于shell利用中断读取字符的信号量 */

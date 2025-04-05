@@ -30,7 +30,7 @@ cat_list_t cat_task_manage_list; /**< 用于管理的任务链表 */
 /* 私有变量 */
 static cat_bool cat_task_is_scheduling = CAT_FALSE; /**< 表示已开始调度（正在调度） */
 
-static struct _cat_task_t *cat_task_current; /**< 当前任务指针 */
+static cat_task_t *cat_task_current; /**< 当前任务指针 */
 static cat_bitmap cat_task_prio_bitmap;      /**< 就绪位图 */
 
 static cat_u8 sched_lock_cnt;                                /**< 调度锁 0:未加锁；else：加锁(可多次加锁)*/
@@ -55,7 +55,7 @@ static void _default_task_exit(void *arg)
 
 static void cat_task_init(
     const char *task_name,
-    struct _cat_task_t *task,
+    cat_task_t *task,
     void (*entry)(void *),
     void *arg,
     cat_u8 prio,
@@ -140,7 +140,7 @@ void cat_hw_init_systick(cat_u32 ms);
 /* 开始调度 */
 void catos_start_schedule(void)
 {
-    struct _cat_task_t *first_task = CAT_NULL;
+    cat_task_t *first_task = CAT_NULL;
 
     //cat_task_before_start_first();
     /* 获取最高优先级任务 */
@@ -202,7 +202,7 @@ cat_task_t *cat_task_self(void)
 
 void cat_task_create(
     const char *task_name,
-    struct _cat_task_t *task,
+    cat_task_t *task,
     void (*entry)(void *),
     void *arg,
     cat_u8 prio,
@@ -227,19 +227,19 @@ void cat_task_create(
 /**
  * @brief 获取最高优先级任务
  *
- * @return struct _cat_task_t* CAT_NULL:无就绪任务; !CAT_NULL:就绪任务指针
+ * @return cat_task_t* CAT_NULL:无就绪任务; !CAT_NULL:就绪任务指针
  */
-struct _cat_task_t *cat_task_get_highest_ready(void)
+cat_task_t *cat_task_get_highest_ready(void)
 {
-    struct _cat_task_t *ret;
+    cat_task_t *ret;
     /* 获取最低非零位(有任务就绪的最高优先级) */
     cat_u32 highest_prio = cat_bitmap_get_first_set(&cat_task_prio_bitmap);
 
     /* 获取链表的第一个节点 */
-    struct _cat_node_t *node = cat_list_first(&(task_rdy_tbl[highest_prio]));
+    cat_node_t *node = cat_list_first(&(task_rdy_tbl[highest_prio]));
 
     /* 获取任务结构指针 */
-    ret = CAT_GET_CONTAINER(node, struct _cat_task_t, link_node);
+    ret = CAT_GET_CONTAINER(node, cat_task_t, link_node);
 
     CAT_ASSERT(ret);
 
@@ -252,7 +252,7 @@ struct _cat_task_t *cat_task_get_highest_ready(void)
  */
 void cat_task_delay_deal(void)
 {
-    struct _cat_node_t *node, *next_node;
+    cat_node_t *node, *next_node;
 
     /* 处理延时队列 */
     /* 取得等待链表第一个节点 */
@@ -265,7 +265,7 @@ void cat_task_delay_deal(void)
         next_node = node->next_node;
 
         /* 取得任务控制块指针 */
-        struct _cat_task_t *task = CAT_GET_CONTAINER(node, struct _cat_task_t, link_node);
+        cat_task_t *task = CAT_GET_CONTAINER(node, cat_task_t, link_node);
 
         CAT_ASSERT(task);
 
@@ -308,7 +308,7 @@ void cat_task_delay_deal(void)
  */
 void cat_task_sched(void)
 {
-    struct _cat_task_t *from_task, *to_task;
+    cat_task_t *from_task, *to_task;
     cat_irq_disable();
 
     /* 如果调度被上锁就直接返回，不调度 */
@@ -390,7 +390,7 @@ void cat_task_sched_unlock(void)
  *
  * @param task 任务结构体指针
  */
-void cat_task_rdy(struct _cat_task_t *task)
+void cat_task_rdy(cat_task_t *task)
 {
     CAT_ASSERT(task);
     cat_list_add_last(&(task_rdy_tbl[task->prio]), &(task->link_node));
@@ -402,7 +402,7 @@ void cat_task_rdy(struct _cat_task_t *task)
  *
  * @param task 任务结构体指针
  */
-void cat_task_unrdy(struct _cat_task_t *task)
+void cat_task_unrdy(cat_task_t *task)
 {
     CAT_ASSERT(task);
 
@@ -448,7 +448,7 @@ void cat_task_yield(void)
  * @param  task             任务指针
  * @param  ticks            要等待的时钟数
  */
-void cat_task_set_delay_ticks(struct _cat_task_t *task, cat_ubase ticks)
+void cat_task_set_delay_ticks(cat_task_t *task, cat_ubase ticks)
 {
     if (0 == ticks)
     {
@@ -480,7 +480,7 @@ void cat_task_set_delay_ticks(struct _cat_task_t *task, cat_ubase ticks)
  * @param  task             任务指针
  * @param  ms               要等待的毫秒数
  */
-void cat_task_set_delay_ms(struct _cat_task_t *task, cat_ubase ms)
+void cat_task_set_delay_ms(cat_task_t *task, cat_ubase ms)
 {
     if (CAT_NULL != task)
     {
@@ -520,7 +520,7 @@ void cat_task_delay_ms(cat_u32 ms)
  *
  * @param task 等待的任务
  */
-void cat_task_delay_wakeup(struct _cat_task_t *task)
+void cat_task_delay_wakeup(cat_task_t *task)
 {
     CAT_ASSERT(task);
 
@@ -540,7 +540,7 @@ void cat_task_delay_wakeup(struct _cat_task_t *task)
  *
  * @param task 任务结构体指针
  */
-void cat_task_suspend(struct _cat_task_t *task)
+void cat_task_suspend(cat_task_t *task)
 {
     CAT_ASSERT(task);
 
@@ -571,7 +571,7 @@ void cat_task_suspend(struct _cat_task_t *task)
  *
  * @param task 任务结构体指针
  */
-void cat_task_suspend_wakeup(struct _cat_task_t *task)
+void cat_task_suspend_wakeup(cat_task_t *task)
 {
     CAT_ASSERT(task);
 
@@ -712,7 +712,7 @@ cat_err cat_task_get_error(void)
 #include "cat_stdio.h"
 #include "port.h"
 
-struct _cat_task_info_t
+typedef struct
 {
     void *sp;              /**< 栈顶(堆栈指针)*/
     const char *task_name;     /**< 任务名称*/
@@ -723,7 +723,7 @@ struct _cat_task_info_t
     void *stack_start_addr; /**< 堆栈起始地址*/
     cat_u32 stack_size;     /**< 堆栈大小*/
 
-    // struct _cat_node_t  link_node;                      /**< 任务表中的链表节点，也用于delay链表*/
+    // cat_node_t  link_node;                      /**< 任务表中的链表节点，也用于delay链表*/
     cat_u32 delay; /**< 延时剩余tick数*/
 
     cat_u32 state; /**< 当前状态*/
@@ -734,8 +734,8 @@ struct _cat_task_info_t
 
     cat_u32 sched_times; /**< 调度次数*/
 
-    // struct _cat_node_t *manage_node;                    /**< 用于管理的链表节点 */
-};
+    // cat_node_t *manage_node;                    /**< 用于管理的链表节点 */
+} cat_task_info_t;
 
 static const cat_u8 strategy_name_map[][8] =
     {
@@ -790,8 +790,8 @@ void *do_ps(void *arg)
 {
     (void)arg;
 
-    struct _cat_task_t *task = CAT_NULL;
-    struct _cat_task_info_t info = {0};
+    cat_task_t *task = CAT_NULL;
+    cat_task_info_t info = {0};
     cat_node_t *tmp = CAT_NULL;
     cat_ubase *p = CAT_NULL;
 
@@ -802,7 +802,7 @@ void *do_ps(void *arg)
     CAT_LIST_FOREACH_NO_REMOVE(&cat_task_manage_list, tmp)
     {
         /* 获取任务结构体指针 */
-        task = CAT_GET_CONTAINER(tmp, struct _cat_task_t, manage_node);
+        task = CAT_GET_CONTAINER(tmp, cat_task_t, manage_node);
 
         /* 在临界区复制需要的值 */
         cat_irq_disable();

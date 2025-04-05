@@ -45,7 +45,7 @@
 
 /* USER CODE BEGIN PV */
 #define BLINK_TASK_STACK_SIZE    (2048)
-static struct _cat_task_t blink_task;
+static cat_task_t blink_task;
 static cat_u8 blink_task_stack[BLINK_TASK_STACK_SIZE];
 /* USER CODE END PV */
 

@@ -28,9 +28,9 @@ typedef struct _msg_content_t
     cat_u32 high_data;
 } msg_content_t;
 
-struct _cat_task_t ipc_test_task1;
-struct _cat_task_t ipc_test_task2;
-struct _cat_task_t ipc_test_task3;
+cat_task_t ipc_test_task1;
+cat_task_t ipc_test_task2;
+cat_task_t ipc_test_task3;
 
 cat_u8 ipc_test_task1_env[IPC_TEST_TASK_STACK_SIZE];
 cat_u8 ipc_test_task2_env[IPC_TEST_TASK_STACK_SIZE];

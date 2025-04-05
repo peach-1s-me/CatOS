@@ -196,7 +196,7 @@ static cat_task_t *cat_ipc_wakeup_first(cat_ipc_t *ipc, ipc_wait_type_t wait_typ
 
     cat_irq_disable();
 
-    struct _cat_node_t *node = CAT_NULL;
+    cat_node_t *node = CAT_NULL;
     if(IPC_WAIT_TYPE_RECV == wait_type)
     {
         /* 将任务从ipc的接收等待队列移除 */
@@ -321,7 +321,7 @@ static cat_u32 cat_ipc_remove_all_wait_task(cat_ipc_t *ipc, ipc_wait_type_t wait
     for (i = 0; i < count; i++)
     {
         /* 获取任务指针 */
-        struct _cat_node_t *node = CAT_NULL;
+        cat_node_t *node = CAT_NULL;
         if(IPC_WAIT_TYPE_RECV == wait_type)
         {
             /* 将任务从ipc的接收等待队列移除 */
