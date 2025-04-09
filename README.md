@@ -624,6 +624,7 @@ target_sources(user_project INTERFACE
 | 脚本名        | 功能                      | 使用方法               |
 | ------------- | ------------------------- | ---------------------- |
 | build.bat     | 编译项目                  | build.bat [项目名]     |
+| build_tests.bat| 编译项目(带测试部分)      | build_tests.bat [项目名]|
 | clean.bat     | 在项目目录执行 make clean | clean.bat [项目名]     |
 | clean_all.bat | 清理所有生成              | clean_all.bat          |
 | flash.bat     | 烧写开发板                | flash.bat [项目名]     |
@@ -636,6 +637,10 @@ target_sources(user_project INTERFACE
 构建blink：
 ```bat
 ./scripts/build.bat blink
+```
+如果想运行系统功能测试，如互斥量对优先级反转的解决，消息队列等，要在 test/tests/tests_config.h 配置需要测试的功能，如果系统存储较小建议每次只开启一个，然后使用 build_tests.bat 进行构建：
+```bat
+./scripts/build_tests.bat blink
 ```
 
 2.2.6 烧写和调试

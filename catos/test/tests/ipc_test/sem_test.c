@@ -22,6 +22,9 @@
 
 #define SEM_TEST_TASK_STACK_SIZE (1024)
 
+#define SEM_TEST_T2_TIMES    3 /* 任务2接收消息次数 */
+#define SEM_TEST_T3_TIMES    4 /* 任务2接收消息次数 */
+
 cat_task_t sem_test_task1;
 cat_task_t sem_test_task2;
 cat_task_t sem_test_task3;
@@ -40,12 +43,16 @@ void sem_t1_entry(void *arg)
 
     cat_u32 sem_post_cnt = 0;
 
-    for (;;)
+    cat_u8 i;
+    for (i=0; i<(SEM_TEST_T2_TIMES + SEM_TEST_T3_TIMES); i++)
     {
         cat_task_delay_ms(1000);
         cat_kprintf("[t1]-->sem post(%d)\r\n", sem_post_cnt++);
         cat_sem_post(&test_sem);
     }
+    
+    cat_kprintf("sem t1 end\r\n");
+    cat_task_delete(cat_task_self());
 }
 
 void sem_t2_entry(void *arg)
@@ -54,7 +61,8 @@ void sem_t2_entry(void *arg)
 
     cat_u32 t2_notified_times = 0;
 
-    for (;;)
+    cat_u8 i;
+    for (i=0; i<SEM_TEST_T2_TIMES; i++)
     {
         cat_kprintf("[t2]-->t2 wait\r\n");
 
@@ -68,8 +76,10 @@ void sem_t2_entry(void *arg)
         {
             cat_kprintf("[t2]<--t2 notified (%d)\r\n", t2_notified_times++);
         }
-        // cat_task_yield();
     }
+    
+    cat_kprintf("sem t2 end\r\n");
+    cat_task_delete(cat_task_self());
 }
 
 void sem_t3_entry(void *arg)
@@ -78,7 +88,8 @@ void sem_t3_entry(void *arg)
 
     cat_u32 t3_notified_times = 0;
 
-    for (;;)
+    cat_u8 i;
+    for (i=0; i<SEM_TEST_T3_TIMES; i++)
     {
         cat_kprintf("[t3]-->t3 wait\r\n");
 
@@ -92,8 +103,10 @@ void sem_t3_entry(void *arg)
         {
             cat_kprintf("[t3]<--t3 notified (%d)\r\n", t3_notified_times++);
         }
-        // cat_task_yield();
     }
+    
+    cat_kprintf("sem t3 end\r\n");
+    cat_task_delete(cat_task_self());
 }
 
 void sem_test(void)

@@ -22,6 +22,10 @@
 #define MQ_TEST_TASK_STACK_SIZE (1024)
 #define MQ_SIZE 1024
 
+#define MQ_TEST_T2_TIMES    3 /* 任务2接收消息次数 */
+#define MQ_TEST_T3_TIMES    4 /* 任务3接收消息次数 */
+
+
 typedef struct _msg_content_t
 {
     cat_u32 low_data;
@@ -48,7 +52,8 @@ void mq_t1_entry(void *arg)
     cat_u32 msg_send_cnt = 0;
     msg_content_t content;
 
-    for (;;)
+    cat_u8 i;
+    for (i=0; i<(MQ_TEST_T2_TIMES + MQ_TEST_T3_TIMES); i++)
     {
         cat_task_delay_ms(1000);
         cat_kprintf("[t1]-->msg send(%d)\r\n", msg_send_cnt++);
@@ -58,6 +63,9 @@ void mq_t1_entry(void *arg)
 
         cat_mq_send(&test_mq, &content, sizeof(msg_content_t), 10000);
     }
+
+    cat_kprintf("mq t1 end\r\n");
+    cat_task_delete(cat_task_self());
 }
 
 void mq_t2_entry(void *arg)
@@ -66,7 +74,8 @@ void mq_t2_entry(void *arg)
 
     msg_content_t recv_content;
 
-    for (;;)
+    cat_u8 i;
+    for (i=0; i<MQ_TEST_T2_TIMES; i++)
     {
         cat_kprintf("[t2]-->t2 wait\r\n");
 
@@ -81,6 +90,9 @@ void mq_t2_entry(void *arg)
             cat_kprintf("[t2]<--t2 recv content:low=%d, high=%d\r\n", recv_content.low_data, recv_content.high_data);
         }
     }
+    
+    cat_kprintf("mq t2 end\r\n");
+    cat_task_delete(cat_task_self());
 }
 
 void mq_t3_entry(void *arg)
@@ -89,7 +101,8 @@ void mq_t3_entry(void *arg)
 
     msg_content_t recv_content;
 
-    for (;;)
+    cat_u8 i;
+    for (i=0; i<MQ_TEST_T3_TIMES; i++)
     {
         cat_kprintf("[t3]-->t3 wait\r\n");
 
@@ -104,6 +117,9 @@ void mq_t3_entry(void *arg)
             cat_kprintf("[t3]<--t3 recv content:low=%d, high=%d\r\n", recv_content.low_data, recv_content.high_data);
         }
     }
+    
+    cat_kprintf("mq t3 end\r\n");
+    cat_task_delete(cat_task_self());
 }
 
 void mq_test(void)

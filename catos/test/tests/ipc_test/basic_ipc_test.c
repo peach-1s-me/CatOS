@@ -22,6 +22,8 @@
 
 #define IPC_TEST_TASK_STACK_SIZE    (1024)
 
+#define IPC_TEST_TASK_TIMES    3
+
 typedef enum
 {
     IPC_WAIT_TYPE_RECV = 0,
@@ -52,7 +54,8 @@ void ipc_t1_entry(void *arg)
     cat_kprintf("[t1]-->notify ipc2\r\n");
     test_export_cat_ipc_wakeup_first(&test_ipc2, IPC_WAIT_TYPE_RECV, CAT_NULL, CAT_EOK);
 
-    for(;;)
+    cat_u8 i;
+    for(i = 0; i<IPC_TEST_TASK_TIMES; i++)
     {
         cat_kprintf("[t1]-->ipc1 wait\r\n");
 
@@ -70,6 +73,9 @@ void ipc_t1_entry(void *arg)
             test_export_cat_ipc_wakeup_first(&test_ipc2, IPC_WAIT_TYPE_RECV, CAT_NULL, CAT_EOK);
         }
     }
+
+    cat_kprintf("ipc t1 end\r\n");
+    cat_task_delete(cat_task_self());
 }
 
 void ipc_t2_entry(void *arg)
@@ -78,7 +84,8 @@ void ipc_t2_entry(void *arg)
 
     cat_u32 t2_notified_times = 0;
 
-    for(;;)
+    cat_u8 i;
+    for(i = 0; i<IPC_TEST_TASK_TIMES; i++)
     {
         cat_kprintf("[t2]-->ipc2 wait\r\n");
 
@@ -96,6 +103,9 @@ void ipc_t2_entry(void *arg)
             test_export_cat_ipc_wakeup_first(&test_ipc3, IPC_WAIT_TYPE_RECV, CAT_NULL, CAT_EOK);
         }
     }
+    
+    cat_kprintf("ipc t2 end\r\n");
+    cat_task_delete(cat_task_self());
 }
 
 void ipc_t3_entry(void *arg)
@@ -104,7 +114,8 @@ void ipc_t3_entry(void *arg)
 
     cat_u32 t3_notified_times = 0;
 
-    for(;;)
+    cat_u8 i;
+    for(i = 0; i<IPC_TEST_TASK_TIMES; i++)
     {
         cat_kprintf("[t3]-->ipc3 wait\r\n");
 
@@ -122,6 +133,9 @@ void ipc_t3_entry(void *arg)
             test_export_cat_ipc_wakeup_first(&test_ipc1, IPC_WAIT_TYPE_RECV, CAT_NULL, CAT_EOK);
         }
     }
+    
+    cat_kprintf("ipc t3 end\r\n");
+    cat_task_delete(cat_task_self());
 }
 
 void ipc_test(void)
@@ -146,7 +160,7 @@ void ipc_test(void)
         &ipc_test_task2,
         ipc_t2_entry,
         CAT_NULL,
-        2,
+        1,
         ipc_test_task2_env,
         IPC_TEST_TASK_STACK_SIZE
       );
@@ -156,7 +170,7 @@ void ipc_test(void)
         &ipc_test_task3,
         ipc_t3_entry,
         CAT_NULL,
-        3,
+        1,
         ipc_test_task3_env,
         IPC_TEST_TASK_STACK_SIZE
       );
