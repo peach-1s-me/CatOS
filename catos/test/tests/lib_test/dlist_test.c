@@ -25,7 +25,7 @@ typedef struct _item_t
 } item_t;
 
 cat_dlist_t dlist;
-item_t items[ITEM_NUM];
+item_t ditems[ITEM_NUM];
 
 cat_u32 value[ITEM_NUM] = {24, 65, 12, 4, 24};
 
@@ -54,16 +54,16 @@ void test_dlist_func(void)
     cat_u32 i;
     for(i=0; i<ITEM_NUM; i++)
     {
-        cat_dlist_node_init(&(items[i].dn));
-        items[i].value = value[i];
-        items[i].dn.value = value[i];
+        cat_dlist_node_init(&(ditems[i].dn));
+        ditems[i].value = value[i];
+        ditems[i].dn.value = value[i];
     }
 
     CAT_TEST_INFO(cat_dlist_add, test add);
     for(i=0; i<ITEM_NUM; i++)
     {
-        cat_printf("add node %d\r\n", items[i].dn.value);
-        cat_dlist_add(&dlist, &(items[i].dn));
+        cat_printf("add node %d\r\n", ditems[i].dn.value);
+        cat_dlist_add(&dlist, &(ditems[i].dn));
         print_dlist(&dlist);
     }
 
@@ -78,7 +78,8 @@ void test_dlist_func(void)
     print_dlist(&dlist);
 }
 
-#if (CATOS_CAT_SHELL_ENABLE == 1)
+#include "../tests_config.h"
+#if (CATOS_CAT_SHELL_ENABLE == 1 && TESTS_LIB_DLIST == 1)
 #include "cat_shell.h"
 #include "cat_stdio.h"
 void *do_test_dlist(void *arg)

@@ -64,9 +64,8 @@ if not exist %build_dir_name% (
     mkdir %build_dir_name%
     cd %build_dir_name%
 
-    :: 构建, 创建 makefile (--graphviz=simpleRTOS.dot用于生成调用图等)
-    @REM cmake ../.. -D USER_PROJECT=%project% -G "Unix Makefiles" --graphviz=simpleRTOS.dot
-    cmake ../.. -D USER_PROJECT=%project% -G "Unix Makefiles"
+    :: 构建, 创建 makefile
+    cmake ../.. -D USER_PROJECT=%project% -D CATOS_TESTS=ON -G "Unix Makefiles" 
     @REM 加VERBOSE=1打印详细make过程
     @REM make VERBOSE=1
     make

@@ -63,7 +63,8 @@
                                                * 0x2 : CLOG_LEVEL_WARNING
                                                * 0x3 : CLOG_LEVEL_INFO   
                                                * 0x4 : CLOG_LEVEL_DEBUG  
-                                               * 0x5 : CLOG_LEVEL_TRACE  
+                                               * 0x5 : CLOG_LEVEL_TRACE
+                                               * 注意：频繁的log会使用大量栈空间，还没想到解决方案
                                                */
 
 /** 组件 **/

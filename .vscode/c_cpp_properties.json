@@ -4,7 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/catos/**",
-                "${workspaceFolder}/projects/blink_with_cube/**",
+                "${workspaceFolder}/projects/blink_with_cube/**"
             ],
             "defines": [
                 "_DEBUG",
@@ -14,10 +14,10 @@
                 "STM32F103xE"
             ],
             "windowsSdkVersion": "10.0.19041.0",
-            "compilerPath": "cl.exe",
+            "compilerPath": "d:/softwares/gcc-arm-none-eabi-10-2020-q4-major/bin/arm-none-eabi-gcc",
             "cStandard": "c17",
             "cppStandard": "c++17",
-            "intelliSenseMode": "windows-msvc-x64"
+            "intelliSenseMode": "windows-gcc-arm"
         }
     ],
     "version": 4

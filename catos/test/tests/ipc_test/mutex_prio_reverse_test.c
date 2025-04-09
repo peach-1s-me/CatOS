@@ -39,6 +39,7 @@
  * [796] [t1] end, cost 5960 ms
  * [1855] [t2] end, cost 17550 ms
  * 3.3 可以看出不处理优先级反转时t1会再t2结束才能拿到cpu
+ * 注：将log等级设为trace可以看到更详细的过程
  * @version 0.1
  * @date 2025-03-06
  *
@@ -54,24 +55,24 @@
 #include "../cat_func_test.h"
 
 #define USE_MUTEX 1
-#define IPC_TEST_TASK_STACK_SIZE (2048)
+#define MUTEXPV_TEST_TASK_STACK_SIZE 2048
 
-cat_task_t ipc_test_task1;
-cat_task_t ipc_test_task2;
-cat_task_t ipc_test_task3;
+cat_task_t mutexpv_test_task1;
+cat_task_t mutexpv_test_task2;
+cat_task_t mutexpv_test_task3;
 
-cat_u8 ipc_test_task1_env[IPC_TEST_TASK_STACK_SIZE];
-cat_u8 ipc_test_task2_env[IPC_TEST_TASK_STACK_SIZE];
-cat_u8 ipc_test_task3_env[IPC_TEST_TASK_STACK_SIZE];
+cat_u8 mutexpv_test_task1_env[MUTEXPV_TEST_TASK_STACK_SIZE];
+cat_u8 mutexpv_test_task2_env[MUTEXPV_TEST_TASK_STACK_SIZE];
+cat_u8 mutexpv_test_task3_env[MUTEXPV_TEST_TASK_STACK_SIZE];
 
 #if (USE_MUTEX == 0)
-    cat_sem_t test_sem; /* 创建为二值信号量以作为未处理优先级反转的互斥量 */
-    #define ENTER_CRITICAL() cat_sem_get(&test_sem, 100000)
-    #define EXIT_CRITICAL()  cat_sem_post(&test_sem)
+    cat_sem_t mutexpv_sem; /* 创建为二值信号量以作为未处理优先级反转的互斥量 */
+    #define ENTER_CRITICAL() cat_sem_get(&mutexpv_sem, 100000)
+    #define EXIT_CRITICAL()  cat_sem_post(&mutexpv_sem)
 #else
-    cat_mutex_t test_mutex;
-    #define ENTER_CRITICAL() cat_mutex_get(&test_mutex, 100000)
-    #define EXIT_CRITICAL()  cat_mutex_post(&test_mutex)
+    cat_mutex_t mutexpv_mutex;
+    #define ENTER_CRITICAL() cat_mutex_get(&mutexpv_mutex, -1)
+    #define EXIT_CRITICAL()  cat_mutex_post(&mutexpv_mutex)
 #endif
 
 #define NOPS_PER_MS (100000 / 18)
@@ -96,12 +97,24 @@ void busy_wait_ms(cat_u32 ms)
     }
 }
 
-void ipc_t1_entry(void *arg)
+void mutexpv_t1_entry(void *arg)
 {
     (void)arg;
 
-#if 1
-    cat_task_delay_ms(2000);
+#if 0
+    cat_i32 i;
+    for(i=0; i<5; i++)
+    {
+        ENTER_CRITICAL();
+
+        cat_kprintf("[t1] run\r\n");
+        /* 等待一秒钟 */
+        busy_wait_ms(1000);
+
+        EXIT_CRITICAL();
+    }
+#elif 1
+    cat_task_delay_ms(200);
 
     cat_ubase start_tick = catos_get_systick();
     cat_kprintf("[t1] start running\r\n");
@@ -110,7 +123,7 @@ void ipc_t1_entry(void *arg)
     cat_kprintf("[t1] <--got mutex\r\n");
 
     /* 等待一秒钟 */
-    busy_wait_ms(1000);
+    busy_wait_ms(100);
 
     cat_ubase end_tick = catos_get_systick();
     cat_kprintf("[t1] end, cost %d ms\r\n", (end_tick - start_tick) * CATOS_SYSTICK_MS);
@@ -126,25 +139,43 @@ void ipc_t1_entry(void *arg)
     cat_ubase end_tick = catos_get_systick();
     cat_kprintf("busy wait %d cost %d ms\r\n", WAIT_TIME, (end_tick - start_tick) * CATOS_SYSTICK_MS);
 #endif
+
+    cat_task_delete(cat_task_self());
 }
 
-void ipc_t2_entry(void *arg)
+void mutexpv_t2_entry(void *arg)
 {
     (void)arg;
 
-    cat_task_delay_ms(1000);
+#if 0
+    cat_i32 i;
+    for(i=0; i<5; i++)
+    {
+        ENTER_CRITICAL();
+
+        cat_kprintf("[t2] run\r\n");
+        /* 等待一秒钟 */
+        busy_wait_ms(2000);
+
+        EXIT_CRITICAL();
+    }
+#else
+    cat_task_delay_ms(100);
 
     cat_ubase start_tick = catos_get_systick();
     cat_kprintf("[t2] start running\r\n");
 
     /* 等待10秒钟 */
-    busy_wait_ms(10000);
+    busy_wait_ms(1000);
 
     cat_ubase end_tick = catos_get_systick();
     cat_kprintf("[t2] end, cost %d ms\r\n", (end_tick - start_tick) * CATOS_SYSTICK_MS);
+#endif
+
+    cat_task_delete(cat_task_self());
 }
 
-void ipc_t3_entry(void *arg)
+void mutexpv_t3_entry(void *arg)
 {
     (void)arg;
 
@@ -155,46 +186,63 @@ void ipc_t3_entry(void *arg)
     cat_kprintf("[t3] <--got mutex\r\n");
 
     /* 等待5秒钟 */
-    busy_wait_ms(5000);
+    busy_wait_ms(500);
     
     cat_ubase end_tick = catos_get_systick();
     cat_kprintf("[t3] end, cost %d ms\r\n", (end_tick - start_tick) * CATOS_SYSTICK_MS);
     EXIT_CRITICAL();
+
+    cat_task_delete(cat_task_self());
 }
 
 void mutex_prio_reverse_test(void)
 {
     CAT_TEST_INFO(mutex_prio_reverse, test mpr);
 #if (USE_MUTEX == 0)
-    cat_sem_init(&test_sem, 1, 1);
+    cat_sem_init(&mutexpv_sem, 1, 1);
 #else
-    cat_mutex_init(&test_mutex);
+    cat_mutex_init(&mutexpv_mutex);
 #endif
 
     cat_task_create(
-        (const uint8_t *)"ipc_t1",
-        &ipc_test_task1,
-        ipc_t1_entry,
+        "mutexpv_t1",
+        &mutexpv_test_task1,
+        mutexpv_t1_entry,
         CAT_NULL,
         1,
-        ipc_test_task1_env,
-        IPC_TEST_TASK_STACK_SIZE);
+        mutexpv_test_task1_env,
+        MUTEXPV_TEST_TASK_STACK_SIZE);
 
     cat_task_create(
-        (const uint8_t *)"ipc_t2",
-        &ipc_test_task2,
-        ipc_t2_entry,
+        "mutexpv_t2",
+        &mutexpv_test_task2,
+        mutexpv_t2_entry,
         CAT_NULL,
         2,
-        ipc_test_task2_env,
-        IPC_TEST_TASK_STACK_SIZE);
+        mutexpv_test_task2_env,
+        MUTEXPV_TEST_TASK_STACK_SIZE);
 
     cat_task_create(
-        (const uint8_t *)"ipc_t3",
-        &ipc_test_task3,
-        ipc_t3_entry,
+        "mutexpv_t3",
+        &mutexpv_test_task3,
+        mutexpv_t3_entry,
         CAT_NULL,
         3,
-        ipc_test_task3_env,
-        IPC_TEST_TASK_STACK_SIZE);
+        mutexpv_test_task3_env,
+        MUTEXPV_TEST_TASK_STACK_SIZE);
 }
+
+#include "../tests_config.h"
+#if (CATOS_CAT_SHELL_ENABLE == 1 && TESTS_IPC_PV == 1)
+#include "cat_shell.h"
+#include "cat_stdio.h"
+void *do_test_pv(void *arg)
+{
+    (void)arg;
+
+    mutex_prio_reverse_test();
+
+    return CAT_NULL;
+}
+CAT_DECLARE_CMD(test_pv, test prio reverse, do_test_pv);
+#endif

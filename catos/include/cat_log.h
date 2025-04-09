@@ -45,7 +45,7 @@ typedef enum
 #define CLOG_DEBUG(fmt, ...)   clog_out(CLOG_LEVEL_DEBUG,   fmt, ##__VA_ARGS__)
 
 /* 输出日志，级别：系统跟踪（0xf1）*/
-#define CLOG_TRACE(fmt, ...)   clog_out(CLOG_LEVEL_TRACE, "%s:%d(%s) " fmt, __FILE__, __LINE__ , __func__, ##__VA_ARGS__);
+#define CLOG_TRACE(fmt, ...)   clog_out(CLOG_LEVEL_TRACE, "%s:%4d " fmt, __func__, __LINE__ , ##__VA_ARGS__);
 
 /**
  * @brief 日志输出统一接口

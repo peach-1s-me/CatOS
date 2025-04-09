@@ -106,7 +106,16 @@ void cat_task_suspend_wakeup(cat_task_t *task);
 
 void cat_task_delete(cat_task_t *task);
 
-cat_err cat_task_change_priority(cat_task_t *task, cat_u8 new_prio, cat_u8 *old_prio);
+cat_err cat_task_change_priority(
+    cat_task_t *task,
+    cat_u8 new_prio,
+    cat_u8 *old_prio
+);
+cat_err cat_task_change_priority_without_sched(
+    cat_task_t *task,
+    cat_u8 new_prio,
+    cat_u8 *old_prio
+);
 
 void cat_task_set_error(cat_task_t *task, cat_err error);
 cat_err cat_task_get_error(void);

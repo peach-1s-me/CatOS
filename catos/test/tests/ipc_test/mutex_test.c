@@ -30,15 +30,15 @@
 #include "../cat_func_test.h"
 
 #define INC_TIMES 1000000
-#define IPC_TEST_TASK_STACK_SIZE (2048)
+#define MUTEX_TEST_TASK_STACK_SIZE (1024)
 
-cat_task_t ipc_test_task1;
-cat_task_t ipc_test_task2;
-cat_task_t ipc_test_task3;
+cat_task_t mutex_test_task1;
+cat_task_t mutex_test_task2;
+cat_task_t mutex_test_task3;
 
-cat_u8 ipc_test_task1_env[IPC_TEST_TASK_STACK_SIZE];
-cat_u8 ipc_test_task2_env[IPC_TEST_TASK_STACK_SIZE];
-cat_u8 ipc_test_task3_env[IPC_TEST_TASK_STACK_SIZE];
+cat_u8 mutex_test_task1_env[MUTEX_TEST_TASK_STACK_SIZE];
+cat_u8 mutex_test_task2_env[MUTEX_TEST_TASK_STACK_SIZE];
+cat_u8 mutex_test_task3_env[MUTEX_TEST_TASK_STACK_SIZE];
 
 cat_mutex_t test_mutex;
 
@@ -46,7 +46,7 @@ cat_u32 test_critical_resource = 0;
 
 #define USE_MUTEX 1
 
-void ipc_t1_entry(void *arg)
+void mutex_t1_entry(void *arg)
 {
     (void)arg;
 
@@ -69,9 +69,11 @@ void ipc_t1_entry(void *arg)
     }
     cat_kprintf("[t1] done\r\n");
 #endif
+
+    cat_task_delete(cat_task_self());
 }
 
-void ipc_t2_entry(void *arg)
+void mutex_t2_entry(void *arg)
 {
     (void)arg;
 
@@ -94,9 +96,11 @@ void ipc_t2_entry(void *arg)
     }
     cat_kprintf("[t2] done\r\n");
 #endif
+
+    cat_task_delete(cat_task_self());
 }
 
-void ipc_t3_entry(void *arg)
+void mutex_t3_entry(void *arg)
 {
     (void)arg;
 
@@ -119,44 +123,58 @@ void ipc_t3_entry(void *arg)
     }
     cat_kprintf("[t3] done\r\n");
 #endif
+
+    cat_task_delete(cat_task_self());
 }
 
-#if (CATOS_CAT_SHELL_ENABLE == 1)
-#include "cat_shell.h"
-#include "cat_stdio.h"
-#include "port.h"
 void mutex_test(void)
 {
     CAT_TEST_INFO(mutex_test, test mutex);
     cat_mutex_init(&test_mutex);
 
     cat_task_create(
-        (const uint8_t *)"ipc_t1",
-        &ipc_test_task1,
-        ipc_t1_entry,
+        "mutex_t1",
+        &mutex_test_task1,
+        mutex_t1_entry,
         CAT_NULL,
         1,
-        ipc_test_task1_env,
-        IPC_TEST_TASK_STACK_SIZE);
+        mutex_test_task1_env,
+        MUTEX_TEST_TASK_STACK_SIZE);
 
     cat_task_create(
-        (const uint8_t *)"ipc_t2",
-        &ipc_test_task2,
-        ipc_t2_entry,
+        "mutex_t2",
+        &mutex_test_task2,
+        mutex_t2_entry,
         CAT_NULL,
         1,
-        ipc_test_task2_env,
-        IPC_TEST_TASK_STACK_SIZE);
+        mutex_test_task2_env,
+        MUTEX_TEST_TASK_STACK_SIZE);
 
     cat_task_create(
-        (const uint8_t *)"ipc_t3",
-        &ipc_test_task3,
-        ipc_t3_entry,
+        "mutex_t3",
+        &mutex_test_task3,
+        mutex_t3_entry,
         CAT_NULL,
         1,
-        ipc_test_task3_env,
-        IPC_TEST_TASK_STACK_SIZE);
+        mutex_test_task3_env,
+        MUTEX_TEST_TASK_STACK_SIZE);
 }
+
+#include "../tests_config.h"
+#if (CATOS_CAT_SHELL_ENABLE == 1 && TESTS_IPC_MUT == 1)
+#include "cat_shell.h"
+#include "cat_stdio.h"
+#include "port.h"
+
+void *do_test_mut(void *arg)
+{
+    (void)arg;
+
+    mutex_test();
+
+    return CAT_NULL;
+}
+CAT_DECLARE_CMD(test_mut, test mutex, do_test_mut);
 
 void *do_show_critical_res(void *arg)
 {

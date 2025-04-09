@@ -45,9 +45,15 @@ static void _default_task_exit(void *arg)
 {
     (void)arg;
 
+#if 0
+    cat_irq_disable();
     cat_task_t *self = cat_task_self();
 
     cat_task_delete(self);
+    cat_irq_enable();
+#else
+    CLOG_ERROR("task %s return, which should call cat_task_delete(cat_task_self())", cat_task_get_current()->task_name);
+#endif
 
     /* 不会到达这里 */
     CAT_ASSERT(CAT_FALSE);
@@ -326,6 +332,7 @@ void cat_task_sched(void)
 
         /* 增加调度次数信息 */
         to_task->sched_times++;
+        CLOG_TRACE("%s->%s", from_task->task_name, to_task->task_name);
 
         /* 切换上下文 */
         cat_hw_context_switch(
@@ -557,7 +564,12 @@ void cat_task_suspend(cat_task_t *task)
             /* 如果被阻塞的是当前任务，则需要执行下一个任务，即进行一次调度 */
             if (task == cat_task_current)
             {
+                CLOG_TRACE("%s suspend self", task->task_name);
                 cat_task_sched();
+            }
+            else
+            {
+                CLOG_TRACE("%s suspend %s", cat_task_current->task_name, task->task_name);
             }
         }
     }
@@ -633,22 +645,32 @@ void cat_task_delete(cat_task_t *task)
     if (cur_task == task)
     {
         cat_task_sched();
+        CLOG_TRACE("%s exit, deleted by self", cur_task->task_name);
+    }
+    else
+    {
+        CLOG_TRACE("%s exit, deleted by %s", task->task_name, cur_task->task_name);
     }
 
     cat_irq_enable();
 }
 
 /**
- * @brief 修改任务优先级
- *        !会进行一次调度, 如果允许切换走, 那么需要保证调度未上锁
+ * @brief 修改任务优先级并根据情况进行一次调度
+ *        
+ * !会进行一次调度, 如果允许切换走, 那么需要保证调度未上锁
  * 
  * @param  task             任务指针
  * @param  new_prio         新优先级
  * @param[out]  old_prio    旧优先级
- * @return cat_err        CAT_EOK: 成功
+ * @return cat_err          CAT_EOK: 成功
  *                          else:    失败
  */
-cat_err cat_task_change_priority(cat_task_t *task, cat_u8 new_prio, cat_u8 *old_prio)
+cat_err cat_task_change_priority(
+    cat_task_t *task,
+    cat_u8 new_prio,
+    cat_u8 *old_prio
+)
 {
     CAT_ASSERT(task);
 
@@ -671,6 +693,47 @@ cat_err cat_task_change_priority(cat_task_t *task, cat_u8 new_prio, cat_u8 *old_
         {
             cat_task_sched();
         }
+    }
+    else
+    {
+        /* 否则说明任务不在就绪队列中,可以直接修改优先级 */
+        task->prio = new_prio;
+    }
+    cat_irq_enable();
+
+    return CAT_EOK;
+}
+
+/**
+ * @brief 修改任务优先级(不进行调度）
+ * 
+ * @param  task             任务指针
+ * @param  new_prio         新优先级
+ * @param  old_prio[out]    旧优先级
+ * @return cat_err          CAT_EOK: 成功
+ *                          else:    失败
+ */
+cat_err cat_task_change_priority_without_sched(
+    cat_task_t *task,
+    cat_u8 new_prio,
+    cat_u8 *old_prio
+)
+{
+    CAT_ASSERT(task);
+
+    cat_irq_disable();
+
+    if(CAT_NULL != old_prio)
+    {
+        *old_prio = task->prio;
+    }
+
+    if ((task->state & CATOS_TASK_STATE_MASK) == CATOS_TASK_STATE_RDY)
+    {
+        /* 先取下再更改优先级, 因为优先级修改后会挂到新优先级的就绪队列上 */
+        cat_task_unrdy(task);
+        task->prio = new_prio;
+        cat_task_rdy(task);
     }
     else
     {
@@ -746,7 +809,7 @@ static const cat_u8 state_name_map[][8] =
     {
         "ready",
         "deleted",
-        "delayed",
+        "delay",
         "suspend",
 };
 
@@ -778,7 +841,7 @@ static inline cat_u8 *get_state_name(cat_u8 state)
     }
     default:
     {
-        cat_kprintf("[cat_task] error! invalid state!\r\n");
+        CLOG_ERROR("[cat_task] invalid state 0x%x!", state);
         break;
     }
     }

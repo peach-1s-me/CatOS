@@ -6,10 +6,11 @@
     "configurations": [
         {
             "cwd": "${workspaceRoot}",
-            "executable": "${workspaceFolder}\\output\\blink_with_reg\\blink_with_reg.elf",
+            "executable": "${workspaceFolder}\\output\\blink_with_cube\\blink_with_cube.elf",
             "name": "debug blink",
             "request": "launch",
             "type": "cortex-debug",
+            "armToolchainPath": "D:\\softwares\\gcc-arm-none-eabi-10-2020-q4-major\\bin",
             "servertype": "openocd",
             "interface": "swd",
             "device": "stm32f1x",

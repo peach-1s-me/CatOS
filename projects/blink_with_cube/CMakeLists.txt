@@ -33,7 +33,7 @@ target_sources(user_project INTERFACE
     ${MX_Application_Src}
     ${STM32_Drivers_Src}
 
-    ${TEST_DIR}/tests/ipc_test/basic_ipc_test.c
+    # ${TEST_DIR}/tests/ipc_test/basic_ipc_test.c
     # ${TEST_DIR}/tests/ipc_test/sem_test.c
     # ${TEST_DIR}/tests/ipc_test/mutex_test.c
     # ${TEST_DIR}/tests/ipc_test/mutex_prio_reverse_test.c

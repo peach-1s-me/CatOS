@@ -20,21 +20,21 @@
 #include "catos.h"
 #include "../cat_func_test.h"
 
-#define IPC_TEST_TASK_STACK_SIZE (2048)
+#define SEM_TEST_TASK_STACK_SIZE (1024)
 
-cat_task_t ipc_test_task1;
-cat_task_t ipc_test_task2;
-cat_task_t ipc_test_task3;
+cat_task_t sem_test_task1;
+cat_task_t sem_test_task2;
+cat_task_t sem_test_task3;
 
-cat_u8 ipc_test_task1_env[IPC_TEST_TASK_STACK_SIZE];
-cat_u8 ipc_test_task2_env[IPC_TEST_TASK_STACK_SIZE];
-cat_u8 ipc_test_task3_env[IPC_TEST_TASK_STACK_SIZE];
+cat_u8 sem_test_task1_env[SEM_TEST_TASK_STACK_SIZE];
+cat_u8 sem_test_task2_env[SEM_TEST_TASK_STACK_SIZE];
+cat_u8 sem_test_task3_env[SEM_TEST_TASK_STACK_SIZE];
 
 cat_sem_t test_sem;
 
 #define TEST
 
-void ipc_t1_entry(void *arg)
+void sem_t1_entry(void *arg)
 {
     (void)arg;
 
@@ -48,8 +48,7 @@ void ipc_t1_entry(void *arg)
     }
 }
 
-cat_u32 wakingup_times = 0;
-void ipc_t2_entry(void *arg)
+void sem_t2_entry(void *arg)
 {
     (void)arg;
 
@@ -73,7 +72,7 @@ void ipc_t2_entry(void *arg)
     }
 }
 
-void ipc_t3_entry(void *arg)
+void sem_t3_entry(void *arg)
 {
     (void)arg;
 
@@ -103,29 +102,44 @@ void sem_test(void)
     cat_sem_init(&test_sem, 0, 5);
 
     cat_task_create(
-        (const uint8_t *)"ipc_t1",
-        &ipc_test_task1,
-        ipc_t1_entry,
+        "sem_t1",
+        &sem_test_task1,
+        sem_t1_entry,
         CAT_NULL,
         1,
-        ipc_test_task1_env,
-        IPC_TEST_TASK_STACK_SIZE);
+        sem_test_task1_env,
+        SEM_TEST_TASK_STACK_SIZE);
 
     cat_task_create(
-        (const uint8_t *)"ipc_t2",
-        &ipc_test_task2,
-        ipc_t2_entry,
+        "sem_t2",
+        &sem_test_task2,
+        sem_t2_entry,
         CAT_NULL,
         1,
-        ipc_test_task2_env,
-        IPC_TEST_TASK_STACK_SIZE);
+        sem_test_task2_env,
+        SEM_TEST_TASK_STACK_SIZE);
 
     cat_task_create(
-        (const uint8_t *)"ipc_t3",
-        &ipc_test_task3,
-        ipc_t3_entry,
+        "sem_t3",
+        &sem_test_task3,
+        sem_t3_entry,
         CAT_NULL,
         1,
-        ipc_test_task3_env,
-        IPC_TEST_TASK_STACK_SIZE);
+        sem_test_task3_env,
+        SEM_TEST_TASK_STACK_SIZE);
 }
+
+#include "../tests_config.h"
+#if (CATOS_CAT_SHELL_ENABLE == 1 && TESTS_IPC_SEM == 1)
+#include "cat_shell.h"
+#include "cat_stdio.h"
+void *do_test_sem(void *arg)
+{
+    (void)arg;
+
+    sem_test();
+
+    return CAT_NULL;
+}
+CAT_DECLARE_CMD(test_sem, test sem, do_test_sem);
+#endif

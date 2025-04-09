@@ -14,6 +14,7 @@
  * <tr><td>v1.1 <td>文佳源 <td>2025-03-05 <td>1.调整代码实现；2.添加ipc测试接口
  * <tr><td>v1.2 <td>文佳源 <td>2025-03-06 <td>1.添加信号量；2.添加互斥量
  * <tr><td>v1.2 <td>文佳源 <td>2025-03-08 <td>1.添加消息队列;2.增加timeout小于0时的无限等待功能
+ * <tr><td>v1.2 <td>文佳源 <td>2025-04-06 <td>1.修复优先级继承时可能会导致上下文切换错误的问题
  * </table>
  */
 #include "catos_config.h"
@@ -455,12 +456,15 @@ cat_err cat_sem_get(cat_sem_t *sem, cat_i32 timeout_ms)
         (sem->val)--;
 
         cat_irq_enable();
+        CLOG_TRACE("%s get sem", cat_task_self()->task_name);
+
         ret = CAT_EOK;
     }
     else
     {
         cat_irq_enable();
         /* 等待cat_sem_post唤醒 */
+        CLOG_TRACE("%s waiting for sem", cat_task_self()->task_name);
         cat_ipc_wait(&(sem->ipc), IPC_WAIT_TYPE_RECV, cat_task_self(), CAT_IPC_TYPE_SEM, timeout_ms);
 
         /* cat_ipc_wait会挂起任务切换, 开中断后就切走了, 等待唤醒 */
@@ -486,12 +490,15 @@ cat_err cat_sem_get_unsuspend(cat_sem_t *sem)
         (sem->val)--;
 
         cat_irq_enable();
+        CLOG_TRACE("%s get sem", cat_task_self()->task_name);
+
         ret = CAT_EOK;
     }
     else
     {
         /* 非阻塞不等待唤醒 */
         cat_irq_enable();
+        CLOG_TRACE("%s get sem fail", cat_task_self()->task_name);
 
         /* 返回"资源已耗尽"错误代码 */
         ret = CAT_EOUTOF;
@@ -510,6 +517,7 @@ void cat_sem_post(cat_sem_t *sem)
 
     if (CAT_NULL != task)
     {
+        CLOG_TRACE("%s post sem wakeup %s", cat_task_self()->task_name, task->task_name);
         /* 唤醒的任务优先级更高时进行一次调度 */
         if (task->prio < cat_task_self()->prio)
         {
@@ -520,9 +528,11 @@ void cat_sem_post(cat_sem_t *sem)
     {
         sem->val++;
 
+        CLOG_TRACE("%s post sem", cat_task_self()->task_name);
         if (sem->val > sem->max)
         {
             sem->val = sem->max;
+            CLOG_WARNING("%s post sem overflow", cat_task_self()->task_name);
         }
     }
 
@@ -545,6 +555,7 @@ cat_err cat_sem_delete(cat_sem_t *sem)
     }
 
     cat_irq_enable();
+    CLOG_TRACE("%s deleted sem", cat_task_self()->task_name);
 
     return count;
 }
@@ -592,6 +603,8 @@ cat_err cat_mutex_get(cat_mutex_t *mutex, cat_i32 timeout_ms)
         mutex->locked_cnt++;
 
         cat_irq_enable();
+        CLOG_TRACE("%s get mutex", cur_task->task_name);
+
         ret = CAT_EOK;
     }
     else
@@ -604,11 +617,13 @@ cat_err cat_mutex_get(cat_mutex_t *mutex, cat_i32 timeout_ms)
             mutex->locked_cnt++;
 
             cat_irq_enable();
+            CLOG_TRACE("%s get mutex recursivley", cur_task->task_name);
+
             ret = CAT_EOK;
         }
         else
         {
-            /* 申请获取互斥量的不是以持有互斥量的任务 */
+            /* 申请获取互斥量的不是已持有互斥量的任务 */
 
             if (cur_task->prio < mutex->owner->prio)
             {
@@ -618,8 +633,9 @@ cat_err cat_mutex_get(cat_mutex_t *mutex, cat_i32 timeout_ms)
                  */
                 cat_task_t *owner = mutex->owner;
 
-                cat_task_change_priority(owner, cur_task->prio, CAT_NULL);
-
+                cat_task_change_priority_without_sched(owner, cur_task->prio, CAT_NULL);
+                CLOG_TRACE("%s wait mutex, mutex owner: %s prio:%d->%d", cur_task->task_name, owner->task_name, mutex->original_prio, owner->prio);
+#if 0
                 if ((owner->state & CATOS_TASK_STATE_MASK) == CATOS_TASK_STATE_RDY)
                 {
                     /** 如果持有互斥量的任务状态为就绪态, 则先取下再
@@ -634,6 +650,7 @@ cat_err cat_mutex_get(cat_mutex_t *mutex, cat_i32 timeout_ms)
                     /* 否则说明持有者任务不在就绪队列中,可以直接修改优先级 */
                     owner->prio = cur_task->prio;
                 }
+#endif
             }
 
             /* 把申请互斥量的任务挂到互斥量等待队列中 */
@@ -668,6 +685,8 @@ cat_err cat_mutex_get_unsuspend(cat_mutex_t *mutex)
         mutex->locked_cnt++;
 
         cat_irq_enable();
+        CLOG_TRACE("%s get mutex", cur_task->task_name);
+
         ret = CAT_EOK;
     }
     else
@@ -680,11 +699,15 @@ cat_err cat_mutex_get_unsuspend(cat_mutex_t *mutex)
             mutex->locked_cnt++;
 
             cat_irq_enable();
+            CLOG_ERROR("%s get mutex dup", cur_task->task_name);
+
             ret = CAT_EOK;
         }
         else
         {
             cat_irq_enable();
+            CLOG_TRACE("%s get mutex fail", cur_task->task_name);
+
             ret = CAT_EOUTOF;
         }
     }
@@ -704,12 +727,16 @@ cat_err cat_mutex_post(cat_mutex_t *mutex)
     {
         /* 没有任务持有该互斥量,该函数无实际作用 */
         cat_irq_enable();
+        CLOG_WARNING("%s post mutex without effect", cur_task->task_name);
+
         ret = CAT_EOK;
     }
     else if (mutex->owner != cur_task)
     {
         /* 当释放互斥量的任务不是持有者时返回错误 */
         cat_irq_enable();
+        CLOG_ERROR("%s get mutex, but taken by %s", cur_task->task_name, mutex->owner->task_name);
+
         ret = CAT_EINVAL;
     }
     else
@@ -720,6 +747,8 @@ cat_err cat_mutex_post(cat_mutex_t *mutex)
         {
             /* 说明持有者释放了一层互斥量, 但未全部释放 */
             cat_irq_enable();
+            CLOG_TRACE("%s post mutex 1/%d", cur_task->task_name, mutex->locked_cnt+1);
+
             ret = CAT_EOK;
         }
         else
@@ -732,7 +761,19 @@ cat_err cat_mutex_post(cat_mutex_t *mutex)
                 cat_task_t *owner = mutex->owner;
 
                 /* 如果有优先级继承, 则先把优先级置回原值 */
+                CLOG_TRACE("low prio task %s post mutex, prio %d->%d", cur_task->task_name, owner->prio, mutex->original_prio);
+
+                /**
+                 * 2025-04-06
+                 * 这里不应该调度，否则会在关中断的临界区中调用两次 cat_task_sched()，
+                 * 导致上下文切换出错
+                 * 
+                 */
+#if 0
                 cat_task_change_priority(owner, mutex->original_prio, CAT_NULL);
+#else
+                cat_task_change_priority_without_sched(owner, mutex->original_prio, CAT_NULL);
+#endif
             }
 
             /* 清空持有者 */
@@ -743,6 +784,7 @@ cat_err cat_mutex_post(cat_mutex_t *mutex)
             {
                 /* 若有任务等待则唤醒第一个等待的任务 */
                 cat_task_t *waken_task = cat_ipc_wakeup_first(&(mutex->ipc), IPC_WAIT_TYPE_RECV, CAT_NULL, CAT_EOK);
+                CLOG_TRACE("%s wakeup %s", cur_task->task_name, waken_task->task_name);
 
                 /* 设置互斥量拥有者 */
                 mutex->owner = waken_task;
@@ -778,7 +820,7 @@ cat_u32 cat_mutex_delete(cat_mutex_t *mutex)
         if (mutex->original_prio != owner->prio)
         {
             /* 如果有优先级继承, 则先把优先级置回原值 */
-            cat_task_change_priority(owner, mutex->original_prio, CAT_NULL);
+            cat_task_change_priority_without_sched(owner, mutex->original_prio, CAT_NULL);
         }
 
         /* 移除所有等待该互斥量的任务并放入就绪队列 */

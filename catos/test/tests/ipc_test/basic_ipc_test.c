@@ -72,7 +72,6 @@ void ipc_t1_entry(void *arg)
     }
 }
 
-cat_u32 wakingup_times = 0;
 void ipc_t2_entry(void *arg)
 {
     (void)arg;
@@ -125,8 +124,6 @@ void ipc_t3_entry(void *arg)
     }
 }
 
-
-
 void ipc_test(void)
 {
     CAT_TEST_INFO(ipc_test, test basic ipc);
@@ -135,7 +132,7 @@ void ipc_test(void)
     test_export_cat_ipc_init(&test_ipc3, CAT_IPC_TYPE_SEM);
 
     cat_task_create(
-        (const uint8_t *)"ipc_t1",
+        "ipc_t1",
         &ipc_test_task1,
         ipc_t1_entry,
         CAT_NULL,
@@ -145,7 +142,7 @@ void ipc_test(void)
       );
 
       cat_task_create(
-        (const uint8_t *)"ipc_t2",
+        "ipc_t2",
         &ipc_test_task2,
         ipc_t2_entry,
         CAT_NULL,
@@ -155,7 +152,7 @@ void ipc_test(void)
       );
 
       cat_task_create(
-        (const uint8_t *)"ipc_t3",
+        "ipc_t3",
         &ipc_test_task3,
         ipc_t3_entry,
         CAT_NULL,
@@ -165,14 +162,15 @@ void ipc_test(void)
       );
 }
 
-#if (CATOS_CAT_SHELL_ENABLE == 1)
+#include "../tests_config.h"
+#if (CATOS_CAT_SHELL_ENABLE == 1 && TESTS_IPC_BASIC == 1)
 #include "cat_shell.h"
 #include "cat_stdio.h"
 void *do_test_ipc(void *arg)
 {
     (void)arg;
 
-    test_export_cat_ipc_wakeup_first(&test_ipc1, IPC_WAIT_TYPE_RECV, CAT_NULL, CAT_EOK);
+    ipc_test();
 
     return CAT_NULL;
 }

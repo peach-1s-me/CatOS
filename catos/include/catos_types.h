@@ -46,6 +46,7 @@ typedef enum _cat_err
     CAT_EOK = 0,  /**< 成功 */
     CAT_ERROR,    /**< 失败 */
     CAT_EINVAL,   /**< 非法值 */
+    CAT_ENPTR,  /**< 空指针 */
     CAT_ETIMEOUT, /**< 超时 */
     CAT_EOUTOF,   /**< 资源已耗尽 */
     CAT_EFULL,    /**< 资源已满 */
