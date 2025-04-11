@@ -35,7 +35,7 @@ void print_dlist(cat_dlist_t *dl)
 
     cat_u32 real_value = 0;
 
-    while(CAT_NULL != p)
+    while(&(dl->head) != p)
     {
         real_value += p->value;
         cat_printf("%d(%d)->", real_value, p->value);
@@ -68,14 +68,15 @@ void test_dlist_func(void)
     }
 
     CAT_TEST_INFO(cat_dlist_pop, test pop);
-    cat_dnode_t *tmp;
-    tmp = cat_dlist_pop(&dlist);
-    cat_printf("pop %d\r\n", tmp->value);
-    tmp = cat_dlist_pop(&dlist);
-    cat_printf("pop %d\r\n", tmp->value);
-    tmp = cat_dlist_pop(&dlist);
-    cat_printf("pop %d\r\n", tmp->value);
-    print_dlist(&dlist);
+    cat_dnode_t *tmp = cat_dlist_first(&dlist);
+    while(CAT_NULL != tmp)
+    {
+        cat_dlist_remove(tmp);
+        cat_printf("pop %d\r\n", tmp->value);
+        print_dlist(&dlist);
+
+        tmp = cat_dlist_first(&dlist);
+    }
 }
 
 #include "../tests_config.h"
