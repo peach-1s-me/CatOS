@@ -23,7 +23,8 @@ void up_action(cat_shell_instance_t *shell_inst)
 {
     //cat_printf("[cat_shell_cmds] up is pressed !\r\n");
     cat_history_up(shell_inst);
-    cat_printf("%s", shell_inst->buffer.buf);
+    cat_printf(CAT_SHELL_CLR_LINE);
+    cat_printf("cat>%s", shell_inst->buffer.buf);
 }
 CAT_DECLARE_KEY(up, CAT_KEY_DIRECTION_UP, up_action);
 
@@ -31,19 +32,20 @@ void down_action(cat_shell_instance_t *shell_inst)
 {
     //cat_printf("[cat_shell_cmds] down is pressed !\r\n");
     cat_history_down(shell_inst);
-    cat_printf("%s", shell_inst->buffer.buf);
+    cat_printf(CAT_SHELL_CLR_LINE);
+    cat_printf("cat>%s", shell_inst->buffer.buf);
 }
 CAT_DECLARE_KEY(down, CAT_KEY_DIRECTION_DOWN, down_action);
 
 void left_action(cat_shell_instance_t *shell_inst)
 {
-    //cat_printf("[cat_shell_cmds] left is pressed !\r\n");
+    cat_printf("[cat_shell_cmds] left is pressed !\r\n");
 }
 CAT_DECLARE_KEY(left, CAT_KEY_DIRECTION_LEFT, left_action);
 
 void right_action(cat_shell_instance_t *shell_inst)
 {
-    //cat_printf("[cat_shell_cmds] right is pressed !\r\n");
+    cat_printf("[cat_shell_cmds] right is pressed !\r\n");
 }
 CAT_DECLARE_KEY(right, CAT_KEY_DIRECTION_RIGHT, right_action);
 #endif

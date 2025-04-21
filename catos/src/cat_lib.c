@@ -389,6 +389,11 @@ cat_i32 cat_strcpy(char *dst, const char *src, cat_u32 dest_len)
         i++;
     }
 
+    if(i < dest_len)
+    {
+        dst[i] = '\0';
+    }
+
     return ret;
 }
 
