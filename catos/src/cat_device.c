@@ -127,7 +127,7 @@ void cat_device_module_init(void)
  * @brief 根据名称获取设备结构体指针
  * 
  * @param name                    : 设备名称
- * @return struct _cat_device_t * : 设备指针(句柄)
+ * @return cat_device_t * : 设备指针(句柄)
  */
 cat_device_t *cat_device_get(const char *name)
 {
@@ -157,9 +157,14 @@ cat_device_t *cat_device_get(const char *name)
  * @brief 根据设备号获取设备结构体指针
  * 
  * @param id                      : 设备号
- * @return struct _cat_device_t * : 设备指针(句柄)
+ * @return cat_device_t * : 设备指针(句柄)
  */
-cat_device_t *cat_device_get_by_id(cat_u8 id);
+cat_device_t *cat_device_get_by_id(cat_u8 id)
+{
+    (void)id;
+
+    return CAT_NULL;
+}
 
 /**
  * @brief 注册设备(只会初始化链表节点和参数中的成员，其余由用户自行初始化和赋值)
@@ -251,7 +256,7 @@ cat_u8 cat_device_unregister(cat_device_t *dev)
  * @param rx_cbk 
  * @return cat_u8 
  */
-cat_u8 cat_device_set_rx_cbk(cat_device_t *dev, cat_u8 (*rx_cbk)(struct _cat_device_t *dev, cat_u32 size))
+cat_u8 cat_device_set_rx_cbk(cat_device_t *dev, cat_u8 (*rx_cbk)(cat_device_t *dev, cat_u32 size))
 {
     cat_u8 ret = CAT_EOK;
 
@@ -274,7 +279,7 @@ cat_u8 cat_device_set_rx_cbk(cat_device_t *dev, cat_u8 (*rx_cbk)(struct _cat_dev
  * @param tx_cbk 
  * @return cat_u8 
  */
-cat_u8 cat_device_set_tx_cbk(cat_device_t *dev, cat_u8 (*tx_cbk)(struct _cat_device_t *dev, void *buffer))
+cat_u8 cat_device_set_tx_cbk(cat_device_t *dev, cat_u8 (*tx_cbk)(cat_device_t *dev, void *buffer))
 {
     cat_u8 ret = CAT_EOK;
 

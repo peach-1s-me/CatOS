@@ -71,6 +71,7 @@ enum _cat_device_type_t
 };
 #endif
 
+/* 类型使用前向声明，见 catos_types.h */
 struct _cat_device_t
 {
     const char         *device_name;           /**< 设备名称 */

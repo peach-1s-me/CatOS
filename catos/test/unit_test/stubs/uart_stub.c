@@ -49,14 +49,14 @@ cat_u8 uart_ctrl(cat_device_t *dev, int cmd, void *args)
 
 cat_device_t uart1_dev = {
     .type = CAT_DEVICE_TYPE_CHAR,
-    .init = NULL,
+    .init = CAT_NULL,
     .open = CAT_NULL,
     .close = CAT_NULL,
     .read = uart_read,
     .write = uart_write,
     .ctrl = uart_ctrl,
 
-    .pri_data = NULL};
+    .pri_data = CAT_NULL};
 
 /* 挂载所有uart设备 */
 cat_u8 cat_debug_uart_register(void)

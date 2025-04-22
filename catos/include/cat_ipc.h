@@ -27,7 +27,7 @@
 /* 0-基础ipc */
 
 /**< ipc变量类型(枚举) */
-typedef enum _cat_ipc_type_t
+typedef enum
 {
     CAT_IPC_TYPE_UNKOWN = 0,
     CAT_IPC_TYPE_SEM,   /**< 信号量 */
@@ -36,7 +36,7 @@ typedef enum _cat_ipc_type_t
 } cat_ipc_type_t;
 
 /**< ipc结构体 */
-typedef struct _cat_ipc_t
+typedef struct
 {
     cat_ipc_type_t      type;            /**< ipc变量类型 */
     cat_list_t          recv_wait_list; /**< 阻塞等待接收该ipc的任务队列 */
@@ -58,7 +58,7 @@ cat_u32     test_export_cat_ipc_wait_task_count(cat_ipc_t *ipc, cat_u8 wait_type
 /* 1-信号量 */
 
 /**< 信号量结构体 */
-typedef struct _cat_sem_t
+typedef struct
 {
     cat_ipc_t ipc; /**< ipc控制块 */
     cat_u32   val; /**< 信号量当前值 */
@@ -66,7 +66,7 @@ typedef struct _cat_sem_t
 } cat_sem_t;
 
 /**< 信号量信息结构体 */
-typedef struct _cat_sem_info_t
+typedef struct
 {
     cat_u32 waiting_task_num; /**< 等待该信号量的任务数量 */
     cat_u32 val;              /**< 信号量当前值 */
@@ -84,7 +84,7 @@ void cat_sem_get_info(cat_sem_t *sem, cat_sem_info_t *info);
 /* 2-互斥量 */
 
 /**< 互斥量结构体 */
-typedef struct _cat_mutex_t
+typedef struct
 {
     cat_ipc_t          ipc;           /**< 事件控制块*/
     cat_u32            locked_cnt;    /**< 被锁定次数*/
@@ -93,7 +93,7 @@ typedef struct _cat_mutex_t
 } cat_mutex_t;
 
 /**< 互斥量信息结构体 */
-typedef struct _cat_mutex_info_t
+typedef struct
 {
     cat_u32            waiting_task_num;    /**<  */
     cat_u32            owner_prio;
@@ -125,7 +125,7 @@ void cat_mutex_get_info(cat_mutex_t *mutex, cat_mutex_info_t *info);
  *  MSG3 <-next- MSG2 <-next- MSG1
  */
 /**< 消息队列结构体 */
-typedef struct _cat_mq_t
+typedef struct
 {
     cat_ipc_t          ipc;            /**< 事件控制块*/
     
@@ -150,7 +150,7 @@ typedef struct _cat_mq_msg_t
 } cat_mq_msg_t;
 
 /**< 互斥量信息结构体 */
-typedef struct _cat_mq_info_t
+typedef struct
 {
     cat_u32 msg_size;
     cat_u32 msg_max;

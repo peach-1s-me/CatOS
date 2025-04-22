@@ -19,8 +19,8 @@
 
 
 /* var decl */
-struct _cat_task_t *cat_idle_task;                      /**< 空闲任务全局指针 */
-static struct _cat_task_t idle_task;                    /**< 空闲任务变量 */
+cat_task_t *cat_idle_task;                      /**< 空闲任务全局指针 */
+static cat_task_t idle_task;                    /**< 空闲任务变量 */
 
 cat_u8 idle_task_env[CATOS_IDLE_STACK_SIZE];  /**< 空闲任务堆栈 */
 
@@ -47,7 +47,7 @@ void cat_idle_task_create(void)
 #if (CATOS_STDIO_ENABLE == 1)
     if(cat_stdio_is_device_is_set())
     {
-        CLOG_INFO("[cat_idle] idle task created\r\n");
+        CLOG_INFO("[cat_idle] idle task created");
     }
 #endif
 }

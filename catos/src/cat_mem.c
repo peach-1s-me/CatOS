@@ -50,11 +50,11 @@ void cat_mem_init(void)
 
     if(CAT_EOK != ret)
     {
-        CLOG_ERROR("[mem] mem init fail\r\n");
+        CLOG_ERROR("[mem] mem init fail");
     }
     else
     {
-        CLOG_INFO("[mem] mem init success\r\n");
+        CLOG_INFO("[mem] mem init success");
     }
     
 }
@@ -153,7 +153,10 @@ void *cat_malloc(cat_ubase bytes)
 
 cat_err cat_free(void *ptr)
 {
-    cat_err ret = CAT_ERROR;
+    if(CAT_NULL == ptr)
+    {
+        return CAT_ENPTR;
+    }
 
     _mem_ctl_blk_t *mcb = (_mem_ctl_blk_t *)((cat_ubase)ptr - sizeof(_mem_ctl_blk_t));
     _mem_ctl_blk_t *neighbor = CAT_NULL;
@@ -192,15 +195,15 @@ cat_err cat_free(void *ptr)
             neighbor->size += sizeof(_mem_ctl_blk_t) + mcb->size;
         }
 
-        ret = CAT_EOK;
+        return CAT_EOK;
     }
     else
     {
         /* 说明出错了 */
-        CLOG_ERROR("[mem] BLOCK FLUSHED OR NOT IN USE\n");
+        CLOG_ERROR("[mem] BLOCK FLUSHED OR NOT IN USE");
     }
 
-    return ret;
+    return CAT_ERROR;
 }
 
 #if (CATOS_CAT_SHELL_ENABLE == 1)
@@ -213,10 +216,10 @@ void cat_mem_print_info(void)
     _mem_ctl_blk_t *mcb = mem_head.next;
     int i = 0;
 
-    cat_kprintf("id    addr_range                      size   status------\r\n");
+    cat_kprintf("id    addr_range                  size   status------\r\n");
     while (mcb != &mem_head)
     {
-        cat_kprintf("blk%4d:[0x%x, 0x%x] %5d   %s\r\n",
+        cat_kprintf("blk%4d:[0x%8x, 0x%8x] %5d   %s\r\n",
                i,
                ((cat_ubase)mcb + sizeof(_mem_ctl_blk_t)),
                ((cat_ubase)mcb + sizeof(_mem_ctl_blk_t) + mcb->size),

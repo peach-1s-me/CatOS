@@ -65,7 +65,7 @@ void test_setup(void)
     catos_init();
 
     cat_task_create(
-      (const uint8_t *)"task1_task",
+      "task1_task",
       &task1,
       task1_entry,
       CAT_NULL,
@@ -74,7 +74,7 @@ void test_setup(void)
       TASK1_STACK_SIZE
     );
     cat_task_create(
-      (const uint8_t *)"task2_task",
+      "task2_task",
       &task2,
       task2_entry,
       CAT_NULL,

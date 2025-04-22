@@ -155,12 +155,26 @@ static cat_u32 uart1_write(cat_device_t *dev, cat_i32 pos, const void *buffer, c
 {
   (void)dev;
   (void)pos;
-  cat_u32 ret = HAL_UART_Transmit(
-      &huart1,
-      (cat_u8 *)buffer,
-      size,
-      0x1000);
-  return ret;
+#if 0
+    cat_u32 ret = HAL_UART_Transmit(
+        &huart1,
+        (cat_u8 *)buffer,
+        size,
+        0x1000);
+    return ret;
+#else
+    cat_u32 i;
+    for(i=0; i<size; i++)
+    {
+        cat_irq_disable();
+        while((USART1->SR & USART_SR_TXE) == 0);
+
+        USART1->DR = ((cat_u8 *)buffer)[i];
+        cat_irq_enable();
+    }
+
+    return i;
+#endif
 }
 static cat_u8 uart1_ctrl(cat_device_t *dev, int cmd, void *args)
 {

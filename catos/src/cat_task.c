@@ -30,12 +30,13 @@ cat_list_t cat_task_manage_list; /**< 用于管理的任务链表 */
 /* 私有变量 */
 static cat_bool cat_task_is_scheduling = CAT_FALSE; /**< 表示已开始调度（正在调度） */
 
-static struct _cat_task_t *cat_task_current; /**< 当前任务指针 */
+static cat_task_t *cat_task_current; /**< 当前任务指针 */
 static cat_bitmap cat_task_prio_bitmap;      /**< 就绪位图 */
 
 static cat_u8 sched_lock_cnt;                                /**< 调度锁 0:未加锁；else：加锁(可多次加锁)*/
 static cat_list_t task_rdy_tbl[CATOS_TASK_PRIO_MIN]; /**< 就绪表 */
-static cat_list_t cat_task_delayed_list;             /**< 延时链表 */
+// static cat_list_t cat_task_delayed_list;             /**< 延时链表 */
+static cat_dlist_t delay_list; /* 延时链表 */
 
 /* 内核内部声明 */
 void cat_ipc_remove_wait_task(cat_ipc_t *ipc, cat_task_t *task, void *msg, cat_err error);
@@ -45,17 +46,23 @@ static void _default_task_exit(void *arg)
 {
     (void)arg;
 
+#if 0
+    cat_irq_disable();
     cat_task_t *self = cat_task_self();
 
     cat_task_delete(self);
+    cat_irq_enable();
+#else
+    CLOG_ERROR("task %s return, which should call cat_task_delete(cat_task_self())", cat_task_get_current()->task_name);
+#endif
 
-    /* 不会到达这里 */
+    /* 正常不会到达这里 */
     CAT_ASSERT(CAT_FALSE);
 }
 
 static void cat_task_init(
     const char *task_name,
-    struct _cat_task_t *task,
+    cat_task_t *task,
     void (*entry)(void *),
     void *arg,
     cat_u8 prio,
@@ -81,9 +88,8 @@ static void cat_task_init(
     task->stack_start_addr = stack_start_addr;
     task->stack_size = stack_size;
 
-    cat_list_node_init(&(task->link_node));
-
-    task->delay = 0;
+    cat_list_node_init(&(task->ready_node));
+    cat_dlist_node_init(&(task->time_node));
 
     task->state = CATOS_TASK_STATE_RDY;
 
@@ -119,7 +125,8 @@ void cat_task_scheduler_init(void)
     cat_bitmap_init(&cat_task_prio_bitmap);
 
     /* 初始化等待链表 */
-    cat_list_init(&cat_task_delayed_list);
+    // cat_list_init(&cat_task_delayed_list);
+    cat_dlist_init(&delay_list);
 
     /* 初始化就绪表 */
     int i;
@@ -131,7 +138,7 @@ void cat_task_scheduler_init(void)
 #if (CATOS_STDIO_ENABLE == 1)
     if (cat_stdio_is_device_is_set())
     {
-        CLOG_INFO("[cat_sp_task] static priority scheduler init\r\n");
+        CLOG_INFO("[cat_sp_task] static priority scheduler init");
     }
 #endif
 }
@@ -140,27 +147,20 @@ void cat_hw_init_systick(cat_u32 ms);
 /* 开始调度 */
 void catos_start_schedule(void)
 {
-    struct _cat_task_t *first_task = CAT_NULL;
+    cat_task_t *first_task = CAT_NULL;
 
-    //cat_task_before_start_first();
     /* 获取最高优先级任务 */
     first_task = cat_task_get_highest_ready();
 
     /* 因为是第一个任务，不用像调度时判断是否和上一个任务一样，直接赋值给当前任务就行 */
     cat_task_set_current(first_task);
 
-    /* 初始化和开启时钟中断 */
-    // cat_hw_init_systick();
-
     /* 防止赋值cat_task_is_scheduling后进入systick中断进入调度*/
-    // cat_hw_irq_disable();
     _cat_hw_irq_disable();
     /* 表示已经开始调度 */
     cat_task_is_scheduling = CAT_TRUE;
 
-    // void cat_hw_systick_start(void);
-    // cat_hw_systick_start();
-
+    /* 初始化和开启时钟中断 */
     cat_hw_start_systick();
 
     cat_task_sched_unlock();
@@ -202,7 +202,7 @@ cat_task_t *cat_task_self(void)
 
 void cat_task_create(
     const char *task_name,
-    struct _cat_task_t *task,
+    cat_task_t *task,
     void (*entry)(void *),
     void *arg,
     cat_u8 prio,
@@ -227,19 +227,19 @@ void cat_task_create(
 /**
  * @brief 获取最高优先级任务
  *
- * @return struct _cat_task_t* CAT_NULL:无就绪任务; !CAT_NULL:就绪任务指针
+ * @return cat_task_t* CAT_NULL:无就绪任务; !CAT_NULL:就绪任务指针
  */
-struct _cat_task_t *cat_task_get_highest_ready(void)
+cat_task_t *cat_task_get_highest_ready(void)
 {
-    struct _cat_task_t *ret;
+    cat_task_t *ret;
     /* 获取最低非零位(有任务就绪的最高优先级) */
     cat_u32 highest_prio = cat_bitmap_get_first_set(&cat_task_prio_bitmap);
 
     /* 获取链表的第一个节点 */
-    struct _cat_node_t *node = cat_list_first(&(task_rdy_tbl[highest_prio]));
+    cat_node_t *node = cat_list_first(&(task_rdy_tbl[highest_prio]));
 
     /* 获取任务结构指针 */
-    ret = CAT_GET_CONTAINER(node, struct _cat_task_t, link_node);
+    ret = CAT_GET_CONTAINER(node, cat_task_t, ready_node);
 
     CAT_ASSERT(ret);
 
@@ -252,37 +252,37 @@ struct _cat_task_t *cat_task_get_highest_ready(void)
  */
 void cat_task_delay_deal(void)
 {
-    struct _cat_node_t *node, *next_node;
-
     /* 处理延时队列 */
-    /* 取得等待链表第一个节点 */
-    node = cat_task_delayed_list.head_node.next_node;
-    /* 遍历等待链表 */
-    while (node != &(cat_task_delayed_list.head_node))
+    cat_dnode_t *dnode = cat_dlist_first(&delay_list);
+    while(dnode != CAT_NULL)
     {
-        /* 保存下一个节点，否则在任务控制块中只有一个链表节点的情况下进行wakeup操作后
-         * node的下一个节点会被改变为就绪链表的下一个节点 */
-        next_node = node->next_node;
-
-        /* 取得任务控制块指针 */
-        struct _cat_task_t *task = CAT_GET_CONTAINER(node, struct _cat_task_t, link_node);
-
-        CAT_ASSERT(task);
-
-        /* 将任务delay的tick数减1，若减少之后为零则说明delay结束 */
-        task->delay--;
-        if (task->delay == 0)
+        if(dnode->value > 0)
         {
-            if (CAT_NULL != task->ipc_wait)
+            /* 将任务delay的tick数减1 */
+            dnode->value--;
+        }
+
+        /* 若剩余等待时间为零则唤醒 */
+        if(0 == dnode->value)
+        {
+            cat_task_t *task = CAT_GET_CONTAINER(dnode, cat_task_t, time_node);
+
+            if(CAT_NULL != task->ipc_wait)
             {
                 /* 如果是因为等待ipc超时,给个超时错误 */
                 cat_ipc_remove_wait_task(task->ipc_wait, task, CAT_NULL, CAT_ETIMEOUT);
             }
-            cat_task_delay_wakeup(task); /* 从延时表取出并挂到就绪表中 */
+
+            CLOG_TRACE("task %s is wakeup delay\r\n", task->task_name);
+            cat_task_delay_wakeup(task);
+        }
+        else
+        {
+            /* 如果任务剩余等待时间仍大于0，说明此时等待队列中所有任务剩余等待时间均大于零，因此退出 */
+            break;
         }
 
-        /* 在下一次循环前挪动当前指针到先前保存的next_node位置 */
-        node = next_node;
+        dnode = cat_dlist_first(&delay_list);
     }
 
     /* 处理时间片 */
@@ -294,7 +294,7 @@ void cat_task_delay_deal(void)
             /* 将当前任务节点从任务链表首位去掉 */
             cat_list_remove_first(&(task_rdy_tbl[cat_task_current->prio]));
             /* 将当前任务节点加到任务链表末尾 */
-            cat_list_add_last(&(task_rdy_tbl[cat_task_current->prio]), &(cat_task_current->link_node));
+            cat_list_add_last(&(task_rdy_tbl[cat_task_current->prio]), &(cat_task_current->ready_node));
 
             /* 重置时间片 */
             cat_task_current->slice = CATOS_MAX_SLICE;
@@ -308,7 +308,7 @@ void cat_task_delay_deal(void)
  */
 void cat_task_sched(void)
 {
-    struct _cat_task_t *from_task, *to_task;
+    cat_task_t *from_task, *to_task;
     cat_irq_disable();
 
     /* 如果调度被上锁就直接返回，不调度 */
@@ -326,13 +326,13 @@ void cat_task_sched(void)
 
         /* 增加调度次数信息 */
         to_task->sched_times++;
+        CLOG_TRACE("%s->%s", from_task->task_name, to_task->task_name);
 
         /* 切换上下文 */
         cat_hw_context_switch(
             (cat_ubase) & (from_task->sp),
-            (cat_ubase) & (to_task->sp));
-
-        // cat_printf("tsw:%s->%s\r\n", from_task->task_name, to_task->task_name);
+            (cat_ubase) & (to_task->sp)
+        );
     }
 
     cat_irq_enable();
@@ -390,10 +390,10 @@ void cat_task_sched_unlock(void)
  *
  * @param task 任务结构体指针
  */
-void cat_task_rdy(struct _cat_task_t *task)
+void cat_task_rdy(cat_task_t *task)
 {
     CAT_ASSERT(task);
-    cat_list_add_last(&(task_rdy_tbl[task->prio]), &(task->link_node));
+    cat_list_add_last(&(task_rdy_tbl[task->prio]), &(task->ready_node));
     cat_bitmap_set(&cat_task_prio_bitmap, task->prio);
 }
 
@@ -402,11 +402,11 @@ void cat_task_rdy(struct _cat_task_t *task)
  *
  * @param task 任务结构体指针
  */
-void cat_task_unrdy(struct _cat_task_t *task)
+void cat_task_unrdy(cat_task_t *task)
 {
     CAT_ASSERT(task);
 
-    cat_list_remove_node(&(task->link_node));
+    cat_list_remove_node(&(task->ready_node));
 
     if (cat_list_count(&(task_rdy_tbl[task->prio])) == 0) /* 如果没有任务才清除就绪位 */
     {
@@ -431,7 +431,7 @@ void cat_task_yield(void)
         /* 将当前任务节点从任务链表首位去掉 */
         cat_list_remove_first(&(task_rdy_tbl[cat_task_current->prio]));
         /* 将当前任务节点加到任务链表末尾 */
-        cat_list_add_last(&(task_rdy_tbl[cat_task_current->prio]), &(cat_task_current->link_node));
+        cat_list_add_last(&(task_rdy_tbl[cat_task_current->prio]), &(cat_task_current->ready_node));
     }
 
     /* TODO:主动放弃cpu暂时就不重置时间片了,不知道会不会有问题 */
@@ -448,8 +448,10 @@ void cat_task_yield(void)
  * @param  task             任务指针
  * @param  ticks            要等待的时钟数
  */
-void cat_task_set_delay_ticks(struct _cat_task_t *task, cat_ubase ticks)
+void cat_task_set_delay_ticks(cat_task_t *task, cat_ubase ticks)
 {
+    CAT_ASSERT(task);
+    
     if (0 == ticks)
     {
         return;
@@ -457,15 +459,16 @@ void cat_task_set_delay_ticks(struct _cat_task_t *task, cat_ubase ticks)
 
     cat_irq_disable();
 
-    CAT_ASSERT(task);
-
     /* 要等待的tick数 */
-    task->delay = ticks;
+    // task->delay = ticks;
+    task->time_node.value = ticks;
     /* 将任务从就绪表中取出 */
     cat_task_unrdy(task);
     /* 插入等待链表的末尾 */
-    cat_list_add_last(&cat_task_delayed_list, &(task->link_node));
+    // cat_list_add_last(&cat_task_delayed_list, &(task->ready_node));
+    cat_dlist_add(&delay_list, &(task->time_node));
     /* 置位等待状态 */
+   
     task->state |= CATOS_TASK_STATE_DELAY;
 
     cat_irq_enable();
@@ -480,7 +483,7 @@ void cat_task_set_delay_ticks(struct _cat_task_t *task, cat_ubase ticks)
  * @param  task             任务指针
  * @param  ms               要等待的毫秒数
  */
-void cat_task_set_delay_ms(struct _cat_task_t *task, cat_ubase ms)
+void cat_task_set_delay_ms(cat_task_t *task, cat_ubase ms)
 {
     if (CAT_NULL != task)
     {
@@ -520,19 +523,33 @@ void cat_task_delay_ms(cat_u32 ms)
  *
  * @param task 等待的任务
  */
-void cat_task_delay_wakeup(struct _cat_task_t *task)
+void cat_task_delay_wakeup(cat_task_t *task)
 {
     CAT_ASSERT(task);
 
-    /* 从等待链表取出 */
-    cat_list_remove_node(&(task->link_node));
-    /* delay值清零 */
-    task->delay = 0;
-    /* 复位等待状态位 */
-    task->state &= ~CATOS_TASK_STATE_DELAY;
+    cat_irq_disable();
+    if(task->state & CATOS_TASK_STATE_DELAY)
+    {
+        // CLOG_WARNING("task %s is wakeup delay\r\n", task->task_name);
+        // while(1);
+        /* 从等待链表取出 */
+        // cat_list_remove_node(&(task->ready_node));
+        cat_dlist_remove(&(task->time_node));
+        /* delay值清零 */
+        // task->delay = 0;
+        task->time_node.value = 0;
+        /* 复位等待状态位 */
+        task->state &= ~CATOS_TASK_STATE_DELAY;
 
-    /* 将任务就绪 */
-    cat_task_rdy(task);
+        /* 将任务就绪 */
+        cat_task_rdy(task);
+    }
+    else
+    {
+        CLOG_WARNING("task %s is wakeup but not only delayed, state=0x%x\r\n", task->task_name, task->state);
+        // while(1);
+    }
+    cat_irq_enable();
 }
 
 /**
@@ -540,7 +557,7 @@ void cat_task_delay_wakeup(struct _cat_task_t *task)
  *
  * @param task 任务结构体指针
  */
-void cat_task_suspend(struct _cat_task_t *task)
+void cat_task_suspend(cat_task_t *task)
 {
     CAT_ASSERT(task);
 
@@ -557,7 +574,12 @@ void cat_task_suspend(struct _cat_task_t *task)
             /* 如果被阻塞的是当前任务，则需要执行下一个任务，即进行一次调度 */
             if (task == cat_task_current)
             {
+                CLOG_TRACE("%s suspend self", task->task_name);
                 cat_task_sched();
+            }
+            else
+            {
+                CLOG_TRACE("%s suspend %s", cat_task_current->task_name, task->task_name);
             }
         }
     }
@@ -571,7 +593,7 @@ void cat_task_suspend(struct _cat_task_t *task)
  *
  * @param task 任务结构体指针
  */
-void cat_task_suspend_wakeup(struct _cat_task_t *task)
+void cat_task_suspend_wakeup(cat_task_t *task)
 {
     CAT_ASSERT(task);
 
@@ -623,7 +645,7 @@ void cat_task_delete(cat_task_t *task)
         cat_task_unrdy(task);
     }
     /** 如果既不处于就绪态也不处于延时态, 说明处于挂起状态, 此
-     *  情况下任务的link_node不处于任何队列中(包括就绪表), 不需要做任何操
+     *  情况下任务的ready_node不处于任何队列中(包括就绪表), 不需要做任何操
      *  作
      */
 
@@ -633,22 +655,32 @@ void cat_task_delete(cat_task_t *task)
     if (cur_task == task)
     {
         cat_task_sched();
+        CLOG_TRACE("%s exit, deleted by self", cur_task->task_name);
+    }
+    else
+    {
+        CLOG_TRACE("%s exit, deleted by %s", task->task_name, cur_task->task_name);
     }
 
     cat_irq_enable();
 }
 
 /**
- * @brief 修改任务优先级
- *        !会进行一次调度, 如果允许切换走, 那么需要保证调度未上锁
+ * @brief 修改任务优先级并根据情况进行一次调度
+ *        
+ * !会进行一次调度, 如果允许切换走, 那么需要保证调度未上锁
  * 
  * @param  task             任务指针
  * @param  new_prio         新优先级
  * @param[out]  old_prio    旧优先级
- * @return cat_err        CAT_EOK: 成功
+ * @return cat_err          CAT_EOK: 成功
  *                          else:    失败
  */
-cat_err cat_task_change_priority(cat_task_t *task, cat_u8 new_prio, cat_u8 *old_prio)
+cat_err cat_task_change_priority(
+    cat_task_t *task,
+    cat_u8 new_prio,
+    cat_u8 *old_prio
+)
 {
     CAT_ASSERT(task);
 
@@ -671,6 +703,47 @@ cat_err cat_task_change_priority(cat_task_t *task, cat_u8 new_prio, cat_u8 *old_
         {
             cat_task_sched();
         }
+    }
+    else
+    {
+        /* 否则说明任务不在就绪队列中,可以直接修改优先级 */
+        task->prio = new_prio;
+    }
+    cat_irq_enable();
+
+    return CAT_EOK;
+}
+
+/**
+ * @brief 修改任务优先级(不进行调度）
+ * 
+ * @param  task             任务指针
+ * @param  new_prio         新优先级
+ * @param  old_prio[out]    旧优先级
+ * @return cat_err          CAT_EOK: 成功
+ *                          else:    失败
+ */
+cat_err cat_task_change_priority_without_sched(
+    cat_task_t *task,
+    cat_u8 new_prio,
+    cat_u8 *old_prio
+)
+{
+    CAT_ASSERT(task);
+
+    cat_irq_disable();
+
+    if(CAT_NULL != old_prio)
+    {
+        *old_prio = task->prio;
+    }
+
+    if ((task->state & CATOS_TASK_STATE_MASK) == CATOS_TASK_STATE_RDY)
+    {
+        /* 先取下再更改优先级, 因为优先级修改后会挂到新优先级的就绪队列上 */
+        cat_task_unrdy(task);
+        task->prio = new_prio;
+        cat_task_rdy(task);
     }
     else
     {
@@ -712,7 +785,7 @@ cat_err cat_task_get_error(void)
 #include "cat_stdio.h"
 #include "port.h"
 
-struct _cat_task_info_t
+typedef struct
 {
     void *sp;              /**< 栈顶(堆栈指针)*/
     const char *task_name;     /**< 任务名称*/
@@ -723,7 +796,7 @@ struct _cat_task_info_t
     void *stack_start_addr; /**< 堆栈起始地址*/
     cat_u32 stack_size;     /**< 堆栈大小*/
 
-    // struct _cat_node_t  link_node;                      /**< 任务表中的链表节点，也用于delay链表*/
+    // cat_node_t  ready_node;                      /**< 任务表中的链表节点，也用于delay链表*/
     cat_u32 delay; /**< 延时剩余tick数*/
 
     cat_u32 state; /**< 当前状态*/
@@ -734,8 +807,8 @@ struct _cat_task_info_t
 
     cat_u32 sched_times; /**< 调度次数*/
 
-    // struct _cat_node_t *manage_node;                    /**< 用于管理的链表节点 */
-};
+    // cat_node_t *manage_node;                    /**< 用于管理的链表节点 */
+} cat_task_info_t;
 
 static const cat_u8 strategy_name_map[][8] =
     {
@@ -746,7 +819,7 @@ static const cat_u8 state_name_map[][8] =
     {
         "ready",
         "deleted",
-        "delayed",
+        "delay",
         "suspend",
 };
 
@@ -778,7 +851,7 @@ static inline cat_u8 *get_state_name(cat_u8 state)
     }
     default:
     {
-        cat_kprintf("[cat_task] error! invalid state!\r\n");
+        CLOG_ERROR("[cat_task] invalid state 0x%x!", state);
         break;
     }
     }
@@ -790,8 +863,8 @@ void *do_ps(void *arg)
 {
     (void)arg;
 
-    struct _cat_task_t *task = CAT_NULL;
-    struct _cat_task_info_t info = {0};
+    cat_task_t *task = CAT_NULL;
+    cat_task_info_t info = {0};
     cat_node_t *tmp = CAT_NULL;
     cat_ubase *p = CAT_NULL;
 
@@ -802,7 +875,7 @@ void *do_ps(void *arg)
     CAT_LIST_FOREACH_NO_REMOVE(&cat_task_manage_list, tmp)
     {
         /* 获取任务结构体指针 */
-        task = CAT_GET_CONTAINER(tmp, struct _cat_task_t, manage_node);
+        task = CAT_GET_CONTAINER(tmp, cat_task_t, manage_node);
 
         /* 在临界区复制需要的值 */
         cat_irq_disable();

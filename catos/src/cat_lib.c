@@ -89,7 +89,103 @@ cat_u32 cat_bitmap_get_first_set(cat_bitmap *bitmap)
 }
 /* 位图 END */
 /* 差分链表 START */
+/**
+ * @brief 初始化差分链表
+ * 
+ * @param[in] dlist    差分链表指针
+ */
+void cat_dlist_init(cat_dlist_t *dlist)
+{
+    dlist->head.value = CAT_DLIST_INVAL;
+    dlist->head.prev  = &(dlist->head);
+    dlist->head.next  = &(dlist->head);
+}
 
+/**
+ * @brief 差分链表节点初始化
+ * 
+ * @param[in] dnode    差分链表节点指针
+ */
+void cat_dlist_node_init(cat_dnode_t *dnode)
+{
+    dnode->value = 0; /* TODO：这里如果初始化为CAT_DLIST_INVAL会挂掉，还没找原因 */
+    dnode->prev  = dnode;
+    dnode->next  = dnode;
+}
+
+/**
+ * @brief 差分链表添加节点
+ * 
+ * @param[in] dlist    差分链表指针
+ * @param[in] new    节点指针
+ */
+void cat_dlist_add(cat_dlist_t *dlist, cat_dnode_t *new)
+{
+    cat_dnode_t *after = dlist->head.next;
+
+    while(&(dlist->head) != after)
+    {
+        if(new->value < after->value)
+        {
+            /* 找到位置了，退出循环 */
+            after->value -= new->value;
+            break;
+        }
+        else
+        {
+            /* 还没找到位置，遍历往后找 */
+            new->value -= after->value;
+
+            /* 往后移动 */
+            after = after->next;
+        }
+    }
+
+    /* 插入节点 */
+    new->prev = after->prev;
+    new->next = after;
+    after->prev->next = new;
+    after->prev = new;
+}
+
+/**
+ * @brief 获取差分链表第一个节点(不取出)
+ * 
+ * @param[in] dlist    差分链表指针
+ * @return cat_dnode_t* 取出的节点指针
+ */
+cat_dnode_t *cat_dlist_first(cat_dlist_t *dlist)
+{
+    cat_dnode_t *first = CAT_NULL;
+    if(&(dlist->head) != dlist->head.next)
+    {
+        return dlist->head.next;
+    }
+
+    return first;
+}
+
+/**
+ * @brief 从差分链表移除节点
+ * 
+ * @param[in] dnode    要移除的节点指针
+ */
+cat_dnode_t *cat_dlist_remove(cat_dnode_t *dnode)
+{
+    if(dnode->value > 0)
+    {
+        /* 如果取出的节点值大于零, 则取出后的首节点还需要减去该值 */
+        dnode->next->value += dnode->value;
+    }
+
+    dnode->next->prev = dnode->prev;
+    dnode->prev->next = dnode->next;
+
+    dnode->prev = dnode;
+    dnode->next = dnode;
+
+    return dnode;
+}
 /* 差分链表 END */
 /* 链表 START */
 
@@ -291,6 +387,11 @@ cat_i32 cat_strcpy(char *dst, const char *src, cat_u32 dest_len)
     {
         dst[i] = src[i];
         i++;
+    }
+
+    if(i < dest_len)
+    {
+        dst[i] = '\0';
     }
 
     return ret;

@@ -63,7 +63,8 @@
                                                * 0x2 : CLOG_LEVEL_WARNING
                                                * 0x3 : CLOG_LEVEL_INFO   
                                                * 0x4 : CLOG_LEVEL_DEBUG  
-                                               * 0x5 : CLOG_LEVEL_TRACE  
+                                               * 0x5 : CLOG_LEVEL_TRACE
+                                               * 注意：频繁的log会使用大量栈空间，还没想到解决方案
                                                */
 
 /** 组件 **/
@@ -72,6 +73,7 @@
 #define CATOS_SHELL_TASK_PRIO \
     (CATOS_TASK_PRIO_MIN - 2)                 /**< 命令行任务优先级(默认倒数第二低)*/
 #define CATOS_SHELL_STACK_SIZE        4096    /**< 命令行任务栈空间大小*/
+#define CATOS_SHELL_USE_HISTORY       1       /**< 使用历史命令功能 */
 
 /* third_party 三方代码 */
 

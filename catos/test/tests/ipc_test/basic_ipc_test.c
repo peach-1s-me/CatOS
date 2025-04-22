@@ -20,7 +20,9 @@
 #include "catos.h"
 #include "../cat_func_test.h"
 
-#define IPC_TEST_TASK_STACK_SIZE    (2048)
+#define IPC_TEST_TASK_STACK_SIZE    (1024)
+
+#define IPC_TEST_TASK_TIMES    3
 
 typedef enum
 {
@@ -28,9 +30,9 @@ typedef enum
     IPC_WAIT_TYPE_SEND,
 } ipc_wait_type_t;
 
-struct _cat_task_t ipc_test_task1;
-struct _cat_task_t ipc_test_task2;
-struct _cat_task_t ipc_test_task3;
+cat_task_t ipc_test_task1;
+cat_task_t ipc_test_task2;
+cat_task_t ipc_test_task3;
 
 cat_u8 ipc_test_task1_env[IPC_TEST_TASK_STACK_SIZE];
 cat_u8 ipc_test_task2_env[IPC_TEST_TASK_STACK_SIZE];
@@ -50,9 +52,10 @@ void ipc_t1_entry(void *arg)
 
     cat_task_delay_ms(1000);
     cat_kprintf("[t1]-->notify ipc2\r\n");
-    test_export_cat_ipc_wakeup_first(&test_ipc2, IPC_WAIT_TYPE_RECV, NULL, CAT_EOK);
+    test_export_cat_ipc_wakeup_first(&test_ipc2, IPC_WAIT_TYPE_RECV, CAT_NULL, CAT_EOK);
 
-    for(;;)
+    cat_u8 i;
+    for(i = 0; i<IPC_TEST_TASK_TIMES; i++)
     {
         cat_kprintf("[t1]-->ipc1 wait\r\n");
 
@@ -67,19 +70,22 @@ void ipc_t1_entry(void *arg)
             cat_kprintf("[t1]<--ipc1 notified (%d)\r\n", t1_notified_times++);
             cat_task_delay_ms(1000);
             cat_kprintf("[t1]-->notify ipc2\r\n");
-            test_export_cat_ipc_wakeup_first(&test_ipc2, IPC_WAIT_TYPE_RECV, NULL, CAT_EOK);
+            test_export_cat_ipc_wakeup_first(&test_ipc2, IPC_WAIT_TYPE_RECV, CAT_NULL, CAT_EOK);
         }
     }
+
+    cat_kprintf("ipc t1 end\r\n");
+    cat_task_delete(cat_task_self());
 }
 
-cat_u32 wakingup_times = 0;
 void ipc_t2_entry(void *arg)
 {
     (void)arg;
 
     cat_u32 t2_notified_times = 0;
 
-    for(;;)
+    cat_u8 i;
+    for(i = 0; i<IPC_TEST_TASK_TIMES; i++)
     {
         cat_kprintf("[t2]-->ipc2 wait\r\n");
 
@@ -94,9 +100,12 @@ void ipc_t2_entry(void *arg)
             cat_kprintf("[t2]<--ipc2 notified (%d)\r\n", t2_notified_times++);
             cat_task_delay_ms(1000);
             cat_kprintf("[t2]-->notify ipc3\r\n");
-            test_export_cat_ipc_wakeup_first(&test_ipc3, IPC_WAIT_TYPE_RECV, NULL, CAT_EOK);
+            test_export_cat_ipc_wakeup_first(&test_ipc3, IPC_WAIT_TYPE_RECV, CAT_NULL, CAT_EOK);
         }
     }
+    
+    cat_kprintf("ipc t2 end\r\n");
+    cat_task_delete(cat_task_self());
 }
 
 void ipc_t3_entry(void *arg)
@@ -105,7 +114,8 @@ void ipc_t3_entry(void *arg)
 
     cat_u32 t3_notified_times = 0;
 
-    for(;;)
+    cat_u8 i;
+    for(i = 0; i<IPC_TEST_TASK_TIMES; i++)
     {
         cat_kprintf("[t3]-->ipc3 wait\r\n");
 
@@ -120,12 +130,13 @@ void ipc_t3_entry(void *arg)
             cat_kprintf("[t3]<--ipc3 notified (%d)\r\n", t3_notified_times++);
             cat_task_delay_ms(1000);
             cat_kprintf("[t3]-->notify ipc1\r\n");
-            test_export_cat_ipc_wakeup_first(&test_ipc1, IPC_WAIT_TYPE_RECV, NULL, CAT_EOK);
+            test_export_cat_ipc_wakeup_first(&test_ipc1, IPC_WAIT_TYPE_RECV, CAT_NULL, CAT_EOK);
         }
     }
+    
+    cat_kprintf("ipc t3 end\r\n");
+    cat_task_delete(cat_task_self());
 }
-
-
 
 void ipc_test(void)
 {
@@ -135,7 +146,7 @@ void ipc_test(void)
     test_export_cat_ipc_init(&test_ipc3, CAT_IPC_TYPE_SEM);
 
     cat_task_create(
-        (const uint8_t *)"ipc_t1",
+        "ipc_t1",
         &ipc_test_task1,
         ipc_t1_entry,
         CAT_NULL,
@@ -145,34 +156,35 @@ void ipc_test(void)
       );
 
       cat_task_create(
-        (const uint8_t *)"ipc_t2",
+        "ipc_t2",
         &ipc_test_task2,
         ipc_t2_entry,
         CAT_NULL,
-        2,
+        1,
         ipc_test_task2_env,
         IPC_TEST_TASK_STACK_SIZE
       );
 
       cat_task_create(
-        (const uint8_t *)"ipc_t3",
+        "ipc_t3",
         &ipc_test_task3,
         ipc_t3_entry,
         CAT_NULL,
-        3,
+        1,
         ipc_test_task3_env,
         IPC_TEST_TASK_STACK_SIZE
       );
 }
 
-#if (CATOS_CAT_SHELL_ENABLE == 1)
+#include "../tests_config.h"
+#if (CATOS_CAT_SHELL_ENABLE == 1 && TESTS_IPC_BASIC == 1)
 #include "cat_shell.h"
 #include "cat_stdio.h"
 void *do_test_ipc(void *arg)
 {
     (void)arg;
 
-    test_export_cat_ipc_wakeup_first(&test_ipc1, IPC_WAIT_TYPE_RECV, NULL, CAT_EOK);
+    ipc_test();
 
     return CAT_NULL;
 }

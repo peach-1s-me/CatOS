@@ -270,14 +270,30 @@ void cat_execute_cmd(cat_shell_instance_t *inst)
 void cat_history_save(cat_shell_instance_t *shell_inst)
 {
     cat_u16 cur = shell_inst->history.current;
+
+    /* 如果当前已经是该命令则不添加 */
+    cat_u32 not_exist = cat_strcmp((char *)shell_inst->history.historys[cur], (char *)shell_inst->buffer.buf);
+    if(0 == not_exist)
+    {
+        cur++;
+        if(cur == CAT_MAX_HISTORY)
+        {
+            cur = 0;
+        }
+        shell_inst->history.current = cur;
+        
+        return;
+    }
+
+    cat_strcpy((char *)shell_inst->history.historys[cur], (char *)shell_inst->buffer.buf, CAT_MAX_HIS_LEN);
+
+    /* 使用上方向键时会先cur-- */
     cur++;
     if(CAT_MAX_HISTORY == cur)
     {
         cur = 0;
     }
     shell_inst->history.current = cur;
-
-    cat_strcpy((char *)shell_inst->history.historys[cur], (char *)shell_inst->buffer.buf, CAT_MAX_HIS_LEN);
 }
 
 void cat_history_up(cat_shell_instance_t *shell_inst)

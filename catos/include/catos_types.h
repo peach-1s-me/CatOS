@@ -46,6 +46,7 @@ typedef enum _cat_err
     CAT_EOK = 0,  /**< 成功 */
     CAT_ERROR,    /**< 失败 */
     CAT_EINVAL,   /**< 非法值 */
+    CAT_ENPTR,  /**< 空指针 */
     CAT_ETIMEOUT, /**< 超时 */
     CAT_EOUTOF,   /**< 资源已耗尽 */
     CAT_EFULL,    /**< 资源已满 */
@@ -83,7 +84,7 @@ typedef enum _cat_device_type_t
 typedef struct _cat_device_t            cat_device_t;           /**< 设备结构体 */
 
 /* 一些前向声明， 防止头文件循环依赖，当只需要使用某类型T的指针时，不需要包含T类型的完整定义所在头文件*/
-typedef struct _cat_task_t cat_task_t;
+typedef struct _cat_task_t cat_task_t; /* 任务结构体 */
 
 #endif
 
