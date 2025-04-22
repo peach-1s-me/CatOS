@@ -48,8 +48,8 @@ struct _cat_task_t
     void               *stack_start_addr;               /**< 堆栈起始地址*/
     cat_u32             stack_size;                     /**< 堆栈大小*/
 
-    cat_node_t          link_node;                      /**< 任务表中的链表节点，也用于delay链表（!仅用于这两个链表）*/
-    cat_u32             delay;                          /**< 延时剩余tick数*/
+    cat_node_t          ready_node;                     /**< 用于就绪相关处理的链表节点 */
+    cat_dnode_t         time_node;                      /**< 用于时间相关处理的差分链表节点 */
 
     cat_u32             state;                          /**< 当前状态(高十六位为ipc状态, 低十六位为任务自身状态) */
 
@@ -59,7 +59,7 @@ struct _cat_task_t
 
     cat_u32             sched_times;                    /**< 调度次数*/
 
-    cat_node_t          ipc_wait_node;                  /**< 等待ipc时用于挂在ipc等待队列的节点 */
+    cat_node_t          ipc_wait_node;                  /**< 用于等待ipc的链表节点 */
     cat_ipc_t          *ipc_wait;                      /**< 等待的ipc(TODO:支持同时等待多个?) */
     void               *ipc_msg;                       /**< 等待的ipc携带的消息 */
     cat_err             error;                          /**< 出现的错误 */

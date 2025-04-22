@@ -39,12 +39,14 @@ CAT_DECLARE_KEY(down, CAT_KEY_DIRECTION_DOWN, down_action);
 
 void left_action(cat_shell_instance_t *shell_inst)
 {
+    (void)shell_inst;
     cat_printf("[cat_shell_cmds] left is pressed !\r\n");
 }
 CAT_DECLARE_KEY(left, CAT_KEY_DIRECTION_LEFT, left_action);
 
 void right_action(cat_shell_instance_t *shell_inst)
 {
+    (void)shell_inst;
     cat_printf("[cat_shell_cmds] right is pressed !\r\n");
 }
 CAT_DECLARE_KEY(right, CAT_KEY_DIRECTION_RIGHT, right_action);

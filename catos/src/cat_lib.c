@@ -108,7 +108,7 @@ void cat_dlist_init(cat_dlist_t *dlist)
  */
 void cat_dlist_node_init(cat_dnode_t *dnode)
 {
-    dnode->value = CAT_DLIST_INVAL;
+    dnode->value = 0; /* TODO：这里如果初始化为CAT_DLIST_INVAL会挂掉，还没找原因 */
     dnode->prev  = dnode;
     dnode->next  = dnode;
 }

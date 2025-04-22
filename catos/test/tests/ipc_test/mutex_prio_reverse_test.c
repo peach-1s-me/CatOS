@@ -54,7 +54,7 @@
 #include "catos.h"
 #include "../cat_func_test.h"
 
-#define USE_MUTEX 1
+#define USE_MUTEX 0
 #define MUTEXPV_TEST_TASK_STACK_SIZE 2048
 
 cat_task_t mutexpv_test_task1;

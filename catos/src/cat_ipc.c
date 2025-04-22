@@ -221,7 +221,7 @@ static cat_task_t *cat_ipc_wakeup_first(cat_ipc_t *ipc, ipc_wait_type_t wait_typ
         /* 清除事件类型数据 */
         task->state &= ~CATOS_TASK_IPC_MASK;
 
-        if (task->delay > 0)
+        if (task->time_node.value > 0)
         {
             /* !若此时该任务delay>0, 只可能是因为等待ipc而导致的等待 */
             cat_task_delay_wakeup(task);
@@ -280,7 +280,7 @@ void cat_ipc_wakeup(
     /* 清除事件类型数据 */
     task->state &= ~CATOS_TASK_IPC_MASK;
 
-    if (task->delay > 0)
+    if (task->time_node.value > 0)
     {
         /* !若此时该任务delay>0, 只可能是因为等待ipc而导致的等待 */
         cat_task_delay_wakeup(task);
@@ -335,7 +335,7 @@ static cat_u32 cat_ipc_remove_all_wait_task(cat_ipc_t *ipc, ipc_wait_type_t wait
         /* 清除事件类型数据 */
         task->state &= ~CATOS_TASK_IPC_MASK;
 
-        if (task->delay > 0)
+        if (task->time_node.value > 0)
         {
             /* !若此时该任务delay>0, 只可能是因为等待ipc而导致的等待 */
             cat_task_delay_wakeup(task);

@@ -29,7 +29,7 @@
 
 /** 系统相关 **/
 #define CATOS_CLOCK_FRQ              72000000 /**< 系统时钟频率(systick挂在总线的时钟频率, 用于设置时钟中断重装载值 */
-#define CATOS_SYSTICK_FRQ            100      /**< OS时钟中断频率，每秒的tick数(周期的倒数)*/
+#define CATOS_SYSTICK_FRQ            1000     /**< OS时钟中断频率，每秒的tick数(周期的倒数)*/
 #define CATOS_SYSTICK_MS \
     ((1000 * 1) / CATOS_SYSTICK_FRQ)          /**< 每个tick经过的毫秒数*/
 
