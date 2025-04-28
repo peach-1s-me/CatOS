@@ -22,6 +22,11 @@ static inline cat_ubase catos_get_systick(void)
     return catos_systicks;
 }
 
+static inline cat_ubase catos_ms_to_tick(cat_u32 ms)
+{
+    return (cat_ubase)(ms / CATOS_SYSTICK_MS);
+}
+
 void cat_systick_init(void);
 
 void cat_irq_enable(void);

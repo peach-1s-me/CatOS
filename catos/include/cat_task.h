@@ -97,7 +97,8 @@ void cat_task_yield(void);
 
 void cat_task_set_delay_ticks(cat_task_t *task, cat_ubase ticks);
 void cat_task_set_delay_ms(cat_task_t *task, cat_ubase ticks);
-void cat_task_delay_ticks(cat_u32 ticks);
+void cat_task_delay_ticks(cat_ubase ticks);
+void cat_task_delay_until(cat_ubase tick);
 void cat_task_delay_ms(cat_u32 ms);
 void cat_task_delay_wakeup(cat_task_t *task);
 

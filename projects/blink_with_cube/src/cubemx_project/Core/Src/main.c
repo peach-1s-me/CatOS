@@ -48,7 +48,7 @@
 static cat_task_t blink_task;
 static cat_u8 blink_task_stack[BLINK_TASK_STACK_SIZE];
 
-// #define LOOP
+#define LOOP
 #ifdef LOOP
 #define LOOPOUT_TASK_STACK_SIZE (512)
 static cat_task_t loopout_task;
@@ -67,10 +67,13 @@ void SystemClock_Config(void);
 static void blink_task_entry(void *arg)
 {
   (void)arg;
+
   for (;;)
   {
+    cat_kprintf("led off\r\n");
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
     cat_task_delay_ms(1000);
+    cat_kprintf("led on\r\n");
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
     cat_task_delay_ms(1000);
   }
@@ -79,10 +82,14 @@ static void blink_task_entry(void *arg)
 static void loopout_task_entry(void *arg)
 {
     (void)arg;
+    cat_ubase tick = 0;
     for(;;)
     {
+        tick = catos_get_systick();
         cat_kprintf("loop running...\r\n");
-        cat_task_delay_ms(1000);
+        tick = tick + catos_ms_to_tick(1000);
+        // cat_kprintf("delay until %d\r\n", tick);
+        cat_task_delay_until(tick);
     }
 }
 #endif
