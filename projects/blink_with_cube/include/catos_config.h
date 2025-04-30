@@ -68,7 +68,7 @@
 
 /** 组件 **/
 /* 命令行 */
-#define CATOS_CAT_SHELL_ENABLE        0       /**< 使用命令行 */
+#define CATOS_CAT_SHELL_ENABLE        1       /**< 使用命令行 */
 #define CATOS_SHELL_TASK_PRIO \
     (CATOS_TASK_PRIO_MIN - 2)                 /**< 命令行任务优先级(默认倒数第二低)*/
 #define CATOS_SHELL_STACK_SIZE        4096    /**< 命令行任务栈空间大小*/

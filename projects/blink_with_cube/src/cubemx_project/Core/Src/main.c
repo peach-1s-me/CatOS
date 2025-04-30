@@ -48,7 +48,7 @@
 static cat_task_t blink_task;
 static cat_u8 blink_task_stack[BLINK_TASK_STACK_SIZE];
 
-#define LOOP
+// #define LOOP
 #ifdef LOOP
 #define LOOPOUT_TASK_STACK_SIZE (512)
 static cat_task_t loopout_task;
@@ -70,10 +70,10 @@ static void blink_task_entry(void *arg)
 
   for (;;)
   {
-    cat_kprintf("led off\r\n");
+    // cat_kprintf("led off\r\n");
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
     cat_task_delay_ms(1000);
-    cat_kprintf("led on\r\n");
+    // cat_kprintf("led on\r\n");
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
     cat_task_delay_ms(1000);
   }
