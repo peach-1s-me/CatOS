@@ -254,33 +254,26 @@ void cat_task_delay_deal(void)
 {
     /* 处理延时队列 */
     cat_dnode_t *dnode = cat_dlist_first(&delay_list);
-    while(dnode != CAT_NULL)
+
+    if (CAT_NULL != dnode && dnode->value > 0)
     {
-        if(dnode->value > 0)
+        /* 将任务delay的tick数减1 */
+        dnode->value--;
+    }
+
+    /* 若剩余等待时间为零则唤醒 */
+    while (CAT_NULL != dnode && 0 == dnode->value)
+    {
+        cat_task_t *task = CAT_GET_CONTAINER(dnode, cat_task_t, time_node);
+
+        if (CAT_NULL != task->ipc_wait)
         {
-            /* 将任务delay的tick数减1 */
-            dnode->value--;
+            /* 如果是因为等待ipc超时,给个超时错误 */
+            cat_ipc_remove_wait_task(task->ipc_wait, task, CAT_NULL, CAT_ETIMEOUT);
         }
 
-        /* 若剩余等待时间为零则唤醒 */
-        if(0 == dnode->value)
-        {
-            cat_task_t *task = CAT_GET_CONTAINER(dnode, cat_task_t, time_node);
-
-            if(CAT_NULL != task->ipc_wait)
-            {
-                /* 如果是因为等待ipc超时,给个超时错误 */
-                cat_ipc_remove_wait_task(task->ipc_wait, task, CAT_NULL, CAT_ETIMEOUT);
-            }
-
-            CLOG_TRACE("task %s is wakeup delay\r\n", task->task_name);
-            cat_task_delay_wakeup(task);
-        }
-        else
-        {
-            /* 如果任务剩余等待时间仍大于0，说明此时等待队列中所有任务剩余等待时间均大于零，因此退出 */
-            break;
-        }
+        CLOG_TRACE("task %s is wakeup delay\r\n", task->task_name);
+        cat_task_delay_wakeup(task);
 
         dnode = cat_dlist_first(&delay_list);
     }
@@ -490,7 +483,7 @@ void cat_task_set_delay_ms(cat_task_t *task, cat_ubase ms)
         if (ms >= CATOS_SYSTICK_MS)
         {
             /* 要等待的时间大于一个系统时钟的时间 */
-            cat_task_set_delay_ticks(task, ms / CATOS_SYSTICK_MS);
+            cat_task_set_delay_ticks(task, catos_ms_to_tick(ms));
             ms %= CATOS_SYSTICK_MS;
         }
         cat_delay_us(ms * 1000);
@@ -502,9 +495,26 @@ void cat_task_set_delay_ms(cat_task_t *task, cat_ubase ms)
  *
  * @param ticks 需要等待的tick数
  */
-void cat_task_delay_ticks(cat_u32 ticks)
+void cat_task_delay_ticks(cat_ubase ticks)
 {
     cat_task_set_delay_ticks(cat_task_current, ticks);
+}
+
+/**
+ * @brief 延迟到某个tick
+ * 
+ * 用法：
+ * cat_ubase tick = catos_get_systick();
+ * do something
+ * tick = tick + catos_ms_to_tick(500);
+ * cat_task_delay_until(tick);
+ * 用于delay到cur延后500ms的位置
+ * 
+ * @param[in] tick     目标tick
+ */
+void cat_task_delay_until(cat_ubase tick)
+{
+    cat_task_delay_ticks(tick-catos_get_systick());
 }
 
 /**
@@ -780,10 +790,8 @@ cat_err cat_task_get_error(void)
     return cat_task_current->error;
 }
 
-#if (CATOS_CAT_SHELL_ENABLE == 1)
-#include "cat_shell.h"
-#include "cat_stdio.h"
-#include "port.h"
+
+/* 打印任务信息 */
 
 typedef struct
 {
@@ -911,5 +919,9 @@ void *do_ps(void *arg)
 
     return CAT_NULL;
 }
+#if (CATOS_CAT_SHELL_ENABLE == 1)
+#include "cat_shell.h"
+#include "cat_stdio.h"
+#include "port.h"
 CAT_DECLARE_CMD(ps, print task, do_ps);
 #endif

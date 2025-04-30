@@ -71,6 +71,11 @@ catOS
 │  ├─include           头文件目录
 │  ├─src               源文件目录
 │  └─test              测试相关
+│      └─tests
+│         ├─ipc_test   任务间通信ipc功能测试
+│         ├─lib_test   部分数据结构功能测试
+│         └─mem_test   动态内存功能测试
+│
 ├─cmake                cmake规则
 │  ├─target_arch       架构相关编译配置
 │  │  ├─cortex_m3    
