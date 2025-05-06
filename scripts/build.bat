@@ -6,7 +6,7 @@
 
 :: 设置第一个参数为项目名称
 set project=%1
-@REM echo project=%project%
+:: echo project=%project%
 
 if "%1" == "" (
     echo "ERROR: no project specified!"

@@ -4,7 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/catos/**",
-                "${workspaceFolder}/projects/blink_with_cube/**"
+                "${workspaceFolder}/projects/spark/**"
             ],
             "defines": [
                 "_DEBUG",

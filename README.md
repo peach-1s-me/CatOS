@@ -218,6 +218,9 @@ stm32的串口有同步 (Synchronous) 和异步 (Asynchronous) 两种模式，�
 
 ![image-20250321160450279](README.assets/image-20250321160450279.png)
 
+设置中断优先级
+![](README.assets/set_uart_priority.png)
+
 - 5)配置 led 引脚
 
 可以查看自己开发板的原理图，这里led连接的是 PC13 引脚
@@ -234,9 +237,9 @@ stm32的串口有同步 (Synchronous) 和异步 (Asynchronous) 两种模式，�
 
 - 1）配置项目信息
 
-  项目名称设置为 cubemx_project ，并选择项目目录下的 src 为生成目录，选择 IDE 为 MDK_ARM 即可。
+  项目名称设置为 cubemx_project ，并选择项目目录下的 src 为生成目录，选择 IDE 为 CMake 或者 Makefile 即可(为了导出链接脚本)。
 
-  ![image-20250321154505819](README.assets/image-20250321154505819.png)
+  ![](README.assets/project_setting.png)
 
 - 2)代码生成选项中选择仅拷贝必要的库文件、生成独立的设备初始化文件
 
@@ -366,7 +369,7 @@ cat_u8 cat_debug_uart_register(void)
 {
   cat_u8 err = cat_device_register(
     &uart1_dev,
-    (cat_u8 *)"debug_uart",
+    "debug_uart",
     CAT_DEVICE_MODE_RDWR
   );
 
@@ -426,7 +429,7 @@ static void blink_task_entry(void *arg)
   catos_init();
 
   cat_task_create(
-    (const uint8_t *)"blink_task",
+    "blink_task",
     &blink_task,
     blink_task_entry,
     CAT_NULL,
@@ -440,7 +443,8 @@ static void blink_task_entry(void *arg)
 ...
 ```
 
-
+2.1.6 修改链接脚本
+将对应相应板卡的链接脚本(或刚才生成的cubemx_project/STM32*FLASH.ld)内容复制到项目目录下的 .ld 文件并更名为`[项目名称].ld`
 
 ###### 2.2 自行添加代码<a id="2_2_add_with_diy"></a>
 

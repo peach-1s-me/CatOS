@@ -6,8 +6,29 @@
     "configurations": [
         {
             "cwd": "${workspaceRoot}",
+            "executable": "${workspaceFolder}\\output\\spark\\spark.elf",
+            "name": "stm32f4x-stlink",
+            "request": "launch",
+            "type": "cortex-debug",
+            "armToolchainPath": "D:\\softwares\\gcc-arm-none-eabi-10-2020-q4-major\\bin",
+            "servertype": "openocd",
+            "interface": "jtag",
+            "device": "stm32f4x",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "searchDir": [],
+            "runToEntryPoint": "main",
+            "showDevDebugOutput": "none",
+            "postLaunchCommands": [
+                "monitor reset init"
+            ]
+        },
+        {
+            "cwd": "${workspaceRoot}",
             "executable": "${workspaceFolder}\\output\\blink_with_cube\\blink_with_cube.elf",
-            "name": "debug blink",
+            "name": "stm32f1x-dap",
             "request": "launch",
             "type": "cortex-debug",
             "armToolchainPath": "D:\\softwares\\gcc-arm-none-eabi-10-2020-q4-major\\bin",

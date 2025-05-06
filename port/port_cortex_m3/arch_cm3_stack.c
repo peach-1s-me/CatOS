@@ -312,7 +312,7 @@ void catos_hard_fault_deal(struct _stack_frame *stack)
             (cat_u32)current_task->entry,
             (cat_u32)current_task->stack_start_addr,
             (cat_u32)current_task->stack_size,
-            (cat_u32)current_task->delay,
+            (cat_u32)current_task->time_node.value,
             (cat_u32)current_task->state,
             (cat_u32)current_task->prio,
             (cat_u32)current_task->slice,

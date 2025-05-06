@@ -24,7 +24,7 @@
 
     .extern  cat_task_current
 
-    .equ SCB_VTOR, 0xE000ED08
+    .equ SCB_VTOR,        0xE000ED08
     .equ NVIC_INT_CTRL,   0xE000ED04
     .equ NVIC_PENDSVSET,  0x10000000
     .equ NVIC_SYSPRI2,    0xE000ED22
