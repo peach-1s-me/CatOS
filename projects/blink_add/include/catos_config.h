@@ -44,7 +44,7 @@
 #define CATOS_ENABLE_CPU_USAGE       1
 
 /* 标准输入输出 */
-#define CATOS_STDIO_ENABLE           1        /**< 使用标准输入输出 */
+#define CATOS_STDIO_ENABLE           0        /**< 使用标准输入输出 */
 #define CAT_STDIO_NUM_STR_BUF_SIZE   64       /**< 数字缓冲区长度 */ 
 #define CATOS_STDIO_DEVICE_NAME \
     "debug_uart"                              /**< 标准输入输出使用设备 */
@@ -52,8 +52,8 @@
 /* 设备驱动框架 */
 #define CATOS_DEVICE_MODEL_ENABLE     1       /**< 使用设备驱动框架 */
 
-#define CATOS_ASSERT_ENABLE           1       /**< 使用断言 */
-#define CATOS_CLOG_ENABLE             1       /**< 使用日志 */
+#define CATOS_ASSERT_ENABLE           0       /**< 使用断言 */
+#define CATOS_CLOG_ENABLE             0       /**< 使用日志 */
 #define CATOS_CLOG_LEVEL              4       /* 输出的最高日志等级，等级更低(数值小)的日志不打印 */
                                               /**
                                                * 可选值：
@@ -68,7 +68,7 @@
 
 /** 组件 **/
 /* 命令行 */
-#define CATOS_CAT_SHELL_ENABLE        1       /**< 使用命令行 */
+#define CATOS_CAT_SHELL_ENABLE        0       /**< 使用命令行 */
 #define CATOS_SHELL_TASK_PRIO \
     (CATOS_TASK_PRIO_MIN - 2)                 /**< 命令行任务优先级(默认倒数第二低)*/
 #define CATOS_SHELL_STACK_SIZE        4096    /**< 命令行任务栈空间大小*/

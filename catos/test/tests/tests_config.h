@@ -18,11 +18,11 @@
 
 /* 最好每次只选一个,不然放不下(如果存储够大可以考虑,但目前每次只能跑一个) */
 
-#define TESTS_IPC_BASIC     1 /* 测试基础ipc */
-#define TESTS_IPC_MQ        1 /* 测试消息队列 */
+#define TESTS_IPC_BASIC     0 /* 测试基础ipc */
+#define TESTS_IPC_MQ        0 /* 测试消息队列 */
 #define TESTS_IPC_PV        1 /* 测试优先级反转 */
-#define TESTS_IPC_MUT       1 /* 测试互斥量 */
-#define TESTS_IPC_SEM       1 /* 测试信号量 */
+#define TESTS_IPC_SEM       0 /* 测试信号量 */
+#define TESTS_IPC_MUT       0 /* 测试互斥量 */
 #define TESTS_LIB_DLIST     0 /* 测试差分队列(链表) */
 #define TESTS_LIB_LIST      0 /* 测试双链表 */
 #define TESTS_MEM           0 /* 测试动态内存 */

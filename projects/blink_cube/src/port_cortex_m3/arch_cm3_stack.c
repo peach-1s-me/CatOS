@@ -78,10 +78,10 @@ cat_u8 *cat_hw_stack_init(void (*task_entry)(void *), void *arg, cat_u8 *stack_a
   }
 
   stack_frame->exeption_stack_frame.r0  = (cat_u32)arg;
-  stack_frame->exeption_stack_frame.r1  = 0;
-  stack_frame->exeption_stack_frame.r2  = 0;
-  stack_frame->exeption_stack_frame.r3  = 0;
-  stack_frame->exeption_stack_frame.r12 = 0;
+  stack_frame->exeption_stack_frame.r1  = 0x11111111;
+  stack_frame->exeption_stack_frame.r2  = 0x22222222;
+  stack_frame->exeption_stack_frame.r3  = 0x33333333;
+  stack_frame->exeption_stack_frame.r12 = 0xcccccccc;
   stack_frame->exeption_stack_frame.lr  = (cat_u32)exit_func;
   stack_frame->exeption_stack_frame.pc  = (cat_u32)task_entry;
   stack_frame->exeption_stack_frame.psr = (cat_u32)(1 << 24);
@@ -90,6 +90,7 @@ cat_u8 *cat_hw_stack_init(void (*task_entry)(void *), void *arg, cat_u8 *stack_a
   return stack;
 }
 
+#if (CATOS_STDIO_ENABLE == 1)
 #define SCB_CFSR        (*(volatile const unsigned *)0xE000ED28) /* Configurable Fault Status Register */
 #define SCB_HFSR        (*(volatile const unsigned *)0xE000ED2C) /* HardFault Status Register */
 #define SCB_MMAR        (*(volatile const unsigned *)0xE000ED34) /* MemManage Fault Address register */
@@ -271,17 +272,20 @@ static void hard_fault_track(void)
 void catos_hard_fault_deal(struct _stack_frame *stack)
 {
     cat_kprintf("\r\n\r\n*** HardFault occurred ***\r\n");
-    cat_u32 exc_ret = stack->exeption_stack_frame.psr; /* 这里其实是最后压栈的lr */
-    cat_kprintf("exrt: %8x\r\n", exc_ret);
-    stack = (struct _stack_frame *)((cat_ubase)stack-4);
-    cat_kprintf("r00 : %8x\r\n", stack->exeption_stack_frame.r0);
-    cat_kprintf("r01 : %8x\r\n", stack->exeption_stack_frame.r1);
-    cat_kprintf("r02 : %8x\r\n", stack->exeption_stack_frame.r2);
-    cat_kprintf("r03 : %8x\r\n", stack->exeption_stack_frame.r3);
-    cat_kprintf("r12 : %8x\r\n", stack->exeption_stack_frame.r12);
-    cat_kprintf(" lr : %8x\r\n", stack->exeption_stack_frame.lr);
-    cat_kprintf(" pc : %8x\r\n", stack->exeption_stack_frame.pc);
-    cat_kprintf("psr : %8x\r\n", stack->exeption_stack_frame.psr);
+    cat_u32 exc_ret = *((cat_u32*)stack); /* 这里其实是最后压栈的lr */
+    cat_kprintf("exrt: 0x%8x\r\n", exc_ret);
+    stack = (struct _stack_frame *)((cat_ubase)stack+4);
+    cat_kprintf("r00 : 0x%8x\r\n", stack->exeption_stack_frame.r0);
+    cat_kprintf("r01 : 0x%8x\r\n", stack->exeption_stack_frame.r1);
+    cat_kprintf("r02 : 0x%8x\r\n", stack->exeption_stack_frame.r2);
+    cat_kprintf("r03 : 0x%8x\r\n", stack->exeption_stack_frame.r3);
+    cat_kprintf("r12 : 0x%8x\r\n", stack->exeption_stack_frame.r12);
+    cat_kprintf(" lr : 0x%8x\r\n", stack->exeption_stack_frame.lr);
+    cat_kprintf(" pc : 0x%8x\r\n", stack->exeption_stack_frame.pc);
+    cat_kprintf("psr : 0x%8x\r\n", stack->exeption_stack_frame.psr);
+
+    void *do_ps(void *arg);
+    do_ps(CAT_NULL);
 
     cat_task_t *current_task = cat_task_get_current();
 
@@ -290,6 +294,31 @@ void catos_hard_fault_deal(struct _stack_frame *stack)
     if(CAT_NULL != current_task)
     {
         cat_kprintf("hard fault on thread: %s\r\n", current_task->task_name);
+
+        cat_kprintf(
+            "\ttask info:\r\n"
+            "\t\t->sp         = 0x%8x\r\n"
+            "\t\t->entry      = 0x%8x\r\n"
+            "\t\t->stk_start  = 0x%8x\r\n"
+            "\t\t->stack_size = 0x%8x\r\n"
+            "\t\t->delay      = 0x%8x\r\n"
+            "\t\t->state      = 0x%8x\r\n"
+            "\t\t->prio       = 0x%8x\r\n"
+            "\t\t->slice      = 0x%8x\r\n"
+            "\t\t->ipc_wait   = 0x%8x\r\n"
+            "\t\t->error      = 0x%8x\r\n"
+            ,
+            (cat_u32)current_task->sp,
+            (cat_u32)current_task->entry,
+            (cat_u32)current_task->stack_start_addr,
+            (cat_u32)current_task->stack_size,
+            (cat_u32)current_task->time_node.value,
+            (cat_u32)current_task->state,
+            (cat_u32)current_task->prio,
+            (cat_u32)current_task->slice,
+            (cat_u32)current_task->ipc_wait,
+            (cat_u32)current_task->error
+        );
     }
     else
     {
@@ -297,6 +326,14 @@ void catos_hard_fault_deal(struct _stack_frame *stack)
     }
 
     hard_fault_track();
-    
+
     while (1);
 }
+#else /* #if (CATOS_STDIO_ENABLE == 1) */
+void catos_hard_fault_deal(struct _stack_frame *stack)
+{
+    (void)stack;
+
+    while (1);
+}
+#endif /* #if (CATOS_STDIO_ENABLE == 1) */
