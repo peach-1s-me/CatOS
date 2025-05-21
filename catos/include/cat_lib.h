@@ -288,6 +288,9 @@ cat_i32 cat_itoa(char *dst, cat_i32 num);
 cat_i32 cat_htoi(cat_u32 *dst, const char *src);
 cat_i32 cat_itoh(char *dst, cat_u32 src);
 
+cat_err cat_atof(cat_double *dst, const char *src);
+cat_err cat_ftoa(char *dst, cat_double src);
+
 void *cat_memset(void *start_addr, cat_u8 fill_with, cat_u32 size);
 
 void *cat_memcpy(void *dst, const void *src, cat_ubase bytes);

@@ -9,6 +9,7 @@
  * 
  */
 #include "cat_shell.h"
+#include "cat_assert.h"
 
 #if (CATOS_CAT_SHELL_ENABLE == 1)
 
@@ -109,6 +110,31 @@ void *do_help(void *arg)
 }
 CAT_DECLARE_CMD(help, print help msg, do_help);
 
+void *do_clear(void *arg)
+{
+    (void)arg;
+
+    cat_printf(CAT_SHELL_CLR_SCREEN);
+
+    return CAT_NULL;
+}
+CAT_DECLARE_CMD(clear, clear screen, do_clear);
+
+#if (CATOS_ENABLE_CPUUSAGE_STAT == 1)
+void *do_cpu_usage(void *arg)
+{
+    (void)arg;
+    cat_u32 usage_integer, usage_decimal;
+
+    cat_cpu_usage_get(&usage_integer, &usage_decimal);
+
+    cat_printf("[cpu_usage] %d.%d\r\n", usage_integer, usage_decimal);
+
+    return CAT_NULL;
+}
+CAT_DECLARE_CMD(cpu_usage, get cpu usage, do_cpu_usage);
+#endif //#if (CATOS_ENABLE_CPUUSAGE_STAT == 1)
+
 #if 0
 void *do_test_cmd(void *arg)
 {
@@ -136,7 +162,7 @@ void *do_test_args(void *arg)
     cat_u8 i = 0;
     cat_shell_instance_t *inst = (cat_shell_instance_t *)arg;
     
-    if(inst->buffer.arg_num == 0)
+    if(inst->buffer.arg_num == 1)
     {
         cat_printf("[do_test_args] no arg\r\n");
     }
@@ -152,53 +178,6 @@ void *do_test_args(void *arg)
 }
 CAT_DECLARE_CMD(test_args, test args, do_test_args);
 
-void *do_test_atoi(void *arg)
-{
-    CAT_ASSERT(arg);
-
-    cat_u8 i = 0;
-    cat_i32 result = 0;
-    cat_shell_instance_t *inst = (cat_shell_instance_t *)arg;
-    
-    if(inst->buffer.arg_num != 1)
-    {
-        cat_printf("[do_test_atoi] usage: test_atoi [STRING]\r\n");
-    }
-    else
-    {
-        cat_atoi(&result, inst->buffer.args[0]);
-        cat_printf("arg[%d]: %s->", i, inst->buffer.args[i]);
-        cat_printf("%d\r\n", result);
-    }
-		
-		return CAT_NULL;
-}
-CAT_DECLARE_CMD(test_atoi, test atoi, do_test_atoi);
 #endif
-
-void *do_clear(void *arg)
-{
-    (void)arg;
-
-    cat_printf(CAT_SHELL_CLR_SCREEN);
-
-    return CAT_NULL;
-}
-CAT_DECLARE_CMD(clear, clear screen, do_clear);
-
-#if (CATOS_ENABLE_CPUUSAGE_STAT == 1)
-void *do_cpu_usage(void *arg)
-{
-    (void)arg;
-    cat_u32 usage_integer, usage_decimal;
-
-    cat_cpu_usage_get(&usage_integer, &usage_decimal);
-
-    cat_printf("[cpu_usage] %d.%d\r\n", usage_integer, usage_decimal);
-
-    return CAT_NULL;
-}
-CAT_DECLARE_CMD(cpu_usage, get cpu usage, do_cpu_usage);
-#endif //#if (CATOS_ENABLE_CPUUSAGE_STAT == 1)
 
 #endif /* #if (CATOS_CAT_SHELL_ENABLE == 1) */

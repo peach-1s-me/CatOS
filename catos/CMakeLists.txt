@@ -51,6 +51,7 @@ if(CATOS_TESTS)
 
         test/tests/lib_test/list_test.c
         test/tests/lib_test/dlist_test.c
+        test/tests/lib_test/str_test.c
 
         test/tests/mem_test/mem_test.c
     )

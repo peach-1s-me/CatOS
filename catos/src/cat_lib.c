@@ -583,6 +583,76 @@ cat_i32 cat_itoh(char *dst, cat_u32 num)
     return idx;
 }
 
+cat_err cat_atof(cat_double *dst, const char *src)
+{
+    CAT_ASSERT(dst);
+    CAT_ASSERT(src);
+
+    cat_err ret = CAT_EOK;
+    cat_double temp = 0;
+    char sign = src[0];
+
+    /* 处理符号 */
+    if (('-' == *src) || ('+' == *src))
+    {
+        src++;
+    }
+
+    /* 处理整数部分 */
+    while ('\0' != *src && '.' != *src)
+    {
+        if ((*src < '0') || (*src > '9'))
+        {
+            ret = CAT_ERROR;
+            break;
+        }
+        temp = temp * 10 + (*src - '0');
+        src++;
+    }
+
+    /* 处理小数部分 */
+    cat_double denominator = 10.0;
+    if(CAT_EOK == ret && '.' == *src)
+    {
+        src++;
+        while('\0' != *src)
+        {
+            if ((*src < '0') || (*src > '9'))
+            {
+                ret = CAT_ERROR;
+                break;
+            }
+            temp = temp + (*src - '0') / denominator;
+            denominator *= 10.0;
+            src++;
+        }
+    }
+
+    if ('-' == sign)
+    {
+        temp = -temp;
+    }
+
+    if(CAT_EOK == ret)
+    {
+        *dst = temp;
+    }
+    else
+    {
+        *dst = 0;
+    }
+
+    return ret;
+}
+
+cat_err cat_ftoa(char *dst, cat_double src)
+{
+    (void)dst;
+    (void)src;
+
+    return CAT_EOK;
+}
+
 /**
  * @brief 格式化内存块
  *

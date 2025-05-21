@@ -187,20 +187,24 @@ void cat_parse_args(cat_shell_instance_t *inst)
 
     cat_u16 i = 0;
 
-    /* 初始化，清空上一次的记录 */
+    /* 1.初始化，清空上一次的记录 */
     inst->buffer.arg_num = 0;
     for(i=0; i<CAT_MAX_CMD_ARGS; i++)
     {
         inst->buffer.args[i] = CAT_NULL;
     }
 
-    /* 要先跳过命令的名称 */
+    /* 2.先存命令名称 */
+    inst->buffer.args[inst->buffer.arg_num++] = &(inst->buffer.buf[0]);
+
+    /* 3.跳过命令名称 */
     i = 0;
-    while(' ' != inst->buffer.buf[i])
+    while(i<inst->buffer.length && ' ' != inst->buffer.buf[i])
     {
         i++;
     }
 
+    /* 4.按空格分隔处理参数 */
     for(; i<inst->buffer.length; i++)
     {
         /* 一个空格分隔 */
