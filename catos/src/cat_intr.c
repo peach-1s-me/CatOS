@@ -25,7 +25,8 @@ static volatile cat_u8 cat_irq_disable_nest = 0;/**< 关中断嵌套层数(以�
 
 static volatile cat_u8 cat_intr_nest = 0;/**< 中断嵌套层数 */
 
-cat_bool catos_is_scheduling(void); /* from cat_task.c */
+cat_bool catos_is_scheduling(void);          /* from cat_task.c */
+void cat_task_clear_occupied_ticks(void);    /* from cat_task.c */
 
 /* funcs */
 /**
@@ -120,6 +121,15 @@ void cat_intr_systemtick_handler(void)
         cat_task_delay_deal();
         /* 系统tick数 */
         catos_systicks++;
+
+#if (CATOS_ENABLE_CPU_USAGE == 1)
+        /* 增加任务占有tick数 */
+        cur->occupied_ticks++;
+        if(0 == catos_systicks)
+        {
+            cat_task_clear_occupied_ticks();
+        }
+#endif
         cat_irq_enable();
         
         /* 进行一次调度 */

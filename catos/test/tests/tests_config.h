@@ -20,7 +20,7 @@
 
 #define TESTS_IPC_BASIC     0 /* 测试基础ipc */
 #define TESTS_IPC_MQ        0 /* 测试消息队列 */
-#define TESTS_IPC_PV        0 /* 测试优先级反转 */
+#define TESTS_IPC_PV        1 /* 测试优先级反转 */
 #define TESTS_IPC_MUT       0 /* 测试互斥量 */
 #define TESTS_IPC_SEM       0 /* 测试信号量 */
 

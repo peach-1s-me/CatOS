@@ -42,7 +42,6 @@ struct _cat_task_t
     const char         *task_name;                      /**< 任务名称*/
     cat_u8              sched_strategy;                 /**< 调度策略 */
 
-
     void              (*entry)(void *);                 /**< 入口函数 */
     void               *arg;                            /**< 入口函数的参数 */
     void               *stack_start_addr;               /**< 堆栈起始地址*/
@@ -58,6 +57,10 @@ struct _cat_task_t
     cat_u32             suspend_cnt;                    /**< 被挂起的次数*/
 
     cat_u32             sched_times;                    /**< 调度次数*/
+#if (CATOS_ENABLE_CPU_USAGE == 1)
+    cat_u32             occupied_ticks;                 /**< 占有的tick数 */
+    cat_u8              cpu_usage;                      /**< cpu利用率 */
+#endif
 
     cat_node_t          ipc_wait_node;                  /**< 用于等待ipc的链表节点 */
     cat_ipc_t          *ipc_wait;                      /**< 等待的ipc(TODO:支持同时等待多个?) */

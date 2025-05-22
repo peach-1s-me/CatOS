@@ -27,7 +27,7 @@
         },
         {
             "cwd": "${workspaceRoot}",
-            "executable": "${workspaceFolder}\\output\\blink_with_reg\\blink_with_reg.elf",
+            "executable": "${workspaceFolder}\\output\\blink_cube\\blink_cube.elf",
             "name": "stm32f1x-dap",
             "request": "launch",
             "type": "cortex-debug",

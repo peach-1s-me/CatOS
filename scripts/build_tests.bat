@@ -6,7 +6,7 @@
 
 :: 设置第一个参数为项目名称
 set project=%1
-@REM echo project=%project%
+::  echo project=%project%
 
 if "%1" == "" (
     echo "ERROR: no project specified!"
@@ -66,8 +66,8 @@ if not exist %build_dir_name% (
 
     :: 构建, 创建 makefile
     cmake ../.. -D USER_PROJECT=%project% -D CATOS_TESTS=ON -G "Unix Makefiles" 
-    @REM 加VERBOSE=1打印详细make过程
-    @REM make VERBOSE=1
+    ::  加VERBOSE=1打印详细make过程
+    ::  make VERBOSE=1
     make
 ) else (
     echo project exists, making...
@@ -78,5 +78,5 @@ if not exist %build_dir_name% (
 
 
 
-@REM cmake ../.. -D p=%project% -G "Unix Makefiles" --debug-output
-@REM make
+::  cmake ../.. -D p=%project% -G "Unix Makefiles" --debug-output
+::  make

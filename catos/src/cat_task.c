@@ -98,6 +98,9 @@ static void cat_task_init(
     task->suspend_cnt = 0;
 
     task->sched_times = 0;
+#if (CATOS_ENABLE_CPU_USAGE == 1)
+    task->occupied_ticks = 0;
+#endif
 
     cat_list_node_init(&(task->ipc_wait_node));
     task->ipc_wait = CAT_NULL;
@@ -790,6 +793,48 @@ cat_err cat_task_get_error(void)
     return cat_task_current->error;
 }
 
+#if (CATOS_ENABLE_CPU_USAGE == 1)
+/**
+ * @brief 清除所有任务的占有tick数
+ * 
+ */
+void cat_task_clear_occupied_ticks(void)
+{
+    cat_node_t *tmp = CAT_NULL;
+
+    CAT_LIST_FOREACH_NO_REMOVE(&cat_task_manage_list, tmp)
+    {
+        /* 获取任务结构体指针 */
+        cat_task_t *task = CAT_GET_CONTAINER(tmp, cat_task_t, manage_node);
+
+        task->occupied_ticks = 0;
+    }
+}
+
+void cat_task_usage_caculate(void)
+{
+    cat_node_t *tmp = CAT_NULL;
+
+    CAT_LIST_FOREACH_NO_REMOVE(&cat_task_manage_list, tmp)
+    {
+        /* 获取任务结构体指针 */
+        cat_task_t *task = CAT_GET_CONTAINER(tmp, cat_task_t, manage_node);
+
+        cat_u32 tick_all  = catos_get_systick();
+        cat_u32 tick_task = task->occupied_ticks;
+        cat_u8 usage = 0;
+        if(tick_all > 100)
+        {
+            tick_all  /= 100;
+            usage = tick_task / tick_all;
+        }
+        cat_irq_disable();
+        task->cpu_usage = usage;
+        cat_irq_enable();
+    }
+}
+#endif
+
 
 /* 打印任务信息 */
 
@@ -814,6 +859,9 @@ typedef struct
     cat_u32 suspend_cnt; /**< 被挂起的次数*/
 
     cat_u32 sched_times; /**< 调度次数*/
+#if (CATOS_ENABLE_CPU_USAGE == 1)
+    cat_u8 cpu_usage;    /**< cpu利用率 */
+#endif
 
     // cat_node_t *manage_node;                    /**< 用于管理的链表节点 */
 } cat_task_info_t;
@@ -877,7 +925,11 @@ void *do_ps(void *arg)
     cat_ubase *p = CAT_NULL;
 
     cat_kprintf("-----------------------------------------------------------------------------------------\r\n");
-    cat_kprintf("| task_name    | stragegy | prio | state    | stk_sz | stk_top    | stk_use | stk_max |\r\n");
+#if (CATOS_ENABLE_CPU_USAGE == 1)
+    cat_kprintf("| task_name    | cpu | strategy | prio | state    | stk_sz | stk_top    | stk/max |\r\n");
+#else
+    cat_kprintf("| task_name    | strategy | prio | state    | stk_sz | stk_top    | stk_use | stk_max |\r\n");
+#endif
     cat_kprintf("-----------------------------------------------------------------------------------------\r\n");
 
     CAT_LIST_FOREACH_NO_REMOVE(&cat_task_manage_list, tmp)
@@ -888,6 +940,9 @@ void *do_ps(void *arg)
         /* 在临界区复制需要的值 */
         cat_irq_disable();
         info.task_name = task->task_name;
+#if (CATOS_ENABLE_CPU_USAGE == 1)
+        info.cpu_usage = task->cpu_usage; 
+#endif
         info.sched_strategy = task->sched_strategy;
         info.prio = task->prio;
         info.state = task->state;
@@ -904,6 +959,19 @@ void *do_ps(void *arg)
             }
         }
 
+#if (CATOS_ENABLE_CPU_USAGE == 1)
+        cat_kprintf(
+            "| %12s | %3d | %8s | %4d | %8s | %6d | %8x | %3d/%-3d |\r\n",
+            info.task_name,
+            info.cpu_usage,
+            strategy_name_map[info.sched_strategy],
+            info.prio,
+            get_state_name(info.state),
+            info.stack_size,
+            info.sp,
+            (100 - (((cat_ubase)info.sp - (cat_ubase)info.stack_start_addr) * 100 / info.stack_size)),
+            (100 - (((cat_ubase)p - (cat_ubase)info.stack_start_addr) * 100 / info.stack_size)));
+#else
         cat_kprintf(
             "| %12s | %8s | %4d | %8s | %6d | %8x | %6d | %7d |\r\n",
             info.task_name,
@@ -914,6 +982,7 @@ void *do_ps(void *arg)
             info.sp,
             (100 - (((cat_ubase)info.sp - (cat_ubase)info.stack_start_addr) * 100 / info.stack_size)),
             (100 - (((cat_ubase)p - (cat_ubase)info.stack_start_addr) * 100 / info.stack_size)));
+#endif
         // cat_kprintf("------------------------------------------------------------------------------\r\n");
     }
 

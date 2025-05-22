@@ -29,6 +29,9 @@ cat_u32 idle_max_cnt;                                  /**< 最大节拍输(现�
 
 /* funcs decl */
 void cat_idle_entry(void *arg);
+#if (CATOS_ENABLE_CPU_USAGE == 1)
+    void cat_task_usage_caculate(void); /* from cat_task.c */
+#endif
 
 
 void cat_idle_task_create(void)
@@ -58,7 +61,9 @@ void cat_idle_entry(void *arg)
 	
     for(;;)
     {
-
+#if (CATOS_ENABLE_CPU_USAGE == 1)
+        cat_task_usage_caculate();
+#endif
     }
 }
 

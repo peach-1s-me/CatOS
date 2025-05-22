@@ -120,21 +120,6 @@ void *do_clear(void *arg)
 }
 CAT_DECLARE_CMD(clear, clear screen, do_clear);
 
-#if (CATOS_ENABLE_CPUUSAGE_STAT == 1)
-void *do_cpu_usage(void *arg)
-{
-    (void)arg;
-    cat_u32 usage_integer, usage_decimal;
-
-    cat_cpu_usage_get(&usage_integer, &usage_decimal);
-
-    cat_printf("[cpu_usage] %d.%d\r\n", usage_integer, usage_decimal);
-
-    return CAT_NULL;
-}
-CAT_DECLARE_CMD(cpu_usage, get cpu usage, do_cpu_usage);
-#endif //#if (CATOS_ENABLE_CPUUSAGE_STAT == 1)
-
 #if 0
 void *do_test_cmd(void *arg)
 {

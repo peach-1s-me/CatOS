@@ -41,7 +41,8 @@
 
 #define CATOS_IDLE_STACK_SIZE        1024     /**< 空闲任务栈大小*/
 /** 可选系统功能 */
-#define CATOS_ENABLE_CPU_USAGE       1
+#define CATOS_ENABLE_CPU_USAGE       1        /**< 启用cpu使用率统计 */
+#define CATOS_CPU_USAGE_FREQ_TICK    10000    /**< cpu使用率统计周期(需满足<(cat_ubase/100)) */
 
 /* 标准输入输出 */
 #define CATOS_STDIO_ENABLE           1        /**< 使用标准输入输出 */

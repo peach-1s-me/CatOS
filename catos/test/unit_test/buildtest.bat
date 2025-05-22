@@ -29,8 +29,8 @@ if not exist %build_dir_name% (
 
     :: 构建, 创建 makefile
     cmake ../.. -G "Unix Makefiles"
-    @REM 加VERBOSE=1打印详细make过程
-    @REM make VERBOSE=1
+    ::  加VERBOSE=1打印详细make过程
+    ::  make VERBOSE=1
     make
 ) else (
     echo project exists, making...
@@ -41,5 +41,5 @@ if not exist %build_dir_name% (
 
 
 
-@REM cmake ../.. -D p=%project% -G "Unix Makefiles" --debug-output
-@REM make
+::  cmake ../.. -D p=%project% -G "Unix Makefiles" --debug-output
+::  make
